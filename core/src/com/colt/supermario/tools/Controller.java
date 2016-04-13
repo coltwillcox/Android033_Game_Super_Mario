@@ -107,7 +107,7 @@ public class Controller {
         });
 
         //AB buttons with images.
-        buttonA = new Image(new Texture("graphics/buttonup.png"));
+        buttonA = new Image(new Texture("graphics/buttona.png"));
         buttonA.setSize(25, 25);
         buttonA.addListener(new InputListener() {
             @Override
@@ -122,7 +122,7 @@ public class Controller {
                 aPressed = false;
             }
         });
-        buttonB = new Image(new Texture("graphics/buttonup.png"));
+        buttonB = new Image(new Texture("graphics/buttonb.png"));
         buttonB.setSize(25, 25);
         buttonB.addListener(new InputListener() {
             @Override
@@ -141,7 +141,7 @@ public class Controller {
         //Table with directional buttons.
         tableDirectional = new Table();
         tableDirectional.setFillParent(true);
-        tableDirectional.setDebug(true);
+        //tableDirectional.setDebug(true); //Render debug lines.
         tableDirectional.left().bottom().pad(5, 5, 5, 5); //Align to the left bottom.
         tableDirectional.add().space(5);
         tableDirectional.add(buttonUp).size(buttonUp.getWidth(), buttonUp.getHeight()).space(5);
@@ -158,7 +158,7 @@ public class Controller {
         //Table with AB buttons.
         tableAB = new Table();
         tableAB.setFillParent(true);
-        tableAB.setDebug(true);
+        //tableAB.setDebug(true);
         tableAB.bottom().right().pad(5, 5, 5, 5);
         tableAB.add().space(5);
         tableAB.add(buttonB).size(buttonB.getWidth(), buttonB.getHeight()).space(5);
