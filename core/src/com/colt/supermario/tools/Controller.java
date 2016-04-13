@@ -25,12 +25,17 @@ public class Controller {
     public boolean downPressed;
     public boolean leftPressed;
     public boolean rightPressed;
+    public boolean aPressed;
+    public boolean bPressed;
     public Image buttonUp;
     public Image buttonDown;
     public Image buttonLeft;
     public Image buttonRight;
+    public Image buttonA;
+    public Image buttonB;
     public OrthographicCamera camera;
-    public Table table;
+    public Table tableDirectional;
+    public Table tableAB;
 
     //Constructor.
     public Controller(SpriteBatch spriteBatch) {
@@ -39,13 +44,14 @@ public class Controller {
         stage = new Stage(viewport, spriteBatch);
         Gdx.input.setInputProcessor(stage);
 
-        //Buttons with images.
+        //Directional buttons with images.
         buttonUp = new Image(new Texture("graphics/buttonup.png"));
         buttonUp.setSize(25, 25);
         buttonUp.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 upPressed = true;
+                Gdx.input.vibrate(50);
                 return true;
             }
 
@@ -60,6 +66,7 @@ public class Controller {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 downPressed = true;
+                Gdx.input.vibrate(50);
                 return true;
             }
 
@@ -74,6 +81,7 @@ public class Controller {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 leftPressed = true;
+                Gdx.input.vibrate(50);
                 return true;
             }
 
@@ -88,6 +96,7 @@ public class Controller {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 rightPressed = true;
+                Gdx.input.vibrate(50);
                 return true;
             }
 
@@ -97,22 +106,68 @@ public class Controller {
             }
         });
 
-        //Table with buttons.
-        table = new Table();
-        table.left().bottom(); //Align to the left bottom.
-        table.add();
-        table.add(buttonUp).size(buttonUp.getWidth(), buttonUp.getHeight());
-        table.add();
-        table.row().pad(5, 5, 5, 5);
-        table.add(buttonLeft).size(buttonLeft.getWidth(), buttonLeft.getHeight());
-        table.add();
-        table.add(buttonRight).size(buttonRight.getWidth(), buttonRight.getHeight());
-        table.row().padBottom(5);
-        table.add();
-        table.add(buttonDown).size(buttonDown.getWidth(), buttonDown.getHeight());
-        table.add();
+        //AB buttons with images.
+        buttonA = new Image(new Texture("graphics/buttonup.png"));
+        buttonA.setSize(25, 25);
+        buttonA.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                aPressed = true;
+                Gdx.input.vibrate(50);
+                return true;
+            }
 
-        stage.addActor(table);
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                aPressed = false;
+            }
+        });
+        buttonB = new Image(new Texture("graphics/buttonup.png"));
+        buttonB.setSize(25, 25);
+        buttonB.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                bPressed = true;
+                Gdx.input.vibrate(50);
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                bPressed = false;
+            }
+        });
+
+        //Table with directional buttons.
+        tableDirectional = new Table();
+        tableDirectional.setFillParent(true);
+        tableDirectional.setDebug(true);
+        tableDirectional.left().bottom().pad(5, 5, 5, 5); //Align to the left bottom.
+        tableDirectional.add().space(5);
+        tableDirectional.add(buttonUp).size(buttonUp.getWidth(), buttonUp.getHeight()).space(5);
+        tableDirectional.add().space(5);
+        tableDirectional.row();
+        tableDirectional.add(buttonLeft).size(buttonLeft.getWidth(), buttonLeft.getHeight()).space(5);
+        tableDirectional.add().space(5);
+        tableDirectional.add(buttonRight).size(buttonRight.getWidth(), buttonRight.getHeight()).space(5);
+        tableDirectional.row();
+        tableDirectional.add().space(5);
+        tableDirectional.add(buttonDown).size(buttonDown.getWidth(), buttonDown.getHeight()).space(5);
+        tableDirectional.add().space(5);
+
+        //Table with AB buttons.
+        tableAB = new Table();
+        tableAB.setFillParent(true);
+        tableAB.setDebug(true);
+        tableAB.bottom().right().pad(5, 5, 5, 5);
+        tableAB.add().space(5);
+        tableAB.add(buttonB).size(buttonB.getWidth(), buttonB.getHeight()).space(5);
+        tableAB.row().space(5);
+        tableAB.add(buttonA).size(buttonA.getWidth(), buttonA.getHeight()).space(5);
+        tableAB.add().space(5);
+
+        stage.addActor(tableDirectional);
+        stage.addActor(tableAB);
     }
 
     public void draw() {
@@ -138,6 +193,14 @@ public class Controller {
 
     public boolean isRightPressed() {
         return rightPressed;
+    }
+
+    public boolean isaPressed() {
+        return aPressed;
+    }
+
+    public boolean isbPressed() {
+        return bPressed;
     }
 
 }

@@ -5,18 +5,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -24,6 +17,7 @@ import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.tools.Controller;
+import com.colt.supermario.tools.WorldCreator;
 
 /**
  * Created by colt on 4/12/16.
@@ -68,71 +62,12 @@ public class ScreenPlay implements Screen {
 
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); //Center camera in the middle of the viewport.
         world = new World(new Vector2(0, -10), true); //Create world and give it x, y gravity vector.
-        b2ddr = new Box2DDebugRenderer();
+        b2ddr = new Box2DDebugRenderer(); //Debug lines in Box2D world.
+
+        new WorldCreator(world, map);
 
         mario = new Mario(world); //Player.
         controller = new Controller(game.batch);
-
-        BodyDef bdef = new BodyDef();
-        PolygonShape shape = new PolygonShape();
-        FixtureDef fdef = new FixtureDef();
-        Body body;
-
-        //Create ground bodies/fixtures.
-        for (MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            bdef.type = BodyDef.BodyType.StaticBody;
-            bdef.position.set((rect.getX() + rect.getWidth() / 2) / Boot.PPM, (rect.getY() + rect.getHeight() / 2) / Boot.PPM); //Get the centre of rect for positioning.
-
-            body = world.createBody(bdef);
-
-            shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
-            fdef.shape = shape;
-            body.createFixture(fdef);
-        }
-
-        //Create pipes bodies/fixtures.
-        for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            bdef.type = BodyDef.BodyType.StaticBody;
-            bdef.position.set((rect.getX() + rect.getWidth() / 2) / Boot.PPM, (rect.getY() + rect.getHeight() / 2) / Boot.PPM);
-
-            body = world.createBody(bdef);
-
-            shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
-            fdef.shape = shape;
-            body.createFixture(fdef);
-        }
-
-        //Create coins bodies/fixtures.
-        for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            bdef.type = BodyDef.BodyType.StaticBody;
-            bdef.position.set((rect.getX() + rect.getWidth() / 2) / Boot.PPM, (rect.getY() + rect.getHeight() / 2) / Boot.PPM);
-
-            body = world.createBody(bdef);
-
-            shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
-            fdef.shape = shape;
-            body.createFixture(fdef);
-        }
-
-        //Create bricks bodies/fixtures.
-        for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            bdef.type = BodyDef.BodyType.StaticBody;
-            bdef.position.set((rect.getX() + rect.getWidth() / 2) / Boot.PPM, (rect.getY() + rect.getHeight() / 2) / Boot.PPM);
-
-            body = world.createBody(bdef);
-
-            shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
-            fdef.shape = shape;
-            body.createFixture(fdef);
-        }
     }
 
     @Override
@@ -141,7 +76,7 @@ public class ScreenPlay implements Screen {
     }
 
     public void handleInput(float deltaTime) {
-        if (controller.isUpPressed() && mario.body.getLinearVelocity().y == 0)
+        if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0)
             mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - will this impulse wake object.
         if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
             mario.body.applyLinearImpulse(new Vector2(0.1f, 0), mario.body.getWorldCenter(), true);
@@ -170,7 +105,6 @@ public class ScreenPlay implements Screen {
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
-        //if (Gdx.app.getType() == Application.ApplicationType.Android) //Use to check and show controller only on android devices.
         controller.draw();
     }
 
@@ -197,7 +131,11 @@ public class ScreenPlay implements Screen {
 
     @Override
     public void dispose() {
-
+        map.dispose();
+        mapRenderer.dispose();
+        world.dispose();
+        b2ddr.dispose();
+        hud.dispose();
     }
 
 }
