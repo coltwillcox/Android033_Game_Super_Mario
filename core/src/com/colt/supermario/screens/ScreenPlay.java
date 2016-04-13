@@ -18,6 +18,7 @@ import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.tools.Controller;
+import com.colt.supermario.tools.WorldContactListener;
 import com.colt.supermario.tools.WorldCreator;
 
 /**
@@ -76,6 +77,8 @@ public class ScreenPlay implements Screen {
 
         //Controller.
         controller = new Controller(game.batch);
+
+        world.setContactListener(new WorldContactListener());
     }
 
     @Override

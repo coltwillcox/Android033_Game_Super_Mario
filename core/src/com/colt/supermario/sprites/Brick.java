@@ -12,6 +12,12 @@ public class Brick extends InteractiveTileObject {
 
     public Brick(World world, TiledMap map, Rectangle bounds) {
         super(world, map, bounds);
+        fixture.setUserData(this);
+    }
+
+    @Override
+    public void onHeadHit() {
+
     }
 
 }

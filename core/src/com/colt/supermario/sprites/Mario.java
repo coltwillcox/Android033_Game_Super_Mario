@@ -3,9 +3,11 @@ package com.colt.supermario.sprites;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -69,10 +71,24 @@ public class Mario extends Sprite {
         shape.setRadius(8 / Boot.PPM);
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef);
+
+        //Create Mario's head and make it a sensor for smashing objects.
+        EdgeShape head = new EdgeShape();
+        head.set(new Vector2(-2 / Boot.PPM, 8 / Boot.PPM), new Vector2(2 / Boot.PPM, 8 / Boot.PPM));
+        fixtureDef.shape = head;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef).setUserData("head");
+
+        //Create Mario's feet.
+        EdgeShape feet = new EdgeShape();
+        feet.set(new Vector2(-2 / Boot.PPM, -8 / Boot.PPM), new Vector2(2 / Boot.PPM, -8 / Boot.PPM));
+        fixtureDef.shape = feet;
+        fixtureDef.isSensor = false;
+        body.createFixture(fixtureDef);
     }
 
     public void update(float deltaTime) {
-        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
+        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (1 / Boot.PPM)); //Minus (1 / Boot.PPM) because of feet fixture.
         setRegion(getFrame(deltaTime));
     }
 
