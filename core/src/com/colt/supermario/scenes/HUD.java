@@ -46,7 +46,7 @@ public class HUD implements Disposable {
         viewport = new FitViewport(Boot.V_WIDTH, Boot.V_HEIGHT, camera);
         stage = new Stage(viewport, spriteBatch);
 
-        font = new BitmapFont(Gdx.files.internal("graphics/supermario.fnt"));
+        font = new BitmapFont(Gdx.files.internal("graphics/fontsupermario.fnt"));
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         font.getData().setScale(0.3f);
 

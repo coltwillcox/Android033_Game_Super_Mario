@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -27,9 +28,12 @@ public class ScreenPlay implements Screen {
 
     private Boot game;
     private HUD hud;
-    private Mario mario;
     private OrthographicCamera camera;
     private Viewport viewport;
+
+    //Player and enemies.
+    private Mario mario;
+    private TextureAtlas atlas;
 
     //Tiled map variables.
     private TmxMapLoader mapLoader;
@@ -66,7 +70,11 @@ public class ScreenPlay implements Screen {
 
         new WorldCreator(world, map);
 
-        mario = new Mario(world); //Player.
+        //Player.
+        atlas = new TextureAtlas("graphics/sprites.pack");
+        mario = new Mario(world, this);
+
+        //Controller.
         controller = new Controller(game.batch);
     }
 
@@ -87,6 +95,7 @@ public class ScreenPlay implements Screen {
     public void update(float deltaTime) {
         handleInput(deltaTime); //Handle user input first.
         world.step(1/60f, 6, 2);
+        mario.update(deltaTime);
         camera.position.x = mario.body.getPosition().x;
         camera.update(); //Update camera with correct coordinates after changes.
         mapRenderer.setView(camera); //Set renderer to draw only what camera can see in game world.
@@ -101,10 +110,18 @@ public class ScreenPlay implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mapRenderer.render(); //Render game map.
-        b2ddr.render(world, camera.combined); //Render B0x2DDebugLines.
+        b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
 
+        //Draw player.
+        game.batch.setProjectionMatrix(camera.combined);
+        game.batch.begin();
+        mario.draw(game.batch);
+        game.batch.end();
+
+        //Draw HUD.
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+
         controller.draw();
     }
 
@@ -127,6 +144,10 @@ public class ScreenPlay implements Screen {
     @Override
     public void hide() {
 
+    }
+
+    public TextureAtlas getAtlas() {
+        return atlas;
     }
 
     @Override
