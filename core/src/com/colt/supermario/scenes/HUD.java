@@ -58,7 +58,7 @@ public class HUD {
 
         table = new Table();
         table.setFillParent(true); //Table is size of Stage.
-        table.top();
+        table.top(); //Align to the top.
         table.add(marioLabel).expandX().padTop(10);
         table.add(worldLabel).expandX().padTop(10);
         table.add(timeLabel).expandX().padTop(10);
