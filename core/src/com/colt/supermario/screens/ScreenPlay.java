@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
+import com.colt.supermario.sprites.EnemyGoomba;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.tools.Controller;
 import com.colt.supermario.tools.WorldContactListener;
@@ -37,6 +38,7 @@ public class ScreenPlay implements Screen {
     //Player and enemies.
     private Mario mario;
     private TextureAtlas atlas;
+    private EnemyGoomba goomba;
 
     //Tiled map variables.
     private TmxMapLoader mapLoader;
@@ -78,12 +80,13 @@ public class ScreenPlay implements Screen {
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); //Center camera in the middle of the viewport.
         world = new World(new Vector2(0, -10), true); //Create world and give it x, y gravity vector.
         b2ddr = new Box2DDebugRenderer(); //Debug lines in Box2D world.
-        new WorldCreator(world, map, manager);
+        new WorldCreator(this, manager);
         world.setContactListener(new WorldContactListener());
 
-        //Player.
+        //Player and enemies.
         atlas = new TextureAtlas("graphic/sprites.pack");
-        mario = new Mario(world, this);
+        mario = new Mario(this);
+        goomba = new EnemyGoomba(this, .300f, .100f);
 
         //Controller.
         controller = new Controller(game.batch);
@@ -112,6 +115,7 @@ public class ScreenPlay implements Screen {
         handleInput(deltaTime); //Handle user input first.
         world.step(1/60f, 6, 2);
         mario.update(deltaTime);
+        goomba.update(deltaTime);
         hud.update(deltaTime);
         camera.position.x = mario.body.getPosition().x;
         camera.update(); //Update camera with correct coordinates after changes.
@@ -133,6 +137,7 @@ public class ScreenPlay implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         mario.draw(game.batch);
+        goomba.draw(game.batch);
         game.batch.end();
 
         //Draw HUD.
@@ -165,6 +170,14 @@ public class ScreenPlay implements Screen {
 
     public TextureAtlas getAtlas() {
         return atlas;
+    }
+
+    public TiledMap getMap() {
+        return map;
+    }
+
+    public World getWorld() {
+        return world;
     }
 
     @Override

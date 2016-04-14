@@ -2,12 +2,11 @@ package com.colt.supermario.sprites;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.physics.box2d.World;
 import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
+import com.colt.supermario.screens.ScreenPlay;
 
 /**
  * Created by colt on 4/13/16.
@@ -19,8 +18,8 @@ public class Coin extends InteractiveTileObject {
     private static TiledMapTileSet tileSet;
     private AssetManager manager;
 
-    public Coin(World world, TiledMap map, Rectangle bounds, AssetManager manager) {
-        super(world, map, bounds);
+    public Coin(ScreenPlay screen, Rectangle bounds, AssetManager manager) {
+        super(screen, bounds);
         this.manager = manager;
         tileSet = map.getTileSets().getTileSet("tileset"); //Name of the tileset from tmx file.
         fixture.setUserData(this);

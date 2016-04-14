@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.colt.supermario.Boot;
+import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Brick;
 import com.colt.supermario.sprites.Coin;
 
@@ -21,9 +22,13 @@ import com.colt.supermario.sprites.Coin;
 public class WorldCreator {
 
     private AssetManager manager;
+    private World world;
+    private TiledMap map;
 
-    public WorldCreator(World world, TiledMap map, AssetManager manager) {
+    public WorldCreator(ScreenPlay screen, AssetManager manager) {
         this.manager = manager;
+        this.world = screen.getWorld();
+        this.map = screen.getMap();
 
         //Create body and fixture variables.
         BodyDef bodyDef = new BodyDef();
@@ -55,6 +60,7 @@ public class WorldCreator {
             body = world.createBody(bodyDef);
 
             shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
+            fixtureDef.filter.categoryBits = Boot.OBJECT_BIT;
             fixtureDef.shape = shape;
             body.createFixture(fixtureDef);
         }
@@ -62,13 +68,13 @@ public class WorldCreator {
         //Create coins bodies/fixtures.
         for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            new Coin(world, map, rect, manager);
+            new Coin(screen, rect, manager);
         }
 
         //Create bricks bodies/fixtures.
         for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            new Brick(world, map, rect, manager);
+            new Brick(screen, rect, manager);
         }
     }
 
