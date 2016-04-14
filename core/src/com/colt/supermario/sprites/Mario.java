@@ -41,6 +41,9 @@ public class Mario extends Sprite {
         stateTimer = 0;
         runningRight = true;
 
+        //Mario standing.
+        marioStand = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 0, 0, 16, 16);
+
         //Animations.
         frames = new Array<TextureRegion>();
         //Run animation.
@@ -54,7 +57,6 @@ public class Mario extends Sprite {
         marioJump = new Animation(0.1f, frames);
         frames.clear();
 
-        marioStand = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 0, 0, 16, 16);
         defineMario();
         setBounds(0, 0, 16 / Boot.PPM, 16 / Boot.PPM);
         setRegion(marioStand);
@@ -69,20 +71,22 @@ public class Mario extends Sprite {
         FixtureDef fixtureDef = new FixtureDef();
         //fixtureDef.friction = 0.4f; //Stop Mario from iceskating! ;)
         CircleShape shape = new CircleShape();
-        shape.setRadius(8 / Boot.PPM);
+        shape.setRadius(7 / Boot.PPM);
+        fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
+        fixtureDef.filter.maskBits = Boot.DEFAULT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT; //Mario (fixture) will collide only with these BITS.
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef);
 
         //Create Mario's head and make it a sensor for smashing objects.
         EdgeShape head = new EdgeShape();
-        head.set(new Vector2(-2 / Boot.PPM, 8 / Boot.PPM), new Vector2(2 / Boot.PPM, 8 / Boot.PPM));
+        head.set(new Vector2(-2 / Boot.PPM, 7 / Boot.PPM), new Vector2(2 / Boot.PPM, 7 / Boot.PPM));
         fixtureDef.shape = head;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData("head");
 
         //Create Mario's feet.
         EdgeShape feet = new EdgeShape();
-        feet.set(new Vector2(-2 / Boot.PPM, -8 / Boot.PPM), new Vector2(2 / Boot.PPM, -8 / Boot.PPM));
+        feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
         fixtureDef.shape = feet;
         fixtureDef.isSensor = false;
         body.createFixture(fixtureDef);
