@@ -86,7 +86,7 @@ public class ScreenPlay implements Screen {
         //Player and enemies.
         atlas = new TextureAtlas("graphic/sprites.pack");
         mario = new Mario(this);
-        goomba = new EnemyGoomba(this, .300f, .100f);
+        goomba = new EnemyGoomba(this, .64f, .32f);
 
         //Controller.
         controller = new Controller(game.batch);
@@ -113,7 +113,7 @@ public class ScreenPlay implements Screen {
 
     public void update(float deltaTime) {
         handleInput(deltaTime); //Handle user input first.
-        world.step(1/60f, 6, 2);
+        world.step(1 / 60f, 6, 2); //Takes 1 step in the physics simulation (60 times per second).
         mario.update(deltaTime);
         goomba.update(deltaTime);
         hud.update(deltaTime);
@@ -133,7 +133,7 @@ public class ScreenPlay implements Screen {
         mapRenderer.render(); //Render game map.
         b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
 
-        //Draw player.
+        //Draw player and enemies.
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         mario.draw(game.batch);

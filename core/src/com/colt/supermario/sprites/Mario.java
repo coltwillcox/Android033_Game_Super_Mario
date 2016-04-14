@@ -75,9 +75,9 @@ public class Mario extends Sprite {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.friction = 0.4f; //Stop Mario from iceskating! ;)
         CircleShape shape = new CircleShape();
-        shape.setRadius(7 / Boot.PPM);
+        shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.ENEMY_BIT; //Mario (fixture) will collide only with these BITS.
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT; //Mario (fixture) will collide only with these BITS.
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef);
 
