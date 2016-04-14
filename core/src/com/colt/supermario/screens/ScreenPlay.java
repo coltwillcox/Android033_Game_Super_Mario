@@ -99,6 +99,7 @@ public class ScreenPlay implements Screen {
         handleInput(deltaTime); //Handle user input first.
         world.step(1/60f, 6, 2);
         mario.update(deltaTime);
+        hud.update(deltaTime);
         camera.position.x = mario.body.getPosition().x;
         camera.update(); //Update camera with correct coordinates after changes.
         mapRenderer.setView(camera); //Set renderer to draw only what camera can see in game world.

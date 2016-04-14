@@ -22,9 +22,10 @@ import com.colt.supermario.Boot;
 public class HUD implements Disposable {
 
     public Stage stage;
+    private static Integer score;
+    private static Label scoreLabel;
     private float timeCount;
     private Integer worldTimer;
-    private Integer score;
     private Viewport viewport; //HUD have its own camera and viewport.
     private Camera camera;
     private BitmapFont font;
@@ -32,7 +33,6 @@ public class HUD implements Disposable {
     private Label marioLabel;
     private Label worldLabel;
     private Label timeLabel;
-    private Label scoreLabel;
     private Label levelLabel;
     private Label countdownLabel;
 
@@ -69,6 +69,20 @@ public class HUD implements Disposable {
         table.add(countdownLabel).expandX();
         
         stage.addActor(table);
+    }
+
+    public void update(float deltaTime) {
+        timeCount += deltaTime;
+        if (timeCount >= 1) {
+            worldTimer--;
+            countdownLabel.setText(String.format("%03d", worldTimer));
+            timeCount = 0;
+        }
+    }
+
+    public static void addScore(int scoreToAdd) {
+        score += scoreToAdd;
+        scoreLabel.setText(String.format("%06d", score));
     }
 
     @Override
