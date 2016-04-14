@@ -69,7 +69,7 @@ public class Mario extends Sprite {
         body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
-        //fixtureDef.friction = 0.4f; //Stop Mario from iceskating! ;)
+        fixtureDef.friction = 0.4f; //Stop Mario from iceskating! ;)
         CircleShape shape = new CircleShape();
         shape.setRadius(7 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;

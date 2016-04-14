@@ -19,21 +19,21 @@ import com.colt.supermario.Boot;
 
 public class Controller {
 
-    public Viewport viewport;
-    public Stage stage;
     public boolean upPressed;
     public boolean downPressed;
     public boolean leftPressed;
     public boolean rightPressed;
     public boolean aPressed;
     public boolean bPressed;
+    public Stage stage;
+    public Viewport viewport;
+    public OrthographicCamera camera;
     public Image buttonUp;
     public Image buttonDown;
     public Image buttonLeft;
     public Image buttonRight;
     public Image buttonA;
     public Image buttonB;
-    public OrthographicCamera camera;
     public Table tableDirectional;
     public Table tableAB;
 
@@ -45,7 +45,7 @@ public class Controller {
         Gdx.input.setInputProcessor(stage);
 
         //Directional buttons with images.
-        buttonUp = new Image(new Texture("graphics/buttonup.png"));
+        buttonUp = new Image(new Texture("graphic/buttonup.png"));
         buttonUp.setSize(25, 25);
         buttonUp.addListener(new InputListener() {
             @Override
@@ -60,7 +60,7 @@ public class Controller {
                 upPressed = false;
             }
         });
-        buttonDown = new Image(new Texture("graphics/buttondown.png"));
+        buttonDown = new Image(new Texture("graphic/buttondown.png"));
         buttonDown.setSize(25, 25);
         buttonDown.addListener(new InputListener() {
             @Override
@@ -75,7 +75,7 @@ public class Controller {
                 downPressed = false;
             }
         });
-        buttonLeft = new Image(new Texture("graphics/buttonleft.png"));
+        buttonLeft = new Image(new Texture("graphic/buttonleft.png"));
         buttonLeft.setSize(25, 25);
         buttonLeft.addListener(new InputListener() {
             @Override
@@ -90,7 +90,7 @@ public class Controller {
                 leftPressed = false;
             }
         });
-        buttonRight = new Image(new Texture("graphics/buttonright.png"));
+        buttonRight = new Image(new Texture("graphic/buttonright.png"));
         buttonRight.setSize(25, 25);
         buttonRight.addListener(new InputListener() {
             @Override
@@ -107,7 +107,7 @@ public class Controller {
         });
 
         //AB buttons with images.
-        buttonA = new Image(new Texture("graphics/buttona.png"));
+        buttonA = new Image(new Texture("graphic/buttona.png"));
         buttonA.setSize(25, 25);
         buttonA.addListener(new InputListener() {
             @Override
@@ -122,7 +122,7 @@ public class Controller {
                 aPressed = false;
             }
         });
-        buttonB = new Image(new Texture("graphics/buttonb.png"));
+        buttonB = new Image(new Texture("graphic/buttonb.png"));
         buttonB.setSize(25, 25);
         buttonB.addListener(new InputListener() {
             @Override

@@ -1,5 +1,6 @@
 package com.colt.supermario.tools;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -19,7 +20,11 @@ import com.colt.supermario.sprites.Coin;
 
 public class WorldCreator {
 
-    public WorldCreator(World world, TiledMap map) {
+    private AssetManager manager;
+
+    public WorldCreator(World world, TiledMap map, AssetManager manager) {
+        this.manager = manager;
+
         //Create body and fixture variables.
         BodyDef bodyDef = new BodyDef();
         PolygonShape shape = new PolygonShape();
@@ -57,13 +62,13 @@ public class WorldCreator {
         //Create coins bodies/fixtures.
         for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            new Coin(world, map, rect);
+            new Coin(world, map, rect, manager);
         }
 
         //Create bricks bodies/fixtures.
         for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            new Brick(world, map, rect);
+            new Brick(world, map, rect, manager);
         }
     }
 

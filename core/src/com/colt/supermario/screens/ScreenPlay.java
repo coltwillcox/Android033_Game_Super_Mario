@@ -2,6 +2,8 @@ package com.colt.supermario.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -48,9 +50,16 @@ public class ScreenPlay implements Screen {
     //Joypad-like controller.
     private Controller controller;
 
+    //Asset manager.
+    private AssetManager manager;
+
+    //Audio.
+    private Music music;
+
     //Constructor.
-    public ScreenPlay(Boot game) {
+    public ScreenPlay(Boot game, AssetManager manager) {
         this.game = game;
+        this.manager = manager;
         camera = new OrthographicCamera(); //Camera to follow Mario.
         viewport = new FitViewport(Boot.V_WIDTH / Boot.PPM, Boot.V_HEIGHT / Boot.PPM, camera); //Viewports cam be Fit, Screen, Stretch...
         hud = new HUD(game.batch); //HUD for scores, timers, infos...
@@ -62,23 +71,27 @@ public class ScreenPlay implements Screen {
 
         //Load map and setup map renderer.
         mapLoader = new TmxMapLoader();
-        map = mapLoader.load("graphics/level11.tmx", params);
+        map = mapLoader.load("graphic/level11.tmx", params);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / Boot.PPM);
 
+        //Camera and world.
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); //Center camera in the middle of the viewport.
         world = new World(new Vector2(0, -10), true); //Create world and give it x, y gravity vector.
         b2ddr = new Box2DDebugRenderer(); //Debug lines in Box2D world.
-
-        new WorldCreator(world, map);
+        new WorldCreator(world, map, manager);
+        world.setContactListener(new WorldContactListener());
 
         //Player.
-        atlas = new TextureAtlas("graphics/sprites.pack");
+        atlas = new TextureAtlas("graphic/sprites.pack");
         mario = new Mario(world, this);
 
         //Controller.
         controller = new Controller(game.batch);
 
-        world.setContactListener(new WorldContactListener());
+        //Audio.
+        music = manager.get("audio/music.ogg", Music.class);
+        music.setLooping(true);
+        music.play();
     }
 
     @Override
@@ -90,9 +103,9 @@ public class ScreenPlay implements Screen {
         if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0)
             mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - will this impulse wake object.
         if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
-            mario.body.applyLinearImpulse(new Vector2(0.1f, 0), mario.body.getWorldCenter(), true);
+            mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
         if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)
-            mario.body.applyLinearImpulse(new Vector2(-0.1f, 0), mario.body.getWorldCenter(), true);
+            mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
     }
 
     public void update(float deltaTime) {
