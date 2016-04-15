@@ -92,9 +92,9 @@ public class ScreenPlay implements Screen {
         controller = new Controller(game.batch);
 
         //Audio.
-        music = manager.get("audio/music.ogg", Music.class);
-        music.setLooping(true);
-        music.play();
+        //music = manager.get("audio/music.ogg", Music.class);
+        //music.setLooping(true);
+        //music.play();
     }
 
     @Override
