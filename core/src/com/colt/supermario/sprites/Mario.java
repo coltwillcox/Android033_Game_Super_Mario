@@ -61,11 +61,6 @@ public class Mario extends Sprite {
         setRegion(animationStand);
     }
 
-    public void update(float deltaTime) {
-        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (1 / Boot.PPM)); //Minus (1 / Boot.PPM) because of feet fixture.
-        setRegion(getFrame(deltaTime));
-    }
-
     public void defineMario() {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(32 / Boot.PPM, 64 / Boot.PPM);
@@ -94,6 +89,11 @@ public class Mario extends Sprite {
         fixtureDef.shape = feet;
         fixtureDef.isSensor = false;
         body.createFixture(fixtureDef);
+    }
+
+    public void update(float deltaTime) {
+        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (1 / Boot.PPM)); //Minus (1 / Boot.PPM) because of feet fixture.
+        setRegion(getFrame(deltaTime));
     }
 
     public TextureRegion getFrame(float deltaTime) {

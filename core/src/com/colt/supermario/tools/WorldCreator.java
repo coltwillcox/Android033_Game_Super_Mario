@@ -10,10 +10,12 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Brick;
 import com.colt.supermario.sprites.Coin;
+import com.colt.supermario.sprites.EnemyGoomba;
 
 /**
  * Created by colt on 4/13/16.
@@ -24,6 +26,7 @@ public class WorldCreator {
     private AssetManager manager;
     private World world;
     private TiledMap map;
+    private Array<EnemyGoomba> goombas;
 
     public WorldCreator(ScreenPlay screen, AssetManager manager) {
         this.manager = manager;
@@ -76,6 +79,18 @@ public class WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             new Brick(screen, rect, manager);
         }
+
+        //Create goombas.
+        goombas = new Array<EnemyGoomba>();
+        for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            goombas.add(new EnemyGoomba(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM));
+        }
+    }
+
+    //Getter.
+    public Array<EnemyGoomba> getGoombas() {
+        return goombas;
     }
 
 }

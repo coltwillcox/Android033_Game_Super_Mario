@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
+import com.colt.supermario.sprites.Enemy;
 import com.colt.supermario.sprites.EnemyGoomba;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.tools.Controller;
@@ -31,14 +32,14 @@ import com.colt.supermario.tools.WorldCreator;
 public class ScreenPlay implements Screen {
 
     private Boot game;
-    private HUD hud;
+
+    //Textures.
+    private TextureAtlas atlas;
+
+    //Camera, Viewport, HUD.
     private OrthographicCamera camera;
     private Viewport viewport;
-
-    //Player and enemies.
-    private Mario mario;
-    private TextureAtlas atlas;
-    private EnemyGoomba goomba;
+    private HUD hud;
 
     //Tiled map variables.
     private TmxMapLoader mapLoader;
@@ -48,6 +49,10 @@ public class ScreenPlay implements Screen {
     //Box2D variables.
     private World world;
     private Box2DDebugRenderer b2ddr;
+    private WorldCreator worldCreator;
+
+    //Player and enemies.
+    private Mario mario;
 
     //Joypad-like controller.
     private Controller controller;
@@ -62,11 +67,16 @@ public class ScreenPlay implements Screen {
     public ScreenPlay(Boot game, AssetManager manager) {
         this.game = game;
         this.manager = manager;
-        camera = new OrthographicCamera(); //Camera to follow Mario.
-        viewport = new FitViewport(Boot.V_WIDTH / Boot.PPM, Boot.V_HEIGHT / Boot.PPM, camera); //Viewports cam be Fit, Screen, Stretch...
-        hud = new HUD(game.batch); //HUD for scores, timers, infos...
 
-        //Parameters for tiled texture rendering.
+        //Textures.
+        atlas = new TextureAtlas("graphic/sprites.pack");
+
+        //Camera to follow Mario, Viewport, HUD.
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(Boot.V_WIDTH / Boot.PPM, Boot.V_HEIGHT / Boot.PPM, camera);
+        hud = new HUD(game.batch);
+
+        //Parameters for tiled texture rendering. Change Nearest to Linear for filtering.
         TmxMapLoader.Parameters params = new TmxMapLoader.Parameters();
         params.textureMinFilter = Texture.TextureFilter.Nearest;
         params.textureMagFilter = Texture.TextureFilter.Nearest;
@@ -76,17 +86,15 @@ public class ScreenPlay implements Screen {
         map = mapLoader.load("graphic/level11.tmx", params);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / Boot.PPM);
 
-        //Camera and world.
+        //Set camera position and create world.
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); //Center camera in the middle of the viewport.
         world = new World(new Vector2(0, -10), true); //Create world and give it x, y gravity vector.
         b2ddr = new Box2DDebugRenderer(); //Debug lines in Box2D world.
-        new WorldCreator(this, manager);
+        worldCreator = new WorldCreator(this, manager);
         world.setContactListener(new WorldContactListener());
 
         //Player and enemies.
-        atlas = new TextureAtlas("graphic/sprites.pack");
         mario = new Mario(this);
-        goomba = new EnemyGoomba(this, .64f, .32f);
 
         //Controller.
         controller = new Controller(game.batch);
@@ -115,9 +123,10 @@ public class ScreenPlay implements Screen {
         handleInput(deltaTime); //Handle user input first.
         world.step(1 / 60f, 6, 2); //Takes 1 step in the physics simulation (60 times per second).
         mario.update(deltaTime);
-        goomba.update(deltaTime);
+        for (Enemy enemy : worldCreator.getGoombas())
+            enemy.update(deltaTime);
         hud.update(deltaTime);
-        camera.position.x = mario.body.getPosition().x;
+        camera.position.x = mario.body.getPosition().x; //Attach camera to Mario.
         camera.update(); //Update camera with correct coordinates after changes.
         mapRenderer.setView(camera); //Set renderer to draw only what camera can see in game world.
     }
@@ -137,7 +146,8 @@ public class ScreenPlay implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         mario.draw(game.batch);
-        goomba.draw(game.batch);
+        for (Enemy enemy : worldCreator.getGoombas())
+            enemy.draw(game.batch);
         game.batch.end();
 
         //Draw HUD.

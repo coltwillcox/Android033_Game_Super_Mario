@@ -74,6 +74,7 @@ public class EnemyGoomba extends Enemy {
         body.createFixture(fixtureDef).setUserData(this);
     }
 
+    @Override
     public void update(float deltaTime) {
         stateTime += deltaTime;
 
