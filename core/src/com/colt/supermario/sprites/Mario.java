@@ -18,6 +18,9 @@ import com.colt.supermario.screens.ScreenPlay;
  * Created by colt on 4/13/16.
  */
 
+// TODO: Moving and jumping sensitivity.
+// TODO: Sticking to celling while jumping.
+
 public class Mario extends Sprite {
 
     public enum State { FALLING, JUMPING, STANDING, RUNNING };

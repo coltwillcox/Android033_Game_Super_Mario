@@ -19,7 +19,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.sprites.Enemy;
-import com.colt.supermario.sprites.EnemyGoomba;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.tools.Controller;
 import com.colt.supermario.tools.WorldContactListener;
@@ -123,8 +122,11 @@ public class ScreenPlay implements Screen {
         handleInput(deltaTime); //Handle user input first.
         world.step(1 / 60f, 6, 2); //Takes 1 step in the physics simulation (60 times per second).
         mario.update(deltaTime);
-        for (Enemy enemy : worldCreator.getGoombas())
+        for (Enemy enemy : worldCreator.getGoombas()) {
             enemy.update(deltaTime);
+            if (enemy.getX() < mario.getX() + (224 / Boot.PPM)) //224 = 14 * 16 (Bricks from Mario * BrickSize).
+                enemy.body.setActive(true); //Set enemy active only if player is close (at < upper value).
+        }
         hud.update(deltaTime);
         camera.position.x = mario.body.getPosition().x; //Attach camera to Mario.
         camera.update(); //Update camera with correct coordinates after changes.
