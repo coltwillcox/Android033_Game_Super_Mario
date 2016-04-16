@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.sprites.Mario;
 
 /**
  * Created by colt on 4/16/16.
@@ -47,7 +48,14 @@ public abstract class Item extends Sprite {
             super.draw(batch);
     }
 
-    public abstract void use();
+    public abstract void use(Mario mario);
+
+    public void reverseVelocity(boolean x, boolean y) {
+        if (x)
+            velocity.x = -velocity.x;
+        if (y)
+            velocity.y = -velocity.y;
+    }
 
     public void destroy() {
         destroy = true;

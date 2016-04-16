@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="240" height="13" tilewidth="16" tileheight="16" nextobjectid="55">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="240" height="13" tilewidth="16" tileheight="16" nextobjectid="62">
  <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" spacing="2" margin="1" tilecount="924" columns="33">
   <image source="tileset.png" width="594" height="504"/>
  </tileset>
@@ -10,7 +10,7 @@
  </layer>
  <layer name="graphics" width="240" height="13">
   <data encoding="base64" compression="zlib">
-   eJztmM1OwzAMx90iVQINUOHCrkhcQDAJGFx5Et4KOHHjGWCnPRupmogQnI+mTpMV/6S/1m6J7cR2qg6AYZi58FIDvAq91dP5ovZHtQbdzpT7kpOx69RzOsROrv1N6TfG9hMyf4iNTzHuS2iDjI/Njc+XzV8o5jpda4iJb0NoE4NiX6nqcOw69Zy67JjxxvilOP9T5jXG9rb6O9+0EZvr0NxMDdU5kAuKfY2plaXnPiUUfbPreddZSF1r1zZSnjkMw9h5r/DvjxAxDFMWW0v/HgodQ9+36pphmLKw9W8pz9/aUGmouJZQboyh7ItaOJD1ELPvah8AfvYjFTlqwtyTEvKN9a967zXlegf+L5xYzrtdRO/XjktxfTXB+ky/VMwpNzoLsP8HhfUv9uyd4hkcmtdU+XfR1UYrdCt0WmCdhNSur1+n6t8UfvTczK2Pu/fXFvB3WFv/flT95428XwF9/66Fjwepxyo8ryHjQnt8rfm3oWrjTlNMD4f4ss07k8LmmueKzY+vX6n6SvePxULdv62Rm/uA/Ji1F5sbH5jdIb4a+P38bIzfzz3jV+Ceb1JlEBaTq0aaTHGO0YVU7jhySJE7DhYrVs97vXLHwWuft74BJ55yCw==
+   eJztmM1OwzAMx90iVQINUOFCr0hcQDAJGFx5Et5qcOLGM8BOezZSNRUhcz6aOk1W/JP+WrslthPbqToAhmHmwroEeBN6L6fzRe2Pag2qnSn3JSVj16nmdIidVPsb02+I7Rdk/hAbX2Lct9AGGR+aG5cvkz9f9HXa1hAS34bQJgbFvlLV4dh1qjm12dHjDfFLcf7HzGuI7W2xO1+3EZpr39xMDdU5kAqKfQ2plcZxHxOKvtn3vKsspG6VaxMxzxyGYcx8FPj3J4gYhsmLraF/j4VOoevb/pphmLww9W8uz99SU270cTWwG2MT+JmKQ1ELR7IeQva93weA3/2IRYqa0Pckh5rE+rd/79Vlewf+L5wZzrt9RO3XlmtxfTPB+nS/VMwpNyoLMP8HhfUv9uyd4hnsm9dY+bfR1kYtdC90nmGd+NSuq1+n6t8YftTczK2P2/fXGvB3WFP/fhbd5528XwJ9/66Ejyep58I/rz7jfHt8pfg30dfGg6KQHvbxZZp3IYXN1c8Vkx9Xv1L1leofi4W6f2stN48e+dFrLzQ3LjC7Q3xV8Pf5WWm/XzrGL8E+X6dIICwmW41UieIcoyup1HGkUE/qOFisUL0edEodB6993voBwlRyug==
   </data>
  </layer>
  <objectgroup name="ground">
@@ -32,11 +32,54 @@
   <object id="46" x="400" y="144" width="32" height="32"/>
  </objectgroup>
  <objectgroup name="coins">
-  <object id="12" x="992" y="112" width="16" height="16"/>
+  <object id="12" x="992" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
   <object id="38" x="2032" y="48" width="16" height="16"/>
   <object id="39" x="2096" y="48" width="16" height="16"/>
   <object id="40" x="2048" y="112" width="16" height="16"/>
-  <object id="41" x="2080" y="112" width="16" height="16"/>
+  <object id="41" x="2080" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
+  <object id="55" x="1072" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
+  <object id="56" x="1104" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
+  <object id="57" x="1136" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
+  <object id="58" x="1168" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
+  <object id="59" x="1200" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
+  <object id="60" x="1232" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
+  <object id="61" x="1264" y="112" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="bricks">
   <object id="13" x="960" y="112" width="16" height="16"/>

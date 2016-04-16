@@ -70,14 +70,12 @@ public class WorldCreator {
 
         //Create coins bodies/fixtures.
         for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            new Coin(screen, rect, manager);
+            new Coin(screen, object, manager);
         }
 
         //Create bricks bodies/fixtures.
         for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            new Brick(screen, rect, manager);
+            new Brick(screen, object, manager);
         }
 
         //Create goombas.

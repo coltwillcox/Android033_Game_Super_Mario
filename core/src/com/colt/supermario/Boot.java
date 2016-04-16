@@ -20,20 +20,21 @@ public class Boot extends Game {
     public static final short OBJECT_BIT = 32;
     public static final short ENEMY_BIT = 64;
     public static final short ENEMY_HEAD_BIT = 128;
-    public SpriteBatch batch;
+    public static final short ITEM_BIT = 256;
     public AssetManager manager;
+    public SpriteBatch batch;
 
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
-
         manager = new AssetManager(); //Must pass it to every class that needs it.
         manager.load("audio/music.ogg", Music.class);
         manager.load("audio/coin.wav", Sound.class);
         manager.load("audio/bump.wav", Sound.class);
         manager.load("audio/breakblock.wav", Sound.class);
+        manager.load("audio/powerupspawn.wav", Sound.class);
         manager.finishLoading(); //Synchronized loading.
 
+		batch = new SpriteBatch();
         setScreen(new ScreenPlay(this, manager));
 	}
 

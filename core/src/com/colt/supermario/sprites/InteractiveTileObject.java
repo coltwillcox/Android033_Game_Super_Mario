@@ -1,5 +1,7 @@
 package com.colt.supermario.sprites;
 
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -20,6 +22,7 @@ import com.colt.supermario.screens.ScreenPlay;
 
 public abstract class InteractiveTileObject {
 
+    protected MapObject object;
     protected ScreenPlay screen;
     protected World world;
     protected TiledMap map;
@@ -28,11 +31,12 @@ public abstract class InteractiveTileObject {
     protected Body body;
     protected Fixture fixture;
 
-    public InteractiveTileObject(ScreenPlay screen, Rectangle bounds) {
+    public InteractiveTileObject(ScreenPlay screen, MapObject object) {
+        this.object = object;
         this.screen = screen;
         this.world = screen.getWorld();
         this.map = screen.getMap();
-        this.bounds = bounds;
+        this.bounds = ((RectangleMapObject) object).getRectangle();
 
         BodyDef bodyDef = new BodyDef();
         FixtureDef fixtureDef = new FixtureDef();

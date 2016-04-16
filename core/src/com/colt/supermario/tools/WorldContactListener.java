@@ -6,8 +6,10 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.colt.supermario.Boot;
+import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.InteractiveTileObject;
+import com.colt.supermario.sprites.items.Item;
 
 /**
  * Created by colt on 4/13/16.
@@ -44,6 +46,18 @@ public class WorldContactListener implements ContactListener {
             case Boot.ENEMY_BIT | Boot.ENEMY_BIT: //Enemy will reverse their movement when they hit each other.
                 ((Enemy) fixA.getUserData()).reverseVelocity(true, false);
                 ((Enemy) fixB.getUserData()).reverseVelocity(true, false);
+                break;
+            case Boot.ITEM_BIT | Boot.OBJECT_BIT: //Item will reverse their movement when they hit an object.
+                if (fixA.getFilterData().categoryBits == Boot.ITEM_BIT)
+                    ((Item) fixA.getUserData()).reverseVelocity(true, false);
+                else
+                    ((Item) fixB.getUserData()).reverseVelocity(true, false);
+                break;
+            case Boot.ITEM_BIT | Boot.MARIO_BIT: //Mario will use an item when they collide.
+                if (fixA.getFilterData().categoryBits == Boot.ITEM_BIT)
+                    ((Item) fixA.getUserData()).use((Mario) fixB.getUserData());
+                else
+                    ((Item) fixB.getUserData()).use((Mario) fixA.getUserData());
                 break;
             case Boot.MARIO_BIT | Boot.ENEMY_BIT: //Mario dies.
                 break;
