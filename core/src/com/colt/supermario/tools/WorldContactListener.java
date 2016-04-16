@@ -21,16 +21,17 @@ public class WorldContactListener implements ContactListener {
     public void beginContact(Contact contact) {
         Fixture fixA = contact.getFixtureA();
         Fixture fixB = contact.getFixtureB();
+
         int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
-        if (fixA.getUserData() == "head" || fixB.getUserData() == "head") {
-            Fixture head = fixA.getUserData() == "head" ? fixA : fixB;
-            Fixture object = head == fixA ? fixB : fixA;
-            if (object.getUserData() instanceof InteractiveTileObject) {
-                ((InteractiveTileObject) object.getUserData()).onHeadHit();
-            }
-        }
 
         switch (cDef) {
+            case Boot.MARIO_HEAD_BIT | Boot.BRICK_BIT: //Mario smash bricks with his head! \m/
+            case Boot.MARIO_HEAD_BIT | Boot.COIN_BIT:
+                if (fixA.getFilterData().categoryBits == Boot.MARIO_HEAD_BIT)
+                    ((InteractiveTileObject) fixB.getUserData()).onHeadHit((Mario) fixA.getUserData());
+                else
+                    ((InteractiveTileObject) fixA.getUserData()).onHeadHit((Mario) fixB.getUserData());
+                break;
             case Boot.MARIO_BIT | Boot.ENEMY_HEAD_BIT: //If those two collide. Mario jumping on enemy's head.
                 if (fixA.getFilterData().categoryBits == Boot.ENEMY_HEAD_BIT)
                     ((Enemy) fixA.getUserData()).hitOnHead();

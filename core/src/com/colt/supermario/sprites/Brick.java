@@ -23,11 +23,15 @@ public class Brick extends InteractiveTileObject {
     }
 
     @Override
-    public void onHeadHit() {
-        manager.get("audio/breakblock.wav", Sound.class).play();
-        setCategoryFilter(Boot.DESTROYED_BIT);
-        HUD.addScore(200);
-        getCell().setTile(null);
+    public void onHeadHit(Mario mario) {
+        if (mario.isBig()) {
+            manager.get("audio/breakblock.wav", Sound.class).play();
+            setCategoryFilter(Boot.DESTROYED_BIT);
+            HUD.addScore(200);
+            getCell().setTile(null);
+        } else {
+            manager.get("audio/bump.wav", Sound.class).play();
+        }
     }
 
 }

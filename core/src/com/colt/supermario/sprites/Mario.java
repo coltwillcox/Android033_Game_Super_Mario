@@ -40,6 +40,7 @@ public class Mario extends Sprite {
     private boolean runningRight;
     private boolean marioBig;
     private boolean runAnimationGrow;
+    private boolean timeToDefineBigMario;
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
     private Animation animationRun;
@@ -77,11 +78,11 @@ public class Mario extends Sprite {
         //Jump animations.
         for (int i = 4; i <= 5; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i * 16, 0, 16, 16));
-        animationJump = new Animation(0.1f, frames);
+        animationJump = new Animation(0.2f, frames);
         frames.clear();
         for (int i = 4; i <= 5; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), i * 16, 0, 16, 32));
-        animationJumpBig = new Animation(0.1f, frames);
+        animationJumpBig = new Animation(0.2f, frames);
         frames.clear();
         //Grow animation.
         for (int i = 0; i <= 1; i++) {
@@ -97,8 +98,13 @@ public class Mario extends Sprite {
     }
 
     public void update(float deltaTime) {
-        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2)); //Minus (1 / Boot.PPM) because of feet fixture.
+        if (marioBig)
+            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (7 / Boot.PPM)); //Sets the position where the sprite will be drawn.
+        else
+            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (1 / Boot.PPM)); //+ (1 / Boot.PPM) because radius is just 6.
         setRegion(getFrame(deltaTime));
+        if (timeToDefineBigMario)
+            defineBigMario();
     }
 
     public void defineMario() {
@@ -119,9 +125,10 @@ public class Mario extends Sprite {
         //Create Mario's head and make it a sensor for smashing objects.
         EdgeShape head = new EdgeShape();
         head.set(new Vector2(-2 / Boot.PPM, 7 / Boot.PPM), new Vector2(2 / Boot.PPM, 7 / Boot.PPM));
+        fixtureDef.filter.categoryBits = Boot.MARIO_HEAD_BIT;
         fixtureDef.shape = head;
         fixtureDef.isSensor = true;
-        body.createFixture(fixtureDef).setUserData("head");
+        body.createFixture(fixtureDef).setUserData(this);
 
         //Create Mario's feet. Problem with this fixture.
         //EdgeShape feet = new EdgeShape();
@@ -131,10 +138,44 @@ public class Mario extends Sprite {
         //body.createFixture(fixtureDef);
     }
 
+    public void defineBigMario() {
+        Vector2 currentPosition = body.getPosition();
+        world.destroyBody(body);
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(currentPosition.add(0, 8 / Boot.PPM));
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        body = world.createBody(bodyDef);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.friction = 0.4f; //Stop Mario from iceskating! ;)
+        CircleShape shape = new CircleShape();
+        shape.setRadius(6 / Boot.PPM);
+        fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT;
+        fixtureDef.shape = shape;
+        body.createFixture(fixtureDef).setUserData(this);
+
+        //Lower circle in Mario's body.
+        shape.setPosition(new Vector2(0, -16 / Boot.PPM));
+        body.createFixture(fixtureDef).setUserData(this);
+
+        //Create Mario's head and make it a sensor for smashing objects.
+        EdgeShape head = new EdgeShape();
+        head.set(new Vector2(-2 / Boot.PPM, 7 / Boot.PPM), new Vector2(2 / Boot.PPM, 7 / Boot.PPM)); // 2, 7, compared to body(Def) position, 1st upper circle.
+        fixtureDef.filter.categoryBits = Boot.MARIO_HEAD_BIT;
+        fixtureDef.shape = head;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef).setUserData(this);
+
+        timeToDefineBigMario = false;
+    }
+
     public void grow() {
         manager.get("audio/powerup.wav", Sound.class).play();
         runAnimationGrow = true;
         marioBig = true;
+        timeToDefineBigMario = true;
         setBounds(getX(), getY(), getWidth(), getHeight() * 2);
     }
 
@@ -182,6 +223,10 @@ public class Mario extends Sprite {
             return State.RUNNING;
         else
             return State.STANDING;
+    }
+
+    public boolean isBig() {
+        return marioBig;
     }
 
 }

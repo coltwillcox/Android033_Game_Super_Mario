@@ -174,7 +174,7 @@ public class ScreenPlay implements Screen {
 
     public void handleInput(float deltaTime) {
         if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0)
-            mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - will this impulse wake object.
+            mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - This impulse will wake object.
         if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
             mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
         if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)

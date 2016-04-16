@@ -30,7 +30,7 @@ public class Coin extends InteractiveTileObject {
     }
 
     @Override
-    public void onHeadHit() {
+    public void onHeadHit(Mario mario) {
         if (getCell().getTile().getId() != BLANK_COIN) {
             if (object.getProperties().containsKey("mushroom")) {
                 manager.get("audio/powerupspawn.wav", Sound.class).play();
