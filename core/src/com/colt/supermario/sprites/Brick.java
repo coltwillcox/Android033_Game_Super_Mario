@@ -24,10 +24,10 @@ public class Brick extends InteractiveTileObject {
 
     @Override
     public void onHeadHit() {
+        manager.get("audio/breakblock.wav", Sound.class).play();
         setCategoryFilter(Boot.DESTROYED_BIT);
         HUD.addScore(200);
         getCell().setTile(null);
-        manager.get("audio/breakblock.wav", Sound.class).play();
     }
 
 }

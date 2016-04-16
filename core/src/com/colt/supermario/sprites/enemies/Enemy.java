@@ -1,4 +1,4 @@
-package com.colt.supermario.sprites;
+package com.colt.supermario.sprites.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
@@ -12,16 +12,15 @@ import com.colt.supermario.screens.ScreenPlay;
 
 public abstract class Enemy extends Sprite {
 
-    protected World world;
     protected ScreenPlay screen;
+    protected World world;
     public Body body;
     public Vector2 velocity;
 
-
     //Constructor.
     public Enemy(ScreenPlay screen, float x, float y) {
-        this.world = screen.getWorld();
         this.screen = screen;
+        this.world = screen.getWorld();
         setPosition(x, y);
         defineEnemy();
         velocity = new Vector2(0.5f, 0);

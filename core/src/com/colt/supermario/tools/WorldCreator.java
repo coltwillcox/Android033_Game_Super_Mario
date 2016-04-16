@@ -15,7 +15,7 @@ import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Brick;
 import com.colt.supermario.sprites.Coin;
-import com.colt.supermario.sprites.EnemyGoomba;
+import com.colt.supermario.sprites.enemies.Goomba;
 
 /**
  * Created by colt on 4/13/16.
@@ -26,7 +26,7 @@ public class WorldCreator {
     private AssetManager manager;
     private World world;
     private TiledMap map;
-    private Array<EnemyGoomba> goombas;
+    private Array<Goomba> goombas;
 
     public WorldCreator(ScreenPlay screen, AssetManager manager) {
         this.manager = manager;
@@ -81,15 +81,15 @@ public class WorldCreator {
         }
 
         //Create goombas.
-        goombas = new Array<EnemyGoomba>();
+        goombas = new Array<Goomba>();
         for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            goombas.add(new EnemyGoomba(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM));
+            goombas.add(new Goomba(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM));
         }
     }
 
     //Getter.
-    public Array<EnemyGoomba> getGoombas() {
+    public Array<Goomba> getGoombas() {
         return goombas;
     }
 

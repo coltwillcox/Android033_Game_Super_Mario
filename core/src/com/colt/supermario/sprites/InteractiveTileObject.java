@@ -20,6 +20,7 @@ import com.colt.supermario.screens.ScreenPlay;
 
 public abstract class InteractiveTileObject {
 
+    protected ScreenPlay screen;
     protected World world;
     protected TiledMap map;
     protected TiledMapTile tile;
@@ -28,6 +29,7 @@ public abstract class InteractiveTileObject {
     protected Fixture fixture;
 
     public InteractiveTileObject(ScreenPlay screen, Rectangle bounds) {
+        this.screen = screen;
         this.world = screen.getWorld();
         this.map = screen.getMap();
         this.bounds = bounds;

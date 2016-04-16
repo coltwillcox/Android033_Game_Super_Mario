@@ -18,6 +18,7 @@ import com.colt.supermario.screens.ScreenPlay;
  * Created by colt on 4/13/16.
  */
 
+// TODO: Program crashing when Mario have feet.
 // TODO: Moving and jumping sensitivity.
 // TODO: Sticking to celling while jumping.
 
@@ -86,16 +87,16 @@ public class Mario extends Sprite {
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData("head");
 
-        //Create Mario's feet.
-        EdgeShape feet = new EdgeShape();
-        feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
-        fixtureDef.shape = feet;
-        fixtureDef.isSensor = false;
-        body.createFixture(fixtureDef);
+        //Create Mario's feet. Problem with this fixture.
+        //EdgeShape feet = new EdgeShape();
+        //feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
+        //fixtureDef.shape = feet;
+        //fixtureDef.isSensor = false;
+        //body.createFixture(fixtureDef);
     }
 
     public void update(float deltaTime) {
-        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (1 / Boot.PPM)); //Minus (1 / Boot.PPM) because of feet fixture.
+        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2)); //Minus (1 / Boot.PPM) because of feet fixture.
         setRegion(getFrame(deltaTime));
     }
 

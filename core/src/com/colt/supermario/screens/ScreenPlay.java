@@ -14,15 +14,21 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
-import com.colt.supermario.sprites.Enemy;
+import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.Mario;
+import com.colt.supermario.sprites.items.Item;
+import com.colt.supermario.sprites.items.ItemDefinition;
+import com.colt.supermario.sprites.items.Mushroom;
 import com.colt.supermario.tools.Controller;
 import com.colt.supermario.tools.WorldContactListener;
 import com.colt.supermario.tools.WorldCreator;
+
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by colt on 4/12/16.
@@ -31,6 +37,9 @@ import com.colt.supermario.tools.WorldCreator;
 public class ScreenPlay implements Screen {
 
     private Boot game;
+
+    //Asset manager.
+    private AssetManager manager;
 
     //Textures.
     private TextureAtlas atlas;
@@ -53,11 +62,12 @@ public class ScreenPlay implements Screen {
     //Player and enemies.
     private Mario mario;
 
+    //Items.
+    private Array<Item> items;
+    private LinkedBlockingQueue<ItemDefinition> itemsToSpawn;
+
     //Joypad-like controller.
     private Controller controller;
-
-    //Asset manager.
-    private AssetManager manager;
 
     //Audio.
     private Music music;
@@ -88,12 +98,16 @@ public class ScreenPlay implements Screen {
         //Set camera position and create world.
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); //Center camera in the middle of the viewport.
         world = new World(new Vector2(0, -10), true); //Create world and give it x, y gravity vector.
+        world.setContactListener(new WorldContactListener());
         b2ddr = new Box2DDebugRenderer(); //Debug lines in Box2D world.
         worldCreator = new WorldCreator(this, manager);
-        world.setContactListener(new WorldContactListener());
 
         //Player and enemies.
         mario = new Mario(this);
+
+        //Items.
+        items = new Array<Item>();
+        itemsToSpawn = new LinkedBlockingQueue<ItemDefinition>();
 
         //Controller.
         controller = new Controller(game.batch);
@@ -120,13 +134,19 @@ public class ScreenPlay implements Screen {
 
     public void update(float deltaTime) {
         handleInput(deltaTime); //Handle user input first.
+        handleSpawningItems();
         world.step(1 / 60f, 6, 2); //Takes 1 step in the physics simulation (60 times per second).
         mario.update(deltaTime);
+
         for (Enemy enemy : worldCreator.getGoombas()) {
             enemy.update(deltaTime);
             if (enemy.getX() < mario.getX() + (224 / Boot.PPM)) //224 = 14 * 16 (Bricks from Mario * BrickSize).
                 enemy.body.setActive(true); //Set enemy active only if player is close (at < upper value).
         }
+
+        for (Item item : items)
+            item.update(deltaTime);
+
         hud.update(deltaTime);
         camera.position.x = mario.body.getPosition().x; //Attach camera to Mario.
         camera.update(); //Update camera with correct coordinates after changes.
@@ -150,6 +170,8 @@ public class ScreenPlay implements Screen {
         mario.draw(game.batch);
         for (Enemy enemy : worldCreator.getGoombas())
             enemy.draw(game.batch);
+        for (Item item : items)
+            item.draw(game.batch);
         game.batch.end();
 
         //Draw HUD.
@@ -157,6 +179,19 @@ public class ScreenPlay implements Screen {
         hud.stage.draw();
 
         controller.draw();
+    }
+
+    public void spawnItem(ItemDefinition itemDefinition) {
+        itemsToSpawn.add(itemDefinition);
+    }
+
+    public void handleSpawningItems() {
+        if (!itemsToSpawn.isEmpty()) {
+            ItemDefinition itemDefinition = itemsToSpawn.poll();
+            if (itemDefinition.type == Mushroom.class) {
+                items.add(new Mushroom(this, itemDefinition.position.x, itemDefinition.position.y));
+            }
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.colt.supermario.sprites;
+package com.colt.supermario.sprites.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -18,7 +18,7 @@ import com.colt.supermario.screens.ScreenPlay;
 
 // TODO: Add side fixtures for colliding with ground (for movement reversing).
 
-public class EnemyGoomba extends Enemy {
+public class Goomba extends Enemy {
 
     private float stateTime;
     private boolean destroy;
@@ -28,7 +28,7 @@ public class EnemyGoomba extends Enemy {
     private Array<TextureRegion> frames;
 
     //Constructor.
-    public EnemyGoomba(ScreenPlay screen, float x, float y) {
+    public Goomba(ScreenPlay screen, float x, float y) {
         super(screen, x, y);
         stateTime = 0;
         destroy = false;
@@ -84,9 +84,9 @@ public class EnemyGoomba extends Enemy {
             setRegion(animationDeath);
             stateTime = 0;
         } else if (!destroyed) {
-            body.setLinearVelocity(velocity);
-            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
             setRegion(animationWalk.getKeyFrame(stateTime, true));
+            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
+            body.setLinearVelocity(velocity);
         }
     }
 
