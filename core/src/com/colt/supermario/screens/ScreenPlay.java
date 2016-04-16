@@ -103,7 +103,7 @@ public class ScreenPlay implements Screen {
         worldCreator = new WorldCreator(this, manager);
 
         //Player and enemies.
-        mario = new Mario(this);
+        mario = new Mario(this, manager);
 
         //Items.
         items = new Array<Item>();
@@ -116,20 +116,6 @@ public class ScreenPlay implements Screen {
         //music = manager.get("audio/music.ogg", Music.class);
         //music.setLooping(true);
         //music.play();
-    }
-
-    @Override
-    public void show() {
-
-    }
-
-    public void handleInput(float deltaTime) {
-        if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0)
-            mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - will this impulse wake object.
-        if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
-            mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
-        if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)
-            mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
     }
 
     public void update(float deltaTime) {
@@ -179,6 +165,20 @@ public class ScreenPlay implements Screen {
         hud.stage.draw();
 
         controller.draw();
+    }
+
+    @Override
+    public void show() {
+
+    }
+
+    public void handleInput(float deltaTime) {
+        if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0)
+            mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - will this impulse wake object.
+        if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
+            mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
+        if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)
+            mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
     }
 
     public void spawnItem(ItemDefinition itemDefinition) {

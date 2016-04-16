@@ -27,9 +27,9 @@ public abstract class Enemy extends Sprite {
         body.setActive(false);
     }
 
-    protected abstract void defineEnemy();
-
     public abstract void update(float deltaTime);
+
+    protected abstract void defineEnemy();
 
     public abstract void hitOnHead();
 

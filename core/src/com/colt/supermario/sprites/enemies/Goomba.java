@@ -46,6 +46,22 @@ public class Goomba extends Enemy {
     }
 
     @Override
+    public void update(float deltaTime) {
+        stateTime += deltaTime;
+
+        if (destroy && !destroyed) {
+            world.destroyBody(body);
+            destroyed = true;
+            setRegion(animationDeath);
+            stateTime = 0;
+        } else if (!destroyed) {
+            setRegion(animationWalk.getKeyFrame(stateTime, true));
+            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
+            body.setLinearVelocity(velocity);
+        }
+    }
+    @Override
+
     protected void defineEnemy() {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(getX(), getY());
@@ -72,22 +88,6 @@ public class Goomba extends Enemy {
         fixtureDef.shape = head;
         fixtureDef.restitution = 0.5f; //Half of bounciness.
         body.createFixture(fixtureDef).setUserData(this);
-    }
-
-    @Override
-    public void update(float deltaTime) {
-        stateTime += deltaTime;
-
-        if (destroy && !destroyed) {
-            world.destroyBody(body);
-            destroyed = true;
-            setRegion(animationDeath);
-            stateTime = 0;
-        } else if (!destroyed) {
-            setRegion(animationWalk.getKeyFrame(stateTime, true));
-            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
-            body.setLinearVelocity(velocity);
-        }
     }
 
     @Override

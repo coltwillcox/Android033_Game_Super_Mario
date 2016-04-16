@@ -28,9 +28,10 @@ public class Boot extends Game {
 	public void create () {
         manager = new AssetManager(); //Must pass it to every class that needs it.
         manager.load("audio/music.ogg", Music.class);
-        manager.load("audio/coin.wav", Sound.class);
-        manager.load("audio/bump.wav", Sound.class);
         manager.load("audio/breakblock.wav", Sound.class);
+        manager.load("audio/bump.wav", Sound.class);
+        manager.load("audio/coin.wav", Sound.class);
+        manager.load("audio/powerup.wav", Sound.class);
         manager.load("audio/powerupspawn.wav", Sound.class);
         manager.finishLoading(); //Synchronized loading.
 

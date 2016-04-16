@@ -33,14 +33,14 @@ public abstract class Item extends Sprite {
         destroyed = false;
     }
 
-    public abstract void defineItem();
-
     public void update(float deltaTime) {
         if (destroy && !destroyed) {
             world.destroyBody(body);
             destroyed = true;
         }
     }
+
+    public abstract void defineItem();
 
     @Override
     public void draw(Batch batch) {

@@ -1,5 +1,7 @@
 package com.colt.supermario.sprites;
 
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -24,21 +26,34 @@ import com.colt.supermario.screens.ScreenPlay;
 
 public class Mario extends Sprite {
 
-    public enum State { FALLING, JUMPING, STANDING, RUNNING };
+    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING }
     public State stateCurrent;
     public State statePrevious;
+
+    public ScreenPlay screen;
     public World world;
     public Body body;
+
+    private AssetManager manager;
+
     private float stateTime;
     private boolean runningRight;
+    private boolean marioBig;
+    private boolean runAnimationGrow;
     private TextureRegion animationStand;
+    private TextureRegion animationStandBig;
     private Animation animationRun;
+    private Animation animationRunBig;
     private Animation animationJump;
+    private Animation animationJumpBig;
+    private Animation animationGrow;
     private Array<TextureRegion> frames;
 
     //Constructor.
-    public Mario(ScreenPlay screen) {
+    public Mario(ScreenPlay screen, AssetManager manager) {
+        this.screen = screen;
         this.world = screen.getWorld();
+        this.manager = manager;
 
         stateCurrent = State.STANDING;
         statePrevious = State.STANDING;
@@ -47,22 +62,43 @@ public class Mario extends Sprite {
 
         //Animations.
         frames = new Array<TextureRegion>();
-        //Mario standing. Not really animation.
+        //Mario standing. Not really animations.
         animationStand = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 0, 0, 16, 16);
-        //Run animation.
+        animationStandBig = new TextureRegion(screen.getAtlas().findRegion("big_mario"), 0, 0, 16, 32);
+        //Run animations.
         for (int i = 1; i <= 3; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i * 16, 0, 16, 16));
         animationRun = new Animation(0.1f, frames);
         frames.clear();
-        //Jump animation.
+        for (int i = 1; i <= 3; i++)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), i * 16, 0, 16, 32));
+        animationRunBig = new Animation(0.1f, frames);
+        frames.clear();
+        //Jump animations.
         for (int i = 4; i <= 5; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i * 16, 0, 16, 16));
         animationJump = new Animation(0.1f, frames);
+        frames.clear();
+        for (int i = 4; i <= 5; i++)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), i * 16, 0, 16, 32));
+        animationJumpBig = new Animation(0.1f, frames);
+        frames.clear();
+        //Grow animation.
+        for (int i = 0; i <= 1; i++) {
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), 15 * 16, 0, 16, 32)); //15 * 16, because it's 16th big_mario image.
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), 0, 0, 16, 32));
+        }
+        animationGrow = new Animation(0.2f, frames);
         frames.clear();
 
         defineMario();
         setBounds(0, 0, 16 / Boot.PPM, 16 / Boot.PPM);
         setRegion(animationStand);
+    }
+
+    public void update(float deltaTime) {
+        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2)); //Minus (1 / Boot.PPM) because of feet fixture.
+        setRegion(getFrame(deltaTime));
     }
 
     public void defineMario() {
@@ -78,7 +114,7 @@ public class Mario extends Sprite {
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
         fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT; //Mario (fixture) will collide only with these BITS.
         fixtureDef.shape = shape;
-        body.createFixture(fixtureDef);
+        body.createFixture(fixtureDef).setUserData(this);
 
         //Create Mario's head and make it a sensor for smashing objects.
         EdgeShape head = new EdgeShape();
@@ -95,25 +131,32 @@ public class Mario extends Sprite {
         //body.createFixture(fixtureDef);
     }
 
-    public void update(float deltaTime) {
-        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2)); //Minus (1 / Boot.PPM) because of feet fixture.
-        setRegion(getFrame(deltaTime));
+    public void grow() {
+        manager.get("audio/powerup.wav", Sound.class).play();
+        runAnimationGrow = true;
+        marioBig = true;
+        setBounds(getX(), getY(), getWidth(), getHeight() * 2);
     }
 
     public TextureRegion getFrame(float deltaTime) {
         stateCurrent = getState();
         TextureRegion region;
         switch (stateCurrent) {
+            case GROWING:
+                region = animationGrow.getKeyFrame(stateTime);
+                if (animationGrow.isAnimationFinished(stateTime))
+                    runAnimationGrow = false;
+                break;
             case JUMPING:
-                region = animationJump.getKeyFrame(stateTime);
+                region = marioBig ? animationJumpBig.getKeyFrame(stateTime) : animationJump.getKeyFrame(stateTime);
                 break;
             case RUNNING:
-                region = animationRun.getKeyFrame(stateTime, true); //true - loop animation.
+                region = marioBig ? animationRunBig.getKeyFrame(stateTime, true) : animationRun.getKeyFrame(stateTime, true); //true - loop animation.
                 break;
             case FALLING:
             case STANDING:
             default:
-                region = animationStand;
+                region = marioBig ? animationStandBig : animationStand;
                 break;
         }
         if ((body.getLinearVelocity().x < 0 || !runningRight) && !region.isFlipX()) {
@@ -129,7 +172,9 @@ public class Mario extends Sprite {
     }
 
     public State getState() {
-        if (body.getLinearVelocity().y > 0 || (body.getLinearVelocity().y < 0 && statePrevious == State.JUMPING))
+        if (runAnimationGrow)
+            return State.GROWING;
+        else if (body.getLinearVelocity().y > 0 || (body.getLinearVelocity().y < 0 && statePrevious == State.JUMPING))
             return State.JUMPING;
         else if (body.getLinearVelocity().y < 0)
             return State.FALLING;
