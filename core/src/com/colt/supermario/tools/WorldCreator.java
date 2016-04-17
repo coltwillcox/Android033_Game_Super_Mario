@@ -82,7 +82,7 @@ public class WorldCreator {
         goombas = new Array<Goomba>();
         for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            goombas.add(new Goomba(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM));
+            goombas.add(new Goomba(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
         }
     }
 

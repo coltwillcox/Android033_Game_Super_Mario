@@ -32,8 +32,11 @@ public class Boot extends Game {
         manager.load("audio/breakblock.wav", Sound.class);
         manager.load("audio/bump.wav", Sound.class);
         manager.load("audio/coin.wav", Sound.class);
+        manager.load("audio/death.wav", Sound.class);
+        manager.load("audio/powerdown.wav", Sound.class);
         manager.load("audio/powerup.wav", Sound.class);
         manager.load("audio/powerupspawn.wav", Sound.class);
+        manager.load("audio/stomp.wav", Sound.class);
         manager.finishLoading(); //Synchronized loading.
 
 		batch = new SpriteBatch();

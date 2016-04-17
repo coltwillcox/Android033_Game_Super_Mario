@@ -61,6 +61,10 @@ public class WorldContactListener implements ContactListener {
                     ((Item) fixB.getUserData()).use((Mario) fixA.getUserData());
                 break;
             case Boot.MARIO_BIT | Boot.ENEMY_BIT: //Mario dies.
+                if (fixA.getFilterData().categoryBits == Boot.MARIO_BIT)
+                    ((Mario) fixA.getUserData()).hit();
+                else
+                    ((Mario) fixB.getUserData()).hit();
                 break;
         }
     }

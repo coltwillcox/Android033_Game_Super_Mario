@@ -1,5 +1,7 @@
 package com.colt.supermario.sprites.enemies;
 
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -23,13 +25,16 @@ public class Goomba extends Enemy {
     private float stateTime;
     private boolean destroy;
     private boolean destroyed;
+    private AssetManager manager;
     private TextureRegion animationDeath;
     private Animation animationWalk;
     private Array<TextureRegion> frames;
 
     //Constructor.
-    public Goomba(ScreenPlay screen, float x, float y) {
+    public Goomba(ScreenPlay screen, float x, float y, AssetManager manager) {
         super(screen, x, y);
+        this.manager = manager;
+        
         stateTime = 0;
         destroy = false;
         destroyed = false;
@@ -98,7 +103,10 @@ public class Goomba extends Enemy {
 
     @Override
     public void hitOnHead() {
+        manager.get("audio/stomp.wav", Sound.class).play();
         destroy = true;
     }
+
+
 
 }

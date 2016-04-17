@@ -14,6 +14,7 @@ public abstract class Enemy extends Sprite {
 
     protected ScreenPlay screen;
     protected World world;
+
     public Body body;
     public Vector2 velocity;
 

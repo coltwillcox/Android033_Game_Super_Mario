@@ -41,6 +41,7 @@ public class Mario extends Sprite {
     private boolean marioBig;
     private boolean runAnimationGrow;
     private boolean timeToDefineBigMario;
+    private boolean timeToRedefineMario;
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
     private Animation animationRun;
@@ -103,8 +104,12 @@ public class Mario extends Sprite {
         else
             setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (1 / Boot.PPM)); //+ (1 / Boot.PPM) because radius is just 6.
         setRegion(getFrame(deltaTime));
+
+        //Must define and redefine Mario with boolean and update, because body can't be destroyed in world.step cycle.
         if (timeToDefineBigMario)
             defineBigMario();
+        if (timeToRedefineMario)
+            redefineMario();
     }
 
     public void defineMario() {
@@ -171,12 +176,50 @@ public class Mario extends Sprite {
         timeToDefineBigMario = false;
     }
 
+    public void redefineMario() {
+        Vector2 currentPosition = body.getPosition();
+        world.destroyBody(body);
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(currentPosition);
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        body = world.createBody(bodyDef);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.friction = 0.4f;
+        CircleShape shape = new CircleShape();
+        shape.setRadius(6 / Boot.PPM);
+        fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT;
+        fixtureDef.shape = shape;
+        body.createFixture(fixtureDef).setUserData(this);
+
+        EdgeShape head = new EdgeShape();
+        head.set(new Vector2(-2 / Boot.PPM, 7 / Boot.PPM), new Vector2(2 / Boot.PPM, 7 / Boot.PPM));
+        fixtureDef.filter.categoryBits = Boot.MARIO_HEAD_BIT;
+        fixtureDef.shape = head;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef).setUserData(this);
+
+        timeToRedefineMario = false;
+    }
+
     public void grow() {
         manager.get("audio/powerup.wav", Sound.class).play();
         runAnimationGrow = true;
         marioBig = true;
         timeToDefineBigMario = true;
         setBounds(getX(), getY(), getWidth(), getHeight() * 2);
+    }
+
+    public void hit() {
+        if (marioBig) {
+            manager.get("audio/powerdown.wav", Sound.class).play();
+            marioBig = false;
+            timeToRedefineMario = true;
+            setBounds(getX(), getY(), getWidth(), getHeight() / 2); //Mawio was big, so he needs to be cut down in half. \m/
+        } else
+            manager.get("audio/death.wav", Sound.class).play();
     }
 
     public TextureRegion getFrame(float deltaTime) {
