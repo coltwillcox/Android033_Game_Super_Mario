@@ -18,7 +18,7 @@ import com.colt.supermario.screens.ScreenPlay;
  * Created by colt on 4/14/16.
  */
 
-// TODO: Add side fixtures for colliding with ground (for movement reversing).
+//TODO: Add side fixtures for colliding with ground (for movement reversing).
 
 public class Goomba extends Enemy {
 

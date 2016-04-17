@@ -17,15 +17,17 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
+import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.screens.ScreenPlay;
 
 /**
  * Created by colt on 4/13/16.
  */
 
-// TODO: Program crashing when Mario have feet.
-// TODO: Moving and jumping sensitivity.
-// TODO: Sticking to celling while jumping.
+//TODO: Program crashing when Mario have feet.
+//TODO: Moving and jumping sensitivity.
+//TODO: Sticking to celling while jumping.
+//TODO: Add Mario invisibility (after shrinking).
 
 public class Mario extends Sprite {
 
@@ -211,11 +213,17 @@ public class Mario extends Sprite {
     }
 
     public void grow() {
-        manager.get("audio/powerup.wav", Sound.class).play();
-        runAnimationGrow = true;
-        marioBig = true;
-        timeToDefineBigMario = true;
-        setBounds(getX(), getY(), getWidth(), getHeight() * 2);
+        //Make Mario big only if he is small, or add points if he is already big.
+        if (!marioBig) {
+            manager.get("audio/powerup.wav", Sound.class).play();
+            runAnimationGrow = true;
+            marioBig = true;
+            timeToDefineBigMario = true;
+            setBounds(getX(), getY(), getWidth(), getHeight() * 2);
+        } else {
+            manager.get("audio/powerup.wav", Sound.class).play();
+            HUD.addScore(500);
+        }
     }
 
     //Mario shrinks or dies.
@@ -290,8 +298,16 @@ public class Mario extends Sprite {
             return State.STANDING;
     }
 
+    public float getStateTime() {
+        return stateTime;
+    }
+
     public boolean isBig() {
         return marioBig;
+    }
+
+    public boolean isDead() {
+        return marioDead;
     }
 
 }

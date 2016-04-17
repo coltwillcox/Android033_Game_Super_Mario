@@ -134,7 +134,7 @@ public class ScreenPlay implements Screen {
             item.update(deltaTime);
 
         hud.update(deltaTime);
-        //if (mario.stateCurrent != Mario.State.DEAD)
+        if (mario.stateCurrent != Mario.State.DEAD)
             camera.position.x = mario.body.getPosition().x; //Attach camera to Mario, only when not dead.
         camera.update(); //Update camera with correct coordinates after changes.
         mapRenderer.setView(camera); //Set renderer to draw only what camera can see in game world.
@@ -165,7 +165,14 @@ public class ScreenPlay implements Screen {
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
 
+        //Draw controller.
         controller.draw();
+
+        //Check if game is over, so draw Game Over screen.
+        if (gameOver()) {
+            game.setScreen(new ScreenGameOver(game, manager));
+            dispose();
+        }
     }
 
     @Override
@@ -196,6 +203,13 @@ public class ScreenPlay implements Screen {
                 items.add(new Mushroom(this, itemDefinition.position.x, itemDefinition.position.y));
             }
         }
+    }
+
+    public boolean gameOver() {
+        if (mario.stateCurrent == Mario.State.DEAD && mario.getStateTime() > 3)
+            return true;
+        else
+            return false;
     }
 
     @Override

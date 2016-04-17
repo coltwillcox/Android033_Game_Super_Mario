@@ -23,18 +23,18 @@ public class HUD implements Disposable {
 
     public Stage stage;
     private static Integer score;
-    private static Label scoreLabel;
+    private static Label labelScore;
     private float timeCount;
     private Integer worldTimer;
-    private Viewport viewport; //HUD have its own camera and viewport.
-    private Camera camera;
+    private Camera camera; //HUD have its own camera and viewport.
+    private Viewport viewport;
     private BitmapFont font;
     private Table table;
-    private Label marioLabel;
-    private Label worldLabel;
-    private Label timeLabel;
-    private Label levelLabel;
-    private Label countdownLabel;
+    private Label labelMario;
+    private Label labelWorld;
+    private Label labelTime;
+    private Label labelLevel;
+    private Label labelCountdown;
 
     //Constructor.
     public HUD(SpriteBatch spriteBatch) {
@@ -50,23 +50,23 @@ public class HUD implements Disposable {
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         font.getData().setScale(0.3f);
 
-        marioLabel = new Label("MARIO", new Label.LabelStyle(font, Color.WHITE));
-        worldLabel = new Label("WORLD", new Label.LabelStyle(font, Color.WHITE));
-        timeLabel = new Label("TIME", new Label.LabelStyle(font, Color.WHITE));
-        scoreLabel = new Label(String.format("%06d", score), new Label.LabelStyle(font, Color.WHITE));
-        levelLabel = new Label("1-1", new Label.LabelStyle(font, Color.WHITE));
-        countdownLabel = new Label(String.format("%03d", worldTimer), new Label.LabelStyle(font, Color.WHITE));
+        labelMario = new Label("MARIO", new Label.LabelStyle(font, Color.WHITE));
+        labelWorld = new Label("WORLD", new Label.LabelStyle(font, Color.WHITE));
+        labelTime = new Label("TIME", new Label.LabelStyle(font, Color.WHITE));
+        labelScore = new Label(String.format("%06d", score), new Label.LabelStyle(font, Color.WHITE));
+        labelLevel = new Label("1-1", new Label.LabelStyle(font, Color.WHITE));
+        labelCountdown = new Label(String.format("%03d", worldTimer), new Label.LabelStyle(font, Color.WHITE));
 
         table = new Table();
         table.setFillParent(true); //Table is size of Stage.
         table.top(); //Align to the top.
-        table.add(marioLabel).expandX().padTop(10);
-        table.add(worldLabel).expandX().padTop(10);
-        table.add(timeLabel).expandX().padTop(10);
+        table.add(labelMario).expandX().padTop(10);
+        table.add(labelWorld).expandX().padTop(10);
+        table.add(labelTime).expandX().padTop(10);
         table.row();
-        table.add(scoreLabel).expandX();
-        table.add(levelLabel).expandX();
-        table.add(countdownLabel).expandX();
+        table.add(labelScore).expandX();
+        table.add(labelLevel).expandX();
+        table.add(labelCountdown).expandX();
         
         stage.addActor(table);
     }
@@ -75,14 +75,14 @@ public class HUD implements Disposable {
         timeCount += deltaTime;
         if (timeCount >= 1) {
             worldTimer--;
-            countdownLabel.setText(String.format("%03d", worldTimer));
+            labelCountdown.setText(String.format("%03d", worldTimer));
             timeCount = 0;
         }
     }
 
     public static void addScore(int scoreToAdd) {
         score += scoreToAdd;
-        scoreLabel.setText(String.format("%06d", score));
+        labelScore.setText(String.format("%06d", score));
     }
 
     @Override
