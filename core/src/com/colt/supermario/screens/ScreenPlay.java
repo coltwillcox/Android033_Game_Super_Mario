@@ -113,9 +113,9 @@ public class ScreenPlay implements Screen {
         controller = new Controller(game.batch);
 
         //Audio.
-        //music = manager.get("audio/music.ogg", Music.class);
-        //music.setLooping(true);
-        //music.play();
+        music = manager.get("audio/music.ogg", Music.class);
+        music.setLooping(true);
+        music.play();
     }
 
     public void update(float deltaTime) {
@@ -134,7 +134,8 @@ public class ScreenPlay implements Screen {
             item.update(deltaTime);
 
         hud.update(deltaTime);
-        camera.position.x = mario.body.getPosition().x; //Attach camera to Mario.
+        //if (mario.stateCurrent != Mario.State.DEAD)
+            camera.position.x = mario.body.getPosition().x; //Attach camera to Mario, only when not dead.
         camera.update(); //Update camera with correct coordinates after changes.
         mapRenderer.setView(camera); //Set renderer to draw only what camera can see in game world.
     }
@@ -173,12 +174,15 @@ public class ScreenPlay implements Screen {
     }
 
     public void handleInput(float deltaTime) {
-        if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0)
-            mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - This impulse will wake object.
-        if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
-            mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
-        if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)
-            mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
+        //Control Mario only if he is not dead.
+        if (mario.stateCurrent != Mario.State.DEAD) {
+            if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0)
+                mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - This impulse will wake object.
+            if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
+                mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
+            if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)
+                mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
+        }
     }
 
     public void spawnItem(ItemDefinition itemDefinition) {

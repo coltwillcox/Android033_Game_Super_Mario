@@ -1,6 +1,7 @@
 package com.colt.supermario.sprites;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -10,6 +11,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -26,7 +29,7 @@ import com.colt.supermario.screens.ScreenPlay;
 
 public class Mario extends Sprite {
 
-    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING }
+    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD }
     public State stateCurrent;
     public State statePrevious;
 
@@ -42,8 +45,10 @@ public class Mario extends Sprite {
     private boolean runAnimationGrow;
     private boolean timeToDefineBigMario;
     private boolean timeToRedefineMario;
+    private boolean marioDead;
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
+    private TextureRegion animationDead;
     private Animation animationRun;
     private Animation animationRunBig;
     private Animation animationJump;
@@ -64,9 +69,10 @@ public class Mario extends Sprite {
 
         //Animations.
         frames = new Array<TextureRegion>();
-        //Mario standing. Not really animations.
+        //Standing and dead. Not really animations.
         animationStand = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 0, 0, 16, 16);
         animationStandBig = new TextureRegion(screen.getAtlas().findRegion("big_mario"), 0, 0, 16, 32);
+        animationDead = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 6 * 16, 0, 16, 16);
         //Run animations.
         for (int i = 1; i <= 3; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i * 16, 0, 16, 16));
@@ -212,16 +218,27 @@ public class Mario extends Sprite {
         setBounds(getX(), getY(), getWidth(), getHeight() * 2);
     }
 
+    //Mario shrinks or dies.
     public void hit() {
         if (marioBig) {
             manager.get("audio/powerdown.wav", Sound.class).play();
             marioBig = false;
             timeToRedefineMario = true;
             setBounds(getX(), getY(), getWidth(), getHeight() / 2); //Mawio was big, so he needs to be cut down in half. \m/
-        } else
+        } else {
+            manager.get("audio/music.ogg", Music.class).stop();
             manager.get("audio/death.wav", Sound.class).play();
+            marioDead = true;
+            Filter filter = new Filter();
+            filter.maskBits = Boot.NOTHING_BIT;
+            for (Fixture fixture : body.getFixtureList())
+                fixture.setFilterData(filter); //Every fixture in Mario's body will collide with nothing (NOTHING_BIT).
+            body.setLinearVelocity(0, 0);
+            body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
+        }
     }
 
+    //Method to return TextureRegion (or frame) to be drawn on screen.
     public TextureRegion getFrame(float deltaTime) {
         stateCurrent = getState();
         TextureRegion region;
@@ -236,6 +253,9 @@ public class Mario extends Sprite {
                 break;
             case RUNNING:
                 region = marioBig ? animationRunBig.getKeyFrame(stateTime, true) : animationRun.getKeyFrame(stateTime, true); //true - loop animation.
+                break;
+            case DEAD:
+                region = animationDead;
                 break;
             case FALLING:
             case STANDING:
@@ -256,14 +276,16 @@ public class Mario extends Sprite {
     }
 
     public State getState() {
-        if (runAnimationGrow)
-            return State.GROWING;
+        if (marioDead)
+            return State.DEAD;
         else if (body.getLinearVelocity().y > 0 || (body.getLinearVelocity().y < 0 && statePrevious == State.JUMPING))
             return State.JUMPING;
         else if (body.getLinearVelocity().y < 0)
             return State.FALLING;
         else if (body.getLinearVelocity().x != 0)
             return State.RUNNING;
+        else if (runAnimationGrow)
+            return State.GROWING;
         else
             return State.STANDING;
     }
