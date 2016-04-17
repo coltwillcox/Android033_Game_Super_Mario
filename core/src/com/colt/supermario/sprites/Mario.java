@@ -31,7 +31,7 @@ import com.colt.supermario.screens.ScreenPlay;
 
 public class Mario extends Sprite {
 
-    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD }
+    public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD}
     public State stateCurrent;
     public State statePrevious;
 
@@ -64,8 +64,7 @@ public class Mario extends Sprite {
         this.world = screen.getWorld();
         this.manager = manager;
 
-        stateCurrent = State.STANDING;
-        statePrevious = State.STANDING;
+        stateCurrent = statePrevious = State.STANDING;
         stateTime = 0;
         runningRight = true;
 
@@ -250,6 +249,7 @@ public class Mario extends Sprite {
     public TextureRegion getFrame(float deltaTime) {
         stateCurrent = getState();
         TextureRegion region;
+
         switch (stateCurrent) {
             case GROWING:
                 region = animationGrow.getKeyFrame(stateTime);
@@ -271,6 +271,7 @@ public class Mario extends Sprite {
                 region = marioBig ? animationStandBig : animationStand;
                 break;
         }
+
         if ((body.getLinearVelocity().x < 0 || !runningRight) && !region.isFlipX()) {
             region.flip(true, false); //Flip on X axis only.
             runningRight = false;
@@ -278,6 +279,7 @@ public class Mario extends Sprite {
             region.flip(true, false);
             runningRight = true;
         }
+
         stateTime = stateCurrent == statePrevious ? stateTime + deltaTime : 0;
         statePrevious = stateCurrent;
         return region;

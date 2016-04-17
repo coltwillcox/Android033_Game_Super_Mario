@@ -15,7 +15,9 @@ import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Brick;
 import com.colt.supermario.sprites.Coin;
+import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Goomba;
+import com.colt.supermario.sprites.enemies.Turtle;
 
 /**
  * Created by colt on 4/13/16.
@@ -26,7 +28,9 @@ public class WorldCreator {
     private AssetManager manager;
     private World world;
     private TiledMap map;
-    private Array<Goomba> goombas;
+
+    //Enemies.
+    private Array<Enemy> enemies;
 
     public WorldCreator(ScreenPlay screen, AssetManager manager) {
         this.manager = manager;
@@ -78,17 +82,23 @@ public class WorldCreator {
             new Brick(screen, object, manager);
         }
 
-        //Create goombas.
-        goombas = new Array<Goomba>();
+        //Create enemies.
+        enemies = new Array<Enemy>();
+        //Goombas.
         for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            goombas.add(new Goomba(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
+            enemies.add(new Goomba(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
+        }
+        //Turtles.
+        for (MapObject object : map.getLayers().get(7).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            enemies.add(new Turtle(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
         }
     }
 
     //Getter.
-    public Array<Goomba> getGoombas() {
-        return goombas;
+    public Array<Enemy> getEnemies() {
+        return enemies;
     }
 
 }

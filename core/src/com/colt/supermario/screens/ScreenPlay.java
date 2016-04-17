@@ -124,7 +124,7 @@ public class ScreenPlay implements Screen {
         world.step(1 / 60f, 6, 2); //Takes 1 step in the physics simulation (60 times per second).
         mario.update(deltaTime);
 
-        for (Enemy enemy : worldCreator.getGoombas()) {
+        for (Enemy enemy : worldCreator.getEnemies()) {
             enemy.update(deltaTime);
             if (enemy.getX() < mario.getX() + (224 / Boot.PPM)) //224 = 14 * 16 (Bricks from Mario * BrickSize).
                 enemy.body.setActive(true); //Set enemy active only if player is close (at < upper value).
@@ -155,7 +155,7 @@ public class ScreenPlay implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         mario.draw(game.batch);
-        for (Enemy enemy : worldCreator.getGoombas())
+        for (Enemy enemy : worldCreator.getEnemies())
             enemy.draw(game.batch);
         for (Item item : items)
             item.draw(game.batch);
