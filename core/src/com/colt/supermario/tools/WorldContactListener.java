@@ -34,9 +34,9 @@ public class WorldContactListener implements ContactListener {
                 break;
             case Boot.MARIO_BIT | Boot.ENEMY_HEAD_BIT: //If those two collide. Mario jumping on enemy's head.
                 if (fixA.getFilterData().categoryBits == Boot.ENEMY_HEAD_BIT)
-                    ((Enemy) fixA.getUserData()).hitOnHead();
+                    ((Enemy) fixA.getUserData()).hitOnHead((Mario) fixB.getUserData());
                 else
-                    ((Enemy) fixB.getUserData()).hitOnHead();
+                    ((Enemy) fixB.getUserData()).hitOnHead((Mario) fixA.getUserData());
                 break;
             case Boot.ENEMY_BIT | Boot.OBJECT_BIT: //Enemy will reverse their movement when they hit an object.
                 if (fixA.getFilterData().categoryBits == Boot.ENEMY_BIT)
@@ -62,9 +62,9 @@ public class WorldContactListener implements ContactListener {
                 break;
             case Boot.MARIO_BIT | Boot.ENEMY_BIT: //Mario dies.
                 if (fixA.getFilterData().categoryBits == Boot.MARIO_BIT)
-                    ((Mario) fixA.getUserData()).hit();
+                    ((Mario) fixA.getUserData()).hit((Enemy) fixB.getUserData());
                 else
-                    ((Mario) fixB.getUserData()).hit();
+                    ((Mario) fixB.getUserData()).hit((Enemy) fixA.getUserData());
                 break;
         }
     }

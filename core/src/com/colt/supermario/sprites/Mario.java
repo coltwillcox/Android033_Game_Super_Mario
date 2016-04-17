@@ -19,6 +19,8 @@ import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.sprites.enemies.Enemy;
+import com.colt.supermario.sprites.enemies.Turtle;
 
 /**
  * Created by colt on 4/13/16.
@@ -226,22 +228,26 @@ public class Mario extends Sprite {
     }
 
     //Mario shrinks or dies.
-    public void hit() {
-        if (marioBig) {
-            manager.get("audio/powerdown.wav", Sound.class).play();
-            marioBig = false;
-            timeToRedefineMario = true;
-            setBounds(getX(), getY(), getWidth(), getHeight() / 2); //Mawio was big, so he needs to be cut down in half. \m/
-        } else {
-            manager.get("audio/music.ogg", Music.class).stop();
-            manager.get("audio/death.wav", Sound.class).play();
-            marioDead = true;
-            Filter filter = new Filter();
-            filter.maskBits = Boot.NOTHING_BIT;
-            for (Fixture fixture : body.getFixtureList())
-                fixture.setFilterData(filter); //Every fixture in Mario's body will collide with nothing (NOTHING_BIT).
-            body.setLinearVelocity(0, 0);
-            body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
+    public void hit(Enemy enemy) {
+        if (enemy instanceof Turtle && ((Turtle) enemy).getStateCurrent() == Turtle.State.STANDING_SHELL)
+            ((Turtle) enemy).kick(this.getX() <= enemy.getX() ? Turtle.KICK_RIGHT_SPEED : Turtle.KICK_LEFT_SPEED);
+        else {
+            if (marioBig) {
+                manager.get("audio/powerdown.wav", Sound.class).play();
+                marioBig = false;
+                timeToRedefineMario = true;
+                setBounds(getX(), getY(), getWidth(), getHeight() / 2); //Mawio was big, so he needs to be cut down in half. \m/
+            } else {
+                manager.get("audio/music.ogg", Music.class).stop();
+                manager.get("audio/death.wav", Sound.class).play();
+                marioDead = true;
+                Filter filter = new Filter();
+                filter.maskBits = Boot.NOTHING_BIT;
+                for (Fixture fixture : body.getFixtureList())
+                    fixture.setFilterData(filter); //Every fixture in Mario's body will collide with nothing (NOTHING_BIT).
+                body.setLinearVelocity(0, 0);
+                body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
+            }
         }
     }
 

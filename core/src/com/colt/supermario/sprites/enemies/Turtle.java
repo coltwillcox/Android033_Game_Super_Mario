@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.sprites.Mario;
 
 /**
  * Created by colt on 4/17/16.
@@ -20,7 +21,9 @@ import com.colt.supermario.screens.ScreenPlay;
 
 public class Turtle extends Enemy {
 
-    public enum State {WALKING, SHELL}
+    public enum State {WALKING, STANDING_SHELL, MOVING_SHELL}
+    public static final int KICK_LEFT_SPEED = -2;
+    public static final int KICK_RIGHT_SPEED = 2;
     public State stateCurrent;
     public State statePrevious;
 
@@ -54,7 +57,7 @@ public class Turtle extends Enemy {
     @Override
     public void update(float deltaTime) {
         setRegion(getFrame(deltaTime));
-        if (stateCurrent == State.SHELL && stateTime > 5) {
+        if (stateCurrent == State.STANDING_SHELL && stateTime > 5) {
             stateCurrent = State.WALKING;
             velocity.x = 0.5f;
         }
@@ -87,25 +90,31 @@ public class Turtle extends Enemy {
         head.set(vertice);
         fixtureDef.filter.categoryBits = Boot.ENEMY_HEAD_BIT;
         fixtureDef.shape = head;
-        fixtureDef.restitution = 0.5f; //Half of bounciness.
+        fixtureDef.restitution = 0.5f; //Bounciness.
         body.createFixture(fixtureDef).setUserData(this);
     }
 
     @Override
-    public void hitOnHead() {
-        if (stateCurrent == State.WALKING) {
-            stateCurrent = State.SHELL;
+    public void hitOnHead(Mario mario) {
+        if (stateCurrent != State.STANDING_SHELL) {
+            stateCurrent = State.STANDING_SHELL;
             velocity.x = 0;
         } else {
-
+            kick(mario.getX() <= this.getX() ? KICK_RIGHT_SPEED : KICK_LEFT_SPEED);
         }
+    }
+
+    public void kick(int speed) {
+        velocity.x = speed;
+        stateCurrent = State.MOVING_SHELL;
     }
 
     public TextureRegion getFrame(float deltaTime) {
         TextureRegion region;
 
         switch (stateCurrent) {
-            case SHELL:
+            case STANDING_SHELL:
+            case MOVING_SHELL:
                 region = animationShell;
                 break;
             case WALKING:
@@ -122,6 +131,10 @@ public class Turtle extends Enemy {
         stateTime = stateCurrent == statePrevious ? stateTime + deltaTime : 0;
         statePrevious = stateCurrent;
         return region;
+    }
+
+    public State getStateCurrent() {
+        return stateCurrent;
     }
 
 }
