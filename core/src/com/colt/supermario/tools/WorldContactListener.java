@@ -45,8 +45,8 @@ public class WorldContactListener implements ContactListener {
                     ((Enemy) fixB.getUserData()).reverseVelocity(true, false);
                 break;
             case Boot.ENEMY_BIT | Boot.ENEMY_BIT: //Enemy will reverse their movement when they hit each other.
-                ((Enemy) fixA.getUserData()).reverseVelocity(true, false);
-                ((Enemy) fixB.getUserData()).reverseVelocity(true, false);
+                ((Enemy) fixA.getUserData()).onEnemyHit((Enemy) fixB.getUserData());
+                ((Enemy) fixB.getUserData()).onEnemyHit((Enemy) fixA.getUserData());
                 break;
             case Boot.ITEM_BIT | Boot.OBJECT_BIT: //Item will reverse their movement when they hit an object.
                 if (fixA.getFilterData().categoryBits == Boot.ITEM_BIT)

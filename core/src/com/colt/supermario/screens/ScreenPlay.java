@@ -34,6 +34,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by colt on 4/12/16.
  */
 
+//TODO: Don't allow camera to go beyond world.
+//TODO: More levels.
+
 public class ScreenPlay implements Screen {
 
     private Boot game;

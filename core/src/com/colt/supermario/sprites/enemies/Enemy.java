@@ -35,6 +35,8 @@ public abstract class Enemy extends Sprite {
 
     public abstract void hitOnHead(Mario mario);
 
+    public abstract void onEnemyHit(Enemy enemy);
+
     public void reverseVelocity(boolean x, boolean y) {
         if (x)
             velocity.x = -velocity.x;

@@ -30,7 +30,7 @@ public class WorldCreator {
     private TiledMap map;
 
     //Enemies.
-    private Array<Enemy> enemies;
+    private static Array<Enemy> enemies;
 
     public WorldCreator(ScreenPlay screen, AssetManager manager) {
         this.manager = manager;
@@ -94,6 +94,11 @@ public class WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             enemies.add(new Turtle(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
         }
+    }
+
+    //Remove enemy (eg. Turtle) from array when it's killed.
+    public static void removeEnemy(Enemy enemy) {
+        enemies.removeValue(enemy, true);
     }
 
     //Getter.

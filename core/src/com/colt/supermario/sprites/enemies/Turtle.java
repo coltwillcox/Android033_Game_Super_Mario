@@ -6,28 +6,32 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
+import com.colt.supermario.tools.WorldCreator;
 
 /**
  * Created by colt on 4/17/16.
  */
 
-//TODO: Add alternate shell state. Or animation.
+//TODO: Add alternate standing_shell state. Or animation. Something like WAKING_SHELL. :)
 
 public class Turtle extends Enemy {
 
-    public enum State {WALKING, STANDING_SHELL, MOVING_SHELL}
+    public enum State {WALKING, STANDING_SHELL, MOVING_SHELL, DEAD}
     public static final int KICK_LEFT_SPEED = -2;
     public static final int KICK_RIGHT_SPEED = 2;
     public State stateCurrent;
     public State statePrevious;
 
     private float stateTime;
+    private float rotationDegreesDead;
     private boolean destroy;
     private boolean destroyed;
     private AssetManager manager;
@@ -41,6 +45,8 @@ public class Turtle extends Enemy {
         this.manager = manager;
 
         stateCurrent = statePrevious = State.WALKING;
+        stateTime = 0;
+        rotationDegreesDead = 0;
 
         //Animations.
         frames = new Array<TextureRegion>();
@@ -57,12 +63,25 @@ public class Turtle extends Enemy {
     @Override
     public void update(float deltaTime) {
         setRegion(getFrame(deltaTime));
+
         if (stateCurrent == State.STANDING_SHELL && stateTime > 5) {
             stateCurrent = State.WALKING;
             velocity.x = 0.5f;
         }
+
         setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (5 / Boot.PPM));
-        body.setLinearVelocity(velocity);
+
+        if (stateCurrent == State.DEAD) {
+            rotationDegreesDead += 3;
+            rotate(rotationDegreesDead); //Rotate sprite.
+            if (stateTime > 5 && !destroyed) {
+                world.destroyBody(body);
+                destroyed = true;
+                WorldCreator.removeEnemy(this);
+            }
+        }
+        else
+            body.setLinearVelocity(velocity);
     }
 
     @Override
@@ -99,8 +118,23 @@ public class Turtle extends Enemy {
         if (stateCurrent != State.STANDING_SHELL) {
             stateCurrent = State.STANDING_SHELL;
             velocity.x = 0;
-        } else {
+        }
+        else
             kick(mario.getX() <= this.getX() ? KICK_RIGHT_SPEED : KICK_LEFT_SPEED);
+    }
+
+    @Override
+    public void onEnemyHit(Enemy enemy) {
+        if (enemy instanceof Turtle ) {
+            if (((Turtle) enemy).stateCurrent == State.MOVING_SHELL && stateCurrent != State.MOVING_SHELL)
+                die();
+            else if (stateCurrent == State.MOVING_SHELL && ((Turtle) enemy).stateCurrent == State.WALKING)
+                return;
+            else
+                reverseVelocity(true, false);
+        }
+        else if (stateCurrent != State.MOVING_SHELL) {
+            reverseVelocity(true, false);
         }
     }
 
@@ -119,7 +153,7 @@ public class Turtle extends Enemy {
                 break;
             case WALKING:
             default:
-                region = animationWalk.getKeyFrame(stateTime);
+                region = animationWalk.getKeyFrame(stateTime, true);
                 break;
         }
 
@@ -135,6 +169,15 @@ public class Turtle extends Enemy {
 
     public State getStateCurrent() {
         return stateCurrent;
+    }
+
+    public void die() {
+        stateCurrent = State.DEAD;
+        Filter filter = new Filter();
+        filter.maskBits = Boot.NOTHING_BIT;
+        for (Fixture fixture : body.getFixtureList())
+            fixture.setFilterData(filter);
+        body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
     }
 
 }

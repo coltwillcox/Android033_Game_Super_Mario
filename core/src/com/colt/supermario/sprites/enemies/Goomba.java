@@ -109,6 +109,12 @@ public class Goomba extends Enemy {
         destroy = true;
     }
 
-
+    @Override
+    public void onEnemyHit(Enemy enemy) {
+        if (enemy instanceof Turtle && ((Turtle) enemy).stateCurrent == Turtle.State.MOVING_SHELL)
+            destroy = true;
+        else
+            reverseVelocity(true, false);
+    }
 
 }
