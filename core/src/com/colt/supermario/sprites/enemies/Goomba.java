@@ -3,11 +3,12 @@ package com.colt.supermario.sprites.enemies;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
@@ -25,7 +26,7 @@ public class Goomba extends Enemy {
 
     private float stateTime;
     private boolean destroy;
-    private boolean destroyed;
+    private boolean squished;
     private AssetManager manager;
     private TextureRegion animationDeath;
     private Animation animationWalk;
@@ -38,7 +39,7 @@ public class Goomba extends Enemy {
         
         stateTime = 0;
         destroy = false;
-        destroyed = false;
+        squished = false;
 
         //Animations.
         frames = new Array<TextureRegion>();
@@ -46,6 +47,7 @@ public class Goomba extends Enemy {
         for (int i = 0; i <= 1; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("goomba"), i * 16, 0, 16, 16));
         animationWalk = new Animation(0.4f, frames);
+        frames.clear();
         //Death.
         animationDeath = new TextureRegion(screen.getAtlas().findRegion("goomba"), 2 * 16, 0, 16, 16); // 2 *, beacuse it is the third Goomba image.
 
@@ -55,17 +57,22 @@ public class Goomba extends Enemy {
     @Override
     public void update(float deltaTime) {
         stateTime += deltaTime;
+        velocity.y = body.getLinearVelocity().y;
 
-        if (destroy && !destroyed) {
+        if (destroy && !squished) {
             world.destroyBody(body);
-            destroyed = true;
+            squished = true;
             setRegion(animationDeath);
             stateTime = 0;
-        } else if (!destroyed) {
+        }
+        else if (!squished) {
             setRegion(animationWalk.getKeyFrame(stateTime, true));
             setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
             body.setLinearVelocity(velocity);
         }
+
+        if (stateTime > 1 && squished)
+            destroyed = true;
     }
 
     @Override
@@ -79,7 +86,7 @@ public class Goomba extends Enemy {
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.ENEMY_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.MARIO_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.OBJECT_BIT | Boot.ENEMY_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.MARIO_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.OBJECT_BIT | Boot.ENEMY_BIT | Boot.WEAPON_BIT;
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -98,12 +105,6 @@ public class Goomba extends Enemy {
     }
 
     @Override
-    public void draw(Batch batch) {
-        if (!destroyed || stateTime < 1)
-            super.draw(batch);
-    }
-
-    @Override
     public void hitOnHead(Mario mario) {
         manager.get("audio/stomp.wav", Sound.class).play();
         destroy = true;
@@ -111,10 +112,20 @@ public class Goomba extends Enemy {
 
     @Override
     public void onEnemyHit(Enemy enemy) {
-        if (enemy instanceof Turtle && ((Turtle) enemy).stateCurrent == Turtle.State.MOVING_SHELL)
+        if (enemy instanceof Koopa && ((Koopa) enemy).stateCurrent == Koopa.State.MOVING_SHELL)
             destroy = true;
         else
             reverseVelocity(true, false);
+    }
+
+    @Override
+    public void die() {
+        destroy = true;
+        Filter filter = new Filter();
+        filter.maskBits = Boot.NOTHING_BIT;
+        for (Fixture fixture : body.getFixtureList())
+            fixture.setFilterData(filter);
+        body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
     }
 
 }

@@ -40,7 +40,7 @@ public class Mushroom extends Item {
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.ITEM_BIT;
-        fixtureDef.filter.maskBits = Boot.MARIO_BIT | Boot.OBJECT_BIT | Boot.GROUND_BIT | Boot.COIN_BIT | Boot.BRICK_BIT;
+        fixtureDef.filter.maskBits = Boot.MARIO_BIT | Boot.OBJECT_BIT | Boot.GROUND_BIT | Boot.COINBLOCK_BIT | Boot.BRICK_BIT;
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
     }

@@ -16,6 +16,7 @@ public abstract class Enemy extends Sprite {
     protected ScreenPlay screen;
     protected World world;
 
+    public boolean destroyed;
     public Body body;
     public Vector2 velocity;
 
@@ -23,6 +24,7 @@ public abstract class Enemy extends Sprite {
     public Enemy(ScreenPlay screen, float x, float y) {
         this.screen = screen;
         this.world = screen.getWorld();
+        destroyed = false;
         setPosition(x, y);
         defineEnemy();
         velocity = new Vector2(0.5f, 0);
@@ -43,5 +45,11 @@ public abstract class Enemy extends Sprite {
         if (y)
             velocity.y = -velocity.y;
     }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
+    public abstract void die();
 
 }

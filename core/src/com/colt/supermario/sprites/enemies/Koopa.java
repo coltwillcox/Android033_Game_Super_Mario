@@ -1,6 +1,7 @@
 package com.colt.supermario.sprites.enemies;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -14,7 +15,6 @@ import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
-import com.colt.supermario.tools.WorldCreator;
 
 /**
  * Created by colt on 4/17/16.
@@ -22,7 +22,7 @@ import com.colt.supermario.tools.WorldCreator;
 
 //TODO: Add alternate standing_shell state. Or animation. Something like WAKING_SHELL. :)
 
-public class Turtle extends Enemy {
+public class Koopa extends Enemy {
 
     public enum State {WALKING, STANDING_SHELL, MOVING_SHELL, DEAD}
     public static final int KICK_LEFT_SPEED = -2;
@@ -33,14 +33,13 @@ public class Turtle extends Enemy {
     private float stateTime;
     private float rotationDegreesDead;
     private boolean destroy;
-    private boolean destroyed;
     private AssetManager manager;
     private TextureRegion animationShell;
     private Animation animationWalk;
     private Array<TextureRegion> frames;
 
     //Constructor.
-    public Turtle(ScreenPlay screen, float x, float y, AssetManager manager) {
+    public Koopa(ScreenPlay screen, float x, float y, AssetManager manager) {
         super(screen, x, y);
         this.manager = manager;
 
@@ -52,32 +51,34 @@ public class Turtle extends Enemy {
         frames = new Array<TextureRegion>();
         //Walk animation.
         for (int i = 0; i <= 1; i++)
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("turtle"), i * 16, 0, 16, 24));
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("koopa"), i * 16, 0, 16, 32));
         animationWalk = new Animation(0.2f, frames);
+        frames.clear();
         //Shell animation.
-        animationShell = new TextureRegion(screen.getAtlas().findRegion("turtle"), 4 * 16, 0, 16, 24);
+        animationShell = new TextureRegion(screen.getAtlas().findRegion("koopa"), 4 * 16, 0, 16, 32);
 
-        setBounds(getX(), getY(), 16 / Boot.PPM, 24 / Boot.PPM);
+        setBounds(getX(), getY(), 16 / Boot.PPM, 32 / Boot.PPM);
     }
 
     @Override
     public void update(float deltaTime) {
         setRegion(getFrame(deltaTime));
+        velocity.y = body.getLinearVelocity().y;
 
         if (stateCurrent == State.STANDING_SHELL && stateTime > 5) {
             stateCurrent = State.WALKING;
             velocity.x = 0.5f;
         }
 
-        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (5 / Boot.PPM));
+        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (9 / Boot.PPM));
 
         if (stateCurrent == State.DEAD) {
-            rotationDegreesDead += 3;
+            setOriginCenter();
+            rotationDegreesDead += 2;
             rotate(rotationDegreesDead); //Rotate sprite.
             if (stateTime > 5 && !destroyed) {
                 world.destroyBody(body);
                 destroyed = true;
-                WorldCreator.removeEnemy(this);
             }
         }
         else
@@ -95,7 +96,7 @@ public class Turtle extends Enemy {
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.ENEMY_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.MARIO_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.OBJECT_BIT | Boot.ENEMY_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.MARIO_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.OBJECT_BIT | Boot.ENEMY_BIT | Boot.WEAPON_BIT;
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -125,10 +126,10 @@ public class Turtle extends Enemy {
 
     @Override
     public void onEnemyHit(Enemy enemy) {
-        if (enemy instanceof Turtle ) {
-            if (((Turtle) enemy).stateCurrent == State.MOVING_SHELL && stateCurrent != State.MOVING_SHELL)
+        if (enemy instanceof Koopa) {
+            if (((Koopa) enemy).stateCurrent == State.MOVING_SHELL && stateCurrent != State.MOVING_SHELL)
                 die();
-            else if (stateCurrent == State.MOVING_SHELL && ((Turtle) enemy).stateCurrent == State.WALKING)
+            else if (stateCurrent == State.MOVING_SHELL && ((Koopa) enemy).stateCurrent == State.WALKING)
                 return;
             else
                 reverseVelocity(true, false);
@@ -139,6 +140,7 @@ public class Turtle extends Enemy {
     }
 
     public void kick(int speed) {
+        manager.get("audio/kick.wav", Sound.class).play();
         velocity.x = speed;
         stateCurrent = State.MOVING_SHELL;
     }
@@ -171,13 +173,14 @@ public class Turtle extends Enemy {
         return stateCurrent;
     }
 
+    @Override
     public void die() {
         stateCurrent = State.DEAD;
         Filter filter = new Filter();
         filter.maskBits = Boot.NOTHING_BIT;
         for (Fixture fixture : body.getFixtureList())
             fixture.setFilterData(filter);
-        body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
+        body.applyLinearImpulse(new Vector2(0, 2f), body.getWorldCenter(), true);
     }
 
 }

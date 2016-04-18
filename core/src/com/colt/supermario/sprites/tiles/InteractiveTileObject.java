@@ -1,4 +1,4 @@
-package com.colt.supermario.sprites;
+package com.colt.supermario.sprites.tiles;
 
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.sprites.Mario;
 
 /**
  * Created by colt on 4/13/16.

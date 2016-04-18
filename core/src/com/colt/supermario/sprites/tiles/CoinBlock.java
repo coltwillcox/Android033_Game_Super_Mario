@@ -1,4 +1,4 @@
-package com.colt.supermario.sprites;
+package com.colt.supermario.sprites.tiles;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.items.ItemDefinition;
 import com.colt.supermario.sprites.items.Mushroom;
 
@@ -15,18 +16,18 @@ import com.colt.supermario.sprites.items.Mushroom;
  * Created by colt on 4/13/16.
  */
 
-public class Coin extends InteractiveTileObject {
+public class CoinBlock extends InteractiveTileObject {
 
     private final int BLANK_COIN = 28;
     private static TiledMapTileSet tileSet;
     private AssetManager manager;
 
-    public Coin(ScreenPlay screen, MapObject object, AssetManager manager) {
+    public CoinBlock(ScreenPlay screen, MapObject object, AssetManager manager) {
         super(screen, object);
         this.manager = manager;
         tileSet = map.getTileSets().getTileSet("tileset"); //Name of the tileset from tmx file.
         fixture.setUserData(this);
-        setCategoryFilter(Boot.COIN_BIT);
+        setCategoryFilter(Boot.COINBLOCK_BIT);
     }
 
     @Override

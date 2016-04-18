@@ -8,8 +8,9 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.colt.supermario.Boot;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.enemies.Enemy;
-import com.colt.supermario.sprites.InteractiveTileObject;
+import com.colt.supermario.sprites.tiles.InteractiveTileObject;
 import com.colt.supermario.sprites.items.Item;
+import com.colt.supermario.sprites.weapons.Fireball;
 
 /**
  * Created by colt on 4/13/16.
@@ -22,11 +23,11 @@ public class WorldContactListener implements ContactListener {
         Fixture fixA = contact.getFixtureA();
         Fixture fixB = contact.getFixtureB();
 
-        int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
+        int beginDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
-        switch (cDef) {
+        switch (beginDef) {
             case Boot.MARIO_HEAD_BIT | Boot.BRICK_BIT: //Mario smash bricks with his head! \m/
-            case Boot.MARIO_HEAD_BIT | Boot.COIN_BIT:
+            case Boot.MARIO_HEAD_BIT | Boot.COINBLOCK_BIT:
                 if (fixA.getFilterData().categoryBits == Boot.MARIO_HEAD_BIT)
                     ((InteractiveTileObject) fixB.getUserData()).onHeadHit((Mario) fixA.getUserData());
                 else
@@ -59,6 +60,27 @@ public class WorldContactListener implements ContactListener {
                     ((Item) fixA.getUserData()).use((Mario) fixB.getUserData());
                 else
                     ((Item) fixB.getUserData()).use((Mario) fixA.getUserData());
+                break;
+            case Boot.WEAPON_BIT | Boot.OBJECT_BIT: //Fireball hits an object (eg. pipe).
+                if (fixA.getFilterData().categoryBits == Boot.WEAPON_BIT)
+                    ((Fireball) fixA.getUserData()).setDestroy();
+                else
+                    ((Fireball) fixB.getUserData()).setDestroy();
+                break;
+            case Boot.WEAPON_BIT | Boot.ENEMY_BIT:
+                if (fixA.getFilterData().categoryBits == Boot.ENEMY_BIT)
+                    ((Enemy) fixA.getUserData()).die();
+                else
+                    ((Enemy) fixB.getUserData()).die();
+                break;
+            case Boot.MARIO_FEET_BIT | Boot.GROUND_BIT: //Check if Mario is on ground, so he can jump.
+            case Boot.MARIO_FEET_BIT | Boot.BRICK_BIT:
+            case Boot.MARIO_FEET_BIT | Boot.COINBLOCK_BIT:
+            case Boot.MARIO_FEET_BIT | Boot.OBJECT_BIT:
+                if (fixA.getFilterData().categoryBits == Boot.MARIO_FEET_BIT)
+                    ((Mario) fixA.getUserData()).setJumpability(true);
+                else
+                    ((Mario) fixB.getUserData()).setJumpability(true);
                 break;
             case Boot.MARIO_BIT | Boot.ENEMY_BIT: //Mario dies.
                 if (fixA.getFilterData().categoryBits == Boot.MARIO_BIT)

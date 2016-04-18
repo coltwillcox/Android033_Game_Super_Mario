@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -20,7 +21,11 @@ import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.enemies.Enemy;
-import com.colt.supermario.sprites.enemies.Turtle;
+import com.colt.supermario.sprites.enemies.Koopa;
+import com.colt.supermario.sprites.weapons.Fireball;
+import com.colt.supermario.sprites.weapons.FireballDefinition;
+
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by colt on 4/13/16.
@@ -28,8 +33,8 @@ import com.colt.supermario.sprites.enemies.Turtle;
 
 //TODO: Program crashing when Mario have feet.
 //TODO: Moving and jumping sensitivity.
-//TODO: Sticking to celling while jumping.
 //TODO: Add Mario invisibility (after shrinking).
+//TODO: Add jump sounds.
 
 public class Mario extends Sprite {
 
@@ -50,6 +55,14 @@ public class Mario extends Sprite {
     private boolean timeToDefineBigMario;
     private boolean timeToRedefineMario;
     private boolean marioDead;
+
+    //Check if can jump.
+    private boolean jumpability;
+
+    //Fire timers.
+    private float fireTimer;
+    private float fireInterval;
+
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
     private TextureRegion animationDead;
@@ -60,6 +73,10 @@ public class Mario extends Sprite {
     private Animation animationGrow;
     private Array<TextureRegion> frames;
 
+    //Fireballs.
+    private LinkedBlockingQueue<FireballDefinition> fireballsToSpawn;
+    private Array<Fireball> fireballs;
+
     //Constructor.
     public Mario(ScreenPlay screen, AssetManager manager) {
         this.screen = screen;
@@ -69,38 +86,47 @@ public class Mario extends Sprite {
         stateCurrent = statePrevious = State.STANDING;
         stateTime = 0;
         runningRight = true;
+        jumpability = true;
+
+        //Fire timers.
+        fireTimer = 0;
+        fireInterval = 0.3f;
 
         //Animations.
         frames = new Array<TextureRegion>();
         //Standing and dead. Not really animations.
-        animationStand = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 0, 0, 16, 16);
-        animationStandBig = new TextureRegion(screen.getAtlas().findRegion("big_mario"), 0, 0, 16, 32);
-        animationDead = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 6 * 16, 0, 16, 16);
+        animationStand = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 0, 0, 16, 16);
+        animationStandBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 0, 0, 16, 32);
+        animationDead = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 6 * 16, 0, 16, 16);
         //Run animations.
         for (int i = 1; i <= 3; i++)
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i * 16, 0, 16, 16));
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
         animationRun = new Animation(0.1f, frames);
         frames.clear();
         for (int i = 1; i <= 3; i++)
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), i * 16, 0, 16, 32));
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), i * 16, 0, 16, 32));
         animationRunBig = new Animation(0.1f, frames);
         frames.clear();
         //Jump animations.
         for (int i = 4; i <= 5; i++)
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i * 16, 0, 16, 16));
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
         animationJump = new Animation(0.2f, frames);
         frames.clear();
         for (int i = 4; i <= 5; i++)
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), i * 16, 0, 16, 32));
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), i * 16, 0, 16, 32));
         animationJumpBig = new Animation(0.2f, frames);
         frames.clear();
         //Grow animation.
         for (int i = 0; i <= 1; i++) {
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), 15 * 16, 0, 16, 32)); //15 * 16, because it's 16th big_mario image.
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), 0, 0, 16, 32));
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), 15 * 16, 0, 16, 32)); //15 * 16, because it's 16th big_mario image.
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), 0, 0, 16, 32));
         }
         animationGrow = new Animation(0.2f, frames);
         frames.clear();
+
+        //Fireballs.
+        fireballsToSpawn = new LinkedBlockingQueue<FireballDefinition>();
+        fireballs = new Array<Fireball>();
 
         defineMario();
         setBounds(0, 0, 16 / Boot.PPM, 16 / Boot.PPM);
@@ -108,6 +134,9 @@ public class Mario extends Sprite {
     }
 
     public void update(float deltaTime) {
+        fireTimer += deltaTime;
+        handleFireballs();
+
         if (marioBig)
             setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (7 / Boot.PPM)); //Sets the position where the sprite will be drawn.
         else
@@ -119,6 +148,19 @@ public class Mario extends Sprite {
             defineBigMario();
         if (timeToRedefineMario)
             redefineMario();
+
+        for (Fireball fireball : fireballs) {
+            fireball.update(deltaTime);
+            if (fireball.isDestroyed())
+                fireballs.removeValue(fireball, true);
+        }
+    }
+
+    @Override
+    public void draw(Batch batch) {
+        super.draw(batch);
+        for (Fireball fireball : fireballs)
+            fireball.draw(batch);
     }
 
     public void defineMario() {
@@ -132,7 +174,7 @@ public class Mario extends Sprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT; //Mario (fixture) will collide only with these BITS.
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT; //Mario (fixture) will collide only with these BITS.
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -144,29 +186,33 @@ public class Mario extends Sprite {
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData(this);
 
-        //Create Mario's feet. Problem with this fixture.
-        //EdgeShape feet = new EdgeShape();
-        //feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
-        //fixtureDef.shape = feet;
-        //fixtureDef.isSensor = false;
-        //body.createFixture(fixtureDef);
+        //Create Mario's feet. Problem with this fixture if sensor = false.
+        EdgeShape feet = new EdgeShape();
+        feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
+        fixtureDef.shape = feet;
+        fixtureDef.filter.categoryBits = Boot.MARIO_FEET_BIT;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef).setUserData(this);
     }
 
     public void defineBigMario() {
         Vector2 currentPosition = body.getPosition();
+        Vector2 currentVelocity = body.getLinearVelocity();
+
         world.destroyBody(body);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(currentPosition.add(0, 8 / Boot.PPM));
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         body = world.createBody(bodyDef);
+        body.setLinearVelocity(currentVelocity);
 
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.friction = 0.4f; //Stop Mario from iceskating! ;)
+        fixtureDef.friction = 0.4f;
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT;
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -179,6 +225,13 @@ public class Mario extends Sprite {
         head.set(new Vector2(-2 / Boot.PPM, 7 / Boot.PPM), new Vector2(2 / Boot.PPM, 7 / Boot.PPM)); // 2, 7, compared to body(Def) position, 1st upper circle.
         fixtureDef.filter.categoryBits = Boot.MARIO_HEAD_BIT;
         fixtureDef.shape = head;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef).setUserData(this);
+
+        EdgeShape feet = new EdgeShape();
+        feet.set(new Vector2(-2 / Boot.PPM, -23 / Boot.PPM), new Vector2(2 / Boot.PPM, -23 / Boot.PPM));
+        fixtureDef.shape = feet;
+        fixtureDef.filter.categoryBits = Boot.MARIO_FEET_BIT;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -199,7 +252,7 @@ public class Mario extends Sprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COIN_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT;
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -207,6 +260,13 @@ public class Mario extends Sprite {
         head.set(new Vector2(-2 / Boot.PPM, 7 / Boot.PPM), new Vector2(2 / Boot.PPM, 7 / Boot.PPM));
         fixtureDef.filter.categoryBits = Boot.MARIO_HEAD_BIT;
         fixtureDef.shape = head;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef).setUserData(this);
+
+        EdgeShape feet = new EdgeShape();
+        feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
+        fixtureDef.shape = feet;
+        fixtureDef.filter.categoryBits = Boot.MARIO_FEET_BIT;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -227,10 +287,34 @@ public class Mario extends Sprite {
         }
     }
 
+    //Mario fires.
+    public void spawnFireball() {
+        if (fireTimer >= fireInterval) {
+            manager.get("audio/fireball.wav", Sound.class).play();
+            fireballsToSpawn.add(new FireballDefinition(body.getPosition().x, body.getPosition().y, runningRight));
+            fireTimer = 0;
+        }
+    }
+
+    public void handleFireballs() {
+        if (fireballsToSpawn.size() > 0) {
+            FireballDefinition fireballDefinition = fireballsToSpawn.poll();
+            fireballs.add(new Fireball(screen, fireballDefinition.x, fireballDefinition.y, fireballDefinition.fireRight));
+        }
+    }
+
+//    public void fire() {
+//        if (fireTimer >= fireInterval) {
+//            manager.get("audio/fireball.wav", Sound.class).play();
+//            fireballs.add(new Fireball(screen, body.getPosition().x, body.getPosition().y, runningRight));
+//            fireTimer = 0;
+//        }
+//    }
+
     //Mario shrinks or dies.
     public void hit(Enemy enemy) {
-        if (enemy instanceof Turtle && ((Turtle) enemy).getStateCurrent() == Turtle.State.STANDING_SHELL)
-            ((Turtle) enemy).kick(this.getX() <= enemy.getX() ? Turtle.KICK_RIGHT_SPEED : Turtle.KICK_LEFT_SPEED);
+        if (enemy instanceof Koopa && ((Koopa) enemy).getStateCurrent() == Koopa.State.STANDING_SHELL)
+            ((Koopa) enemy).kick(this.getX() <= enemy.getX() ? Koopa.KICK_RIGHT_SPEED : Koopa.KICK_LEFT_SPEED);
         else {
             if (marioBig) {
                 manager.get("audio/powerdown.wav", Sound.class).play();
@@ -306,6 +390,7 @@ public class Mario extends Sprite {
             return State.STANDING;
     }
 
+    //Getters and setters.
     public float getStateTime() {
         return stateTime;
     }
@@ -316,6 +401,18 @@ public class Mario extends Sprite {
 
     public boolean isDead() {
         return marioDead;
+    }
+
+    public State getStateCurrent() {
+        return stateCurrent;
+    }
+
+    public boolean isJumpability() {
+        return jumpability;
+    }
+
+    public void setJumpability(boolean jumpability) {
+        this.jumpability = jumpability;
     }
 
 }

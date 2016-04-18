@@ -13,11 +13,11 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
-import com.colt.supermario.sprites.Brick;
-import com.colt.supermario.sprites.Coin;
+import com.colt.supermario.sprites.tiles.Brick;
+import com.colt.supermario.sprites.tiles.CoinBlock;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Goomba;
-import com.colt.supermario.sprites.enemies.Turtle;
+import com.colt.supermario.sprites.enemies.Koopa;
 
 /**
  * Created by colt on 4/13/16.
@@ -74,7 +74,7 @@ public class WorldCreator {
 
         //Create coins bodies/fixtures.
         for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
-            new Coin(screen, object, manager);
+            new CoinBlock(screen, object, manager);
         }
 
         //Create bricks bodies/fixtures.
@@ -92,11 +92,11 @@ public class WorldCreator {
         //Turtles.
         for (MapObject object : map.getLayers().get(7).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            enemies.add(new Turtle(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
+            enemies.add(new Koopa(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
         }
     }
 
-    //Remove enemy (eg. Turtle) from array when it's killed.
+    //Remove enemy (eg. Koopa) from array when it's killed.
     public static void removeEnemy(Enemy enemy) {
         enemies.removeValue(enemy, true);
     }

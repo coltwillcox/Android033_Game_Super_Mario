@@ -66,8 +66,8 @@ public class ScreenPlay implements Screen {
     private Mario mario;
 
     //Items.
-    private Array<Item> items;
     private LinkedBlockingQueue<ItemDefinition> itemsToSpawn;
+    private Array<Item> items;
 
     //Joypad-like controller.
     private Controller controller;
@@ -81,7 +81,7 @@ public class ScreenPlay implements Screen {
         this.manager = manager;
 
         //Textures.
-        atlas = new TextureAtlas("graphic/sprites.pack");
+        atlas = new TextureAtlas("graphic/sprites.atlas");
 
         //Camera to follow Mario, Viewport, HUD.
         camera = new OrthographicCamera();
@@ -109,8 +109,8 @@ public class ScreenPlay implements Screen {
         mario = new Mario(this, manager);
 
         //Items.
-        items = new Array<Item>();
         itemsToSpawn = new LinkedBlockingQueue<ItemDefinition>();
+        items = new Array<Item>();
 
         //Controller.
         controller = new Controller(game.batch);
@@ -118,7 +118,7 @@ public class ScreenPlay implements Screen {
         //Audio.
         music = manager.get("audio/music.ogg", Music.class);
         music.setLooping(true);
-        music.play();
+        //music.play();
     }
 
     public void update(float deltaTime) {
@@ -131,6 +131,8 @@ public class ScreenPlay implements Screen {
             enemy.update(deltaTime);
             if (enemy.getX() < mario.getX() + (224 / Boot.PPM)) //224 = 14 * 16 (Bricks from Mario * BrickSize).
                 enemy.body.setActive(true); //Set enemy active only if player is close (at < upper value).
+            if (enemy.isDestroyed())
+                WorldCreator.removeEnemy(enemy);
         }
 
         for (Item item : items)
@@ -186,12 +188,16 @@ public class ScreenPlay implements Screen {
     public void handleInput(float deltaTime) {
         //Control Mario only if he is not dead.
         if (mario.stateCurrent != Mario.State.DEAD) {
-            if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0)
+            if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0 && mario.isJumpability()) {
                 mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - This impulse will wake object.
+                mario.setJumpability(false);
+            }
             if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
                 mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
             if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)
                 mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
+            if (controller.isaPressed())
+                mario.spawnFireball();
         }
     }
 

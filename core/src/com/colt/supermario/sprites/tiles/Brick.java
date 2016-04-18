@@ -1,4 +1,4 @@
-package com.colt.supermario.sprites;
+package com.colt.supermario.sprites.tiles;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
@@ -6,6 +6,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.sprites.Mario;
 
 /**
  * Created by colt on 4/13/16.
