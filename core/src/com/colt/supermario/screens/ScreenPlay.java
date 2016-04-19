@@ -9,8 +9,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -34,8 +36,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by colt on 4/12/16.
  */
 
-//TODO: Don't allow camera to go beyond world.
 //TODO: More levels.
+//TODO: Add scores over heads.
 
 public class ScreenPlay implements Screen {
 
@@ -56,6 +58,10 @@ public class ScreenPlay implements Screen {
     private TmxMapLoader mapLoader;
     private TiledMap map;
     private OrthogonalTiledMapRenderer mapRenderer;
+
+    //Camera borders.
+    private float cameraBorderLeft;
+    private float cameraBorderRight;
 
     //Box2D variables.
     private World world;
@@ -98,8 +104,12 @@ public class ScreenPlay implements Screen {
         map = mapLoader.load("graphic/level11.tmx", params);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / Boot.PPM);
 
-        //Set camera position and create world.
+        //Set camera and borders.
+        cameraBorderLeft = Boot.V_WIDTH / Boot.PPM / 2;
+        cameraBorderRight = (((TiledMapTileLayer) map.getLayers().get(0)).getWidth() * ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth() / Boot.PPM) - (Boot.V_WIDTH / Boot.PPM / 2); //MapWidth * TileWidth - viewport half.
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); //Center camera in the middle of the viewport.
+
+        //Create world.
         world = new World(new Vector2(0, -10), true); //Create world and give it x, y gravity vector.
         world.setContactListener(new WorldContactListener());
         b2ddr = new Box2DDebugRenderer(); //Debug lines in Box2D world.
@@ -139,8 +149,17 @@ public class ScreenPlay implements Screen {
             item.update(deltaTime);
 
         hud.update(deltaTime);
+
+
+
+
         if (mario.stateCurrent != Mario.State.DEAD)
-            camera.position.x = mario.body.getPosition().x; //Attach camera to Mario, only when not dead.
+            //camera.position.x = mario.body.getPosition().x; //Attach camera to Mario, only when not dead.
+            camera.position.x = MathUtils.clamp(mario.body.getPosition().x, cameraBorderLeft, cameraBorderRight);
+
+
+
+
         camera.update(); //Update camera with correct coordinates after changes.
         mapRenderer.setView(camera); //Set renderer to draw only what camera can see in game world.
     }
