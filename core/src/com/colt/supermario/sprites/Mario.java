@@ -34,7 +34,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 //TODO: Program crashing when Mario have feet (sensor = false).
 //TODO: Moving and jumping sensitivity.
 //TODO: Add Mario invisibility (after shrinking).
-//TODO: Fix jumping.
 
 public class Mario extends Sprite {
 
@@ -184,6 +183,7 @@ public class Mario extends Sprite {
         feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
         fixtureDef.shape = feet;
         fixtureDef.filter.categoryBits = Boot.MARIO_FEET_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData(this);
     }
@@ -225,6 +225,7 @@ public class Mario extends Sprite {
         feet.set(new Vector2(-2 / Boot.PPM, -23 / Boot.PPM), new Vector2(2 / Boot.PPM, -23 / Boot.PPM));
         fixtureDef.shape = feet;
         fixtureDef.filter.categoryBits = Boot.MARIO_FEET_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -260,6 +261,7 @@ public class Mario extends Sprite {
         feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
         fixtureDef.shape = feet;
         fixtureDef.filter.categoryBits = Boot.MARIO_FEET_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -293,13 +295,16 @@ public class Mario extends Sprite {
         }
     }
 
-//    public void fire() {
-//        if (fireTimer >= fireInterval) {
-//            manager.get("audio/fireball.wav", Sound.class).play();
-//            fireballs.add(new Fireball(screen, body.getPosition().x, body.getPosition().y, runningRight));
-//            fireTimer = 0;
-//        }
-//    }
+    public void jump(){
+        if (stateCurrent != State.JUMPING && jumpability) {
+            if (!marioBig)
+                manager.get("audio/jumpsmall.wav", Sound.class).play();
+            else
+                manager.get("audio/jumpbig.wav", Sound.class).play();
+            body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
+            stateCurrent = State.JUMPING;
+        }
+    }
 
     //Mario shrinks or dies.
     public void hit(Enemy enemy) {

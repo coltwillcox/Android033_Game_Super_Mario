@@ -73,7 +73,7 @@ public class WorldContactListener implements ContactListener {
                 else
                     ((Enemy) fixB.getUserData()).die();
                 break;
-            case Boot.MARIO_FEET_BIT | Boot.GROUND_BIT: //Check if Mario is on ground, so he can jump.
+            case Boot.MARIO_FEET_BIT | Boot.GROUND_BIT: //Check if Mario is on the ground, so he can jump.
             case Boot.MARIO_FEET_BIT | Boot.BRICK_BIT:
             case Boot.MARIO_FEET_BIT | Boot.COINBLOCK_BIT:
             case Boot.MARIO_FEET_BIT | Boot.OBJECT_BIT:
@@ -93,7 +93,22 @@ public class WorldContactListener implements ContactListener {
 
     @Override
     public void endContact(Contact contact) {
+        Fixture fixA = contact.getFixtureA();
+        Fixture fixB = contact.getFixtureB();
 
+        int beginDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
+
+        switch (beginDef) {
+            case Boot.MARIO_FEET_BIT | Boot.GROUND_BIT: //Check if Mario is not on the ground, so he can't jump.
+            case Boot.MARIO_FEET_BIT | Boot.BRICK_BIT:
+            case Boot.MARIO_FEET_BIT | Boot.COINBLOCK_BIT:
+            case Boot.MARIO_FEET_BIT | Boot.OBJECT_BIT:
+                if (fixA.getFilterData().categoryBits == Boot.MARIO_FEET_BIT)
+                    ((Mario) fixA.getUserData()).setJumpability(false);
+                else
+                    ((Mario) fixB.getUserData()).setJumpability(false);
+                break;
+        }
     }
 
     @Override

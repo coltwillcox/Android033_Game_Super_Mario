@@ -216,14 +216,8 @@ public class ScreenPlay implements Screen {
     public void handleInput(float deltaTime) {
         //Control Mario only if he is not dead.
         if (mario.stateCurrent != Mario.State.DEAD) {
-            if ((controller.isUpPressed() || controller.isbPressed()) && mario.body.getLinearVelocity().y == 0 && mario.isJumpability()) {
-                if (!mario.isBig())
-                    manager.get("audio/jumpsmall.wav", Sound.class).play();
-                else
-                    manager.get("audio/jumpbig.wav", Sound.class).play();
-                mario.body.applyLinearImpulse(new Vector2(0, 4), mario.body.getWorldCenter(), true); //true - This impulse will wake object.
-                mario.setJumpability(false);
-            }
+            if (controller.isUpPressed() || controller.isbPressed())
+                mario.jump();
             if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
                 mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
             if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)

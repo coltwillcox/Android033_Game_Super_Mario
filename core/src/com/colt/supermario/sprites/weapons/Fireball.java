@@ -17,8 +17,6 @@ import com.colt.supermario.screens.ScreenPlay;
  * Created by colt on 4/18/16.
  */
 
-//TODO: Check fireballs creation. Every 1sec (stateTime > 1?) there is one stupid fireball. Maybe cuz of body destruction?
-
 public class Fireball extends Sprite {
 
     public ScreenPlay screen;
