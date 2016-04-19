@@ -31,10 +31,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by colt on 4/13/16.
  */
 
-//TODO: Program crashing when Mario have feet.
+//TODO: Program crashing when Mario have feet (sensor = false).
 //TODO: Moving and jumping sensitivity.
 //TODO: Add Mario invisibility (after shrinking).
-//TODO: Add jump sounds.
 
 public class Mario extends Sprite {
 
