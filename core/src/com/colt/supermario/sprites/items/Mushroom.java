@@ -43,6 +43,8 @@ public class Mushroom extends Item {
         fixtureDef.filter.maskBits = Boot.MARIO_BIT | Boot.OBJECT_BIT | Boot.GROUND_BIT | Boot.COINBLOCK_BIT | Boot.BRICK_BIT;
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
+
+        shape.dispose();
     }
 
     @Override

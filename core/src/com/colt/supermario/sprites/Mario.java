@@ -34,6 +34,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 //TODO: Program crashing when Mario have feet (sensor = false).
 //TODO: Moving and jumping sensitivity.
 //TODO: Add Mario invisibility (after shrinking).
+//TODO: Fix jumping.
 
 public class Mario extends Sprite {
 
@@ -57,10 +58,6 @@ public class Mario extends Sprite {
 
     //Check if can jump.
     private boolean jumpability;
-
-    //Fire timers.
-    private float fireTimer;
-    private float fireInterval;
 
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
@@ -86,10 +83,6 @@ public class Mario extends Sprite {
         stateTime = 0;
         runningRight = true;
         jumpability = true;
-
-        //Fire timers.
-        fireTimer = 0;
-        fireInterval = 0.3f;
 
         //Animations.
         frames = new Array<TextureRegion>();
@@ -124,7 +117,7 @@ public class Mario extends Sprite {
         frames.clear();
 
         //Fireballs.
-        fireballsToSpawn = new LinkedBlockingQueue<FireballDefinition>();
+        fireballsToSpawn = new LinkedBlockingQueue<FireballDefinition>(1);
         fireballs = new Array<Fireball>();
 
         defineMario();
@@ -133,7 +126,6 @@ public class Mario extends Sprite {
     }
 
     public void update(float deltaTime) {
-        fireTimer += deltaTime;
         handleFireballs();
 
         if (marioBig)
@@ -149,9 +141,11 @@ public class Mario extends Sprite {
             redefineMario();
 
         for (Fireball fireball : fireballs) {
-            fireball.update(deltaTime);
-            if (fireball.isDestroyed())
+            if (fireball.isDestroyed()) {
                 fireballs.removeValue(fireball, true);
+            }
+            else
+                fireball.update(deltaTime);
         }
     }
 
@@ -288,11 +282,8 @@ public class Mario extends Sprite {
 
     //Mario fires.
     public void spawnFireball() {
-        if (fireTimer >= fireInterval) {
-            manager.get("audio/fireball.wav", Sound.class).play();
-            fireballsToSpawn.add(new FireballDefinition(body.getPosition().x, body.getPosition().y, runningRight));
-            fireTimer = 0;
-        }
+        manager.get("audio/fireball.wav", Sound.class).play();
+        fireballsToSpawn.add(new FireballDefinition(body.getPosition().x, body.getPosition().y, runningRight));
     }
 
     public void handleFireballs() {

@@ -23,8 +23,7 @@ public class Fireball extends Sprite {
 
     public ScreenPlay screen;
     public World world;
-    public Body body;
-
+    private Body body;
     private float stateTime;
     private boolean exploded;
     private boolean destroy;
@@ -65,17 +64,17 @@ public class Fireball extends Sprite {
     public void update(float deltaTime) {
         stateTime += deltaTime;
 
-        if ((destroy && !exploded) || (stateTime > 1 && !exploded)) {
+        if ((destroy || stateTime > 1) && !exploded) {
             world.destroyBody(body);
+            destroy = true;
             exploded = true;
             setRegion(animationExplosion);
             stateTime = 0;
         }
-        else if (!exploded) {
+        if (!exploded) {
             setRegion(animationFire.getKeyFrame(stateTime, true));
             setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
         }
-
         if (stateTime > 0.1f && exploded)
             destroyed = true;
     }
@@ -84,7 +83,8 @@ public class Fireball extends Sprite {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(fireRight ? getX() + (8 / Boot.PPM) : getX() - (8 / Boot.PPM), getY());
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        body = world.createBody(bodyDef);
+        if(!world.isLocked())
+            body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
         CircleShape shape = new CircleShape();
@@ -96,6 +96,8 @@ public class Fireball extends Sprite {
         fixtureDef.restitution = 0.75f;
         body.createFixture(fixtureDef).setUserData(this);
         body.setLinearVelocity(new Vector2(fireRight ? 2 : -2, 2));
+
+        shape.dispose();
     }
 
     //Getters and setters.

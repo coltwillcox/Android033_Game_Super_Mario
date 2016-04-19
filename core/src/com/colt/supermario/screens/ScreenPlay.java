@@ -72,6 +72,10 @@ public class ScreenPlay implements Screen {
     //Player and enemies.
     private Mario mario;
 
+    //Fire timers.
+    private float fireTimer;
+    private float fireInterval;
+
     //Items.
     private LinkedBlockingQueue<ItemDefinition> itemsToSpawn;
     private Array<Item> items;
@@ -119,6 +123,10 @@ public class ScreenPlay implements Screen {
         //Player and enemies.
         mario = new Mario(this, manager);
 
+        //Fire timers.
+        fireTimer = 0;
+        fireInterval = 0.1f;
+
         //Items.
         itemsToSpawn = new LinkedBlockingQueue<ItemDefinition>();
         items = new Array<Item>();
@@ -133,6 +141,7 @@ public class ScreenPlay implements Screen {
     }
 
     public void update(float deltaTime) {
+        fireTimer += deltaTime;
         handleInput(deltaTime); //Handle user input first.
         handleSpawningItems();
         world.step(1 / 60f, 6, 2); //Takes 1 step in the physics simulation (60 times per second).
@@ -146,20 +155,19 @@ public class ScreenPlay implements Screen {
                 WorldCreator.removeEnemy(enemy);
         }
 
-        for (Item item : items)
-            item.update(deltaTime);
+        for (Item item : items) {
+            if (item.isDestroyed()) {
+                items.removeValue(item, true);
+            }
+            else
+                item.update(deltaTime);
+        }
 
         hud.update(deltaTime);
 
-
-
-
+        //Attach camera to Mario, only when not dead. Set camera boundaries.
         if (mario.stateCurrent != Mario.State.DEAD)
-            //camera.position.x = mario.body.getPosition().x; //Attach camera to Mario, only when not dead.
             camera.position.x = MathUtils.clamp(mario.body.getPosition().x, cameraBorderLeft, cameraBorderRight);
-
-
-
 
         camera.update(); //Update camera with correct coordinates after changes.
         mapRenderer.setView(camera); //Set renderer to draw only what camera can see in game world.
@@ -220,8 +228,10 @@ public class ScreenPlay implements Screen {
                 mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
             if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)
                 mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
-            if (controller.isaPressed())
+            if (controller.isaPressed() && fireTimer >= fireInterval) {
                 mario.spawnFireball();
+                fireTimer = 0;
+            }
         }
     }
 
