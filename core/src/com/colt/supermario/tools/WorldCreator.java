@@ -20,10 +20,13 @@ import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Goomba;
 import com.colt.supermario.sprites.enemies.Koopa;
 import com.colt.supermario.sprites.tiles.MapTileObject;
+import com.colt.supermario.sprites.tiles.Pipe;
 
 /**
  * Created by colt on 4/13/16.
  */
+
+//TODO: Check if every layer != null.
 
 public class WorldCreator {
 
@@ -40,14 +43,13 @@ public class WorldCreator {
         this.world = screen.getWorld();
         this.map = screen.getMap();
 
-        //Create body and fixture variables.
+        //Create ground. Ground is created as rectangles in tmx map, not like objects (later on).
         BodyDef bodyDef = new BodyDef();
         PolygonShape shape = new PolygonShape();
         FixtureDef fixtureDef = new FixtureDef();
         Body body;
-
-        //Create ground bodies/fixtures.
-        for (MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)) {
+        //Create ground bodies and fixtures.
+        for (MapObject object : map.getLayers().get("ground").getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
             bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -56,21 +58,6 @@ public class WorldCreator {
             body = world.createBody(bodyDef);
 
             shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
-            fixtureDef.shape = shape;
-            body.createFixture(fixtureDef);
-        }
-
-        //Create pipes bodies/fixtures.
-        for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set((rect.getX() + rect.getWidth() / 2) / Boot.PPM, (rect.getY() + rect.getHeight() / 2) / Boot.PPM);
-
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
-            fixtureDef.filter.categoryBits = Boot.OBJECT_BIT;
             fixtureDef.shape = shape;
             body.createFixture(fixtureDef);
         }
@@ -89,18 +76,26 @@ public class WorldCreator {
             float y = ((TiledMapTileMapObject) mapObject).getY();
             tileObjects.add(new CoinBlock(screen, (x + 8) / Boot.PPM, (y + 8) / Boot.PPM, (TiledMapTileMapObject) mapObject, manager));
         }
+        //Pipes.
+        for (MapObject mapObject : map.getLayers().get("pipes").getObjects()) {
+            float x = ((TiledMapTileMapObject) mapObject).getX();
+            float y = ((TiledMapTileMapObject) mapObject).getY();
+            tileObjects.add(new Pipe(screen, (x + 8) / Boot.PPM, (y + 8) / Boot.PPM, (TiledMapTileMapObject) mapObject, manager));
+        }
 
         //Create enemies.
         enemies = new Array<Enemy>();
         //Goombas.
-        for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            enemies.add(new Goomba(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
+        for (MapObject mapObject : map.getLayers().get("goombas").getObjects()) {
+            float x = ((TiledMapTileMapObject) mapObject).getX();
+            float y = ((TiledMapTileMapObject) mapObject).getY();
+            enemies.add(new Goomba(screen, (x + 8) / Boot.PPM, (y + 8) / Boot.PPM, manager));
         }
         //Turtles.
-        for (MapObject object : map.getLayers().get(7).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            enemies.add(new Koopa(screen, rect.getX() / Boot.PPM, rect.getY() / Boot.PPM, manager));
+        for (MapObject mapObject : map.getLayers().get("koopas").getObjects()) {
+            float x = ((TiledMapTileMapObject) mapObject).getX();
+            float y = ((TiledMapTileMapObject) mapObject).getY();
+            enemies.add(new Koopa(screen, (x + 8) / Boot.PPM, (y + 8) / Boot.PPM, manager));
         }
     }
 

@@ -31,9 +31,9 @@ public class WorldContactListener implements ContactListener {
             case Boot.MARIO_HEAD_BIT | Boot.COINBLOCK_BIT:
             case Boot.MARIO_HEAD_BIT | Boot.BRICK_BIT: //Mario smash bricks with his head! \m/
                 if (fixA.getFilterData().categoryBits == Boot.MARIO_HEAD_BIT)
-                    ((MapTileObject) fixB.getUserData()).onHeadHit();
+                    ((MapTileObject) fixB.getUserData()).onHeadHit((Mario) fixA.getUserData());
                 else
-                    ((MapTileObject) fixA.getUserData()).onHeadHit();
+                    ((MapTileObject) fixA.getUserData()).onHeadHit((Mario) fixB.getUserData());
                 break;
             case Boot.MARIO_BIT | Boot.ENEMY_HEAD_BIT: //If those two collide. Mario jumping on enemy's head.
                 if (fixA.getFilterData().categoryBits == Boot.ENEMY_HEAD_BIT)

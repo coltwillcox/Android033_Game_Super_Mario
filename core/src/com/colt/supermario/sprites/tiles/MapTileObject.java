@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.sprites.Mario;
 
 /**
  * Created by colt on 4/20/16.
@@ -42,7 +43,7 @@ public abstract class MapTileObject extends Sprite {
 
     protected abstract void defineBody();
 
-    public abstract void onHeadHit();
+    public abstract void onHeadHit(Mario mario);
 
     public void setDestroy() {
         destroy = true;

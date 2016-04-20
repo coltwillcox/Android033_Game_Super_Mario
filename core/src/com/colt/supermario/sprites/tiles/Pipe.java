@@ -11,47 +11,28 @@ import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
 
 /**
- * Created by colt on 4/13/16.
+ * Created by colt on 4/20/16.
  */
 
-//TODO: Breaking or bumping.
-
-public class Brick extends MapTileObject {
+public class Pipe extends MapTileObject {
 
     private AssetManager manager;
-    private Vector2 originalPosition;
-    private Vector2 movablePosition;
-    private Vector2 targetPosition;
 
-    public Brick(ScreenPlay screen, float x, float y, TiledMapTileMapObject mapObject, AssetManager manager) {
+    public Pipe(ScreenPlay screen, float x, float y, TiledMapTileMapObject mapObject, AssetManager manager) {
         super(screen, x, y, mapObject);
         this.manager = manager;
-
-        originalPosition = new Vector2(x, y);
-        movablePosition = new Vector2(x, y + 0.05f);
-        targetPosition = originalPosition;
     }
 
     @Override
     public void update(float deltaTime) {
-        float x = body.getPosition().x;
-        float y = body.getPosition().y;
-        Vector2 dist = new Vector2(x, y).sub(targetPosition);
-        if (dist.len2() > 0.0001f)
-            body.setTransform(new Vector2(x, y).lerp(targetPosition, 0.6f), 0);
-        else {
-            body.setTransform(targetPosition, 0);
-            targetPosition = originalPosition;
-        }
 
-        setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
     }
 
     @Override
     protected void defineBody() {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(getX(), getY());
-        bodyDef.type = BodyDef.BodyType.KinematicBody;
+        bodyDef.type = BodyDef.BodyType.StaticBody;
 
         body = world.createBody(bodyDef);
 
@@ -59,7 +40,7 @@ public class Brick extends MapTileObject {
         shape.setAsBox(16 / Boot.PPM / 2, 16 / Boot.PPM / 2);
 
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = Boot.BRICK_BIT;
+        fixtureDef.filter.categoryBits = Boot.OBJECT_BIT;
         fixtureDef.shape = shape;
 
         body.createFixture(fixtureDef).setUserData(this);
@@ -69,7 +50,7 @@ public class Brick extends MapTileObject {
 
     @Override
     public void onHeadHit(Mario mario) {
-        targetPosition = movablePosition;
+
     }
 
 }
