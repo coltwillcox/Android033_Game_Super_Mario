@@ -34,6 +34,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 //TODO: Program crashing when Mario have feet (sensor = false).
 //TODO: Moving and jumping sensitivity.
 //TODO: Add Mario invisibility (after shrinking).
+//TODO: Mario animations (Fire Mario, shooting Mario, breaking Mario...).
+//TODO: Mario walk borders.
+//TODO: Fix jump.
 
 public class Mario extends Sprite {
 
@@ -54,9 +57,6 @@ public class Mario extends Sprite {
     private boolean timeToDefineBigMario;
     private boolean timeToRedefineMario;
     private boolean marioDead;
-
-    //Check if can jump.
-    private boolean jumpability;
 
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
@@ -81,7 +81,6 @@ public class Mario extends Sprite {
         stateCurrent = statePrevious = State.STANDING;
         stateTime = 0;
         runningRight = true;
-        jumpability = true;
 
         //Animations.
         frames = new Array<TextureRegion>();
@@ -296,7 +295,7 @@ public class Mario extends Sprite {
     }
 
     public void jump(){
-        if (stateCurrent != State.JUMPING && jumpability) {
+        if (stateCurrent != State.JUMPING) {
             if (!marioBig)
                 manager.get("audio/jumpsmall.wav", Sound.class).play();
             else
@@ -400,14 +399,6 @@ public class Mario extends Sprite {
 
     public State getStateCurrent() {
         return stateCurrent;
-    }
-
-    public boolean isJumpability() {
-        return jumpability;
-    }
-
-    public void setJumpability(boolean jumpability) {
-        this.jumpability = jumpability;
     }
 
 }

@@ -18,6 +18,8 @@ import com.colt.supermario.sprites.weapons.Fireball;
 
 public class WorldContactListener implements ContactListener {
 
+    private int feetOnGround;
+
     @Override
     public void beginContact(Contact contact) {
         Fixture fixA = contact.getFixtureA();
@@ -77,10 +79,7 @@ public class WorldContactListener implements ContactListener {
             case Boot.MARIO_FEET_BIT | Boot.BRICK_BIT:
             case Boot.MARIO_FEET_BIT | Boot.COINBLOCK_BIT:
             case Boot.MARIO_FEET_BIT | Boot.OBJECT_BIT:
-                if (fixA.getFilterData().categoryBits == Boot.MARIO_FEET_BIT)
-                    ((Mario) fixA.getUserData()).setJumpability(true);
-                else
-                    ((Mario) fixB.getUserData()).setJumpability(true);
+                feetOnGround++;
                 break;
             case Boot.MARIO_BIT | Boot.ENEMY_BIT: //Mario dies.
                 if (fixA.getFilterData().categoryBits == Boot.MARIO_BIT)
@@ -103,10 +102,7 @@ public class WorldContactListener implements ContactListener {
             case Boot.MARIO_FEET_BIT | Boot.BRICK_BIT:
             case Boot.MARIO_FEET_BIT | Boot.COINBLOCK_BIT:
             case Boot.MARIO_FEET_BIT | Boot.OBJECT_BIT:
-                if (fixA.getFilterData().categoryBits == Boot.MARIO_FEET_BIT)
-                    ((Mario) fixA.getUserData()).setJumpability(false);
-                else
-                    ((Mario) fixB.getUserData()).setJumpability(false);
+                feetOnGround--;
                 break;
         }
     }
@@ -119,6 +115,11 @@ public class WorldContactListener implements ContactListener {
     @Override
     public void postSolve(Contact contact, ContactImpulse impulse) {
 
+    }
+
+    //Check if Mario is on the ground with one feet at least. Useful when walking over two tiles.
+    public boolean jumpability() {
+        return feetOnGround > 0;
     }
 
 }

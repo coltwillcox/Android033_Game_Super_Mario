@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -39,6 +38,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 //TODO: More levels.
 //TODO: Add scores over heads.
+//TODO: Brick smashing.
+//TODO: Bricks bumping a little.
 
 public class ScreenPlay implements Screen {
 
@@ -66,6 +67,7 @@ public class ScreenPlay implements Screen {
 
     //Box2D variables.
     private World world;
+    private WorldContactListener worldContactListener;
     private Box2DDebugRenderer b2ddr;
     private WorldCreator worldCreator;
 
@@ -116,7 +118,8 @@ public class ScreenPlay implements Screen {
 
         //Create world.
         world = new World(new Vector2(0, -10), true); //Create world and give it x, y gravity vector.
-        world.setContactListener(new WorldContactListener());
+        worldContactListener = new WorldContactListener();
+        world.setContactListener(worldContactListener);
         b2ddr = new Box2DDebugRenderer(); //Debug lines in Box2D world.
         worldCreator = new WorldCreator(this, manager);
 
@@ -216,7 +219,7 @@ public class ScreenPlay implements Screen {
     public void handleInput(float deltaTime) {
         //Control Mario only if he is not dead.
         if (mario.stateCurrent != Mario.State.DEAD) {
-            if (controller.isUpPressed() || controller.isbPressed())
+            if ((controller.isUpPressed() || controller.isbPressed()) && worldContactListener.jumpability())
                 mario.jump();
             if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
                 mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
