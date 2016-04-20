@@ -35,8 +35,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 //TODO: Moving and jumping sensitivity.
 //TODO: Add Mario invisibility (after shrinking).
 //TODO: Mario animations (Fire Mario, shooting Mario, breaking Mario...).
-//TODO: Mario walk borders.
-//TODO: Fix jump.
 
 public class Mario extends Sprite {
 

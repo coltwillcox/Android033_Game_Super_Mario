@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -18,6 +19,7 @@ import com.colt.supermario.sprites.tiles.CoinBlock;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Goomba;
 import com.colt.supermario.sprites.enemies.Koopa;
+import com.colt.supermario.sprites.tiles.MapTileObject;
 
 /**
  * Created by colt on 4/13/16.
@@ -31,6 +33,7 @@ public class WorldCreator {
 
     //Enemies.
     private static Array<Enemy> enemies;
+    private static Array<MapTileObject> tileObjects;
 
     public WorldCreator(ScreenPlay screen, AssetManager manager) {
         this.manager = manager;
@@ -72,14 +75,19 @@ public class WorldCreator {
             body.createFixture(fixtureDef);
         }
 
-        //Create coins bodies/fixtures.
-        for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
-            new CoinBlock(screen, object, manager);
+        //Create objects.
+        tileObjects = new Array<MapTileObject>();
+        //Bricks.
+        for (MapObject mapObject : map.getLayers().get("bricks").getObjects()) {
+            float x = ((TiledMapTileMapObject) mapObject).getX();
+            float y = ((TiledMapTileMapObject) mapObject).getY();
+            tileObjects.add(new Brick(screen, (x + 8) / Boot.PPM, (y + 8) / Boot.PPM, (TiledMapTileMapObject) mapObject, manager));
         }
-
-        //Create bricks bodies/fixtures.
-        for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
-            new Brick(screen, object, manager);
+        //Coinblocks.
+        for (MapObject mapObject : map.getLayers().get("coinblocks").getObjects()) {
+            float x = ((TiledMapTileMapObject) mapObject).getX();
+            float y = ((TiledMapTileMapObject) mapObject).getY();
+            tileObjects.add(new CoinBlock(screen, (x + 8) / Boot.PPM, (y + 8) / Boot.PPM, (TiledMapTileMapObject) mapObject, manager));
         }
 
         //Create enemies.
@@ -101,7 +109,11 @@ public class WorldCreator {
         enemies.removeValue(enemy, true);
     }
 
-    //Getter.
+    //Getters.
+    public Array<MapTileObject> getTileObjects() {
+        return tileObjects;
+    }
+
     public Array<Enemy> getEnemies() {
         return enemies;
     }

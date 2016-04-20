@@ -8,8 +8,8 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.colt.supermario.Boot;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.enemies.Enemy;
-import com.colt.supermario.sprites.tiles.InteractiveTileObject;
 import com.colt.supermario.sprites.items.Item;
+import com.colt.supermario.sprites.tiles.MapTileObject;
 import com.colt.supermario.sprites.weapons.Fireball;
 
 /**
@@ -28,12 +28,12 @@ public class WorldContactListener implements ContactListener {
         int beginDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
         switch (beginDef) {
-            case Boot.MARIO_HEAD_BIT | Boot.BRICK_BIT: //Mario smash bricks with his head! \m/
             case Boot.MARIO_HEAD_BIT | Boot.COINBLOCK_BIT:
+            case Boot.MARIO_HEAD_BIT | Boot.BRICK_BIT: //Mario smash bricks with his head! \m/
                 if (fixA.getFilterData().categoryBits == Boot.MARIO_HEAD_BIT)
-                    ((InteractiveTileObject) fixB.getUserData()).onHeadHit((Mario) fixA.getUserData());
+                    ((MapTileObject) fixB.getUserData()).onHeadHit();
                 else
-                    ((InteractiveTileObject) fixA.getUserData()).onHeadHit((Mario) fixB.getUserData());
+                    ((MapTileObject) fixA.getUserData()).onHeadHit();
                 break;
             case Boot.MARIO_BIT | Boot.ENEMY_HEAD_BIT: //If those two collide. Mario jumping on enemy's head.
                 if (fixA.getFilterData().categoryBits == Boot.ENEMY_HEAD_BIT)

@@ -26,6 +26,7 @@ import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.items.Item;
 import com.colt.supermario.sprites.items.ItemDefinition;
 import com.colt.supermario.sprites.items.Mushroom;
+import com.colt.supermario.sprites.tiles.MapTileObject;
 import com.colt.supermario.tools.Controller;
 import com.colt.supermario.tools.WorldContactListener;
 import com.colt.supermario.tools.WorldCreator;
@@ -61,7 +62,7 @@ public class ScreenPlay implements Screen {
     private TiledMap map;
     private OrthogonalTiledMapRenderer mapRenderer;
 
-    //Camera borders.
+    //Borders.
     private float cameraBorderLeft;
     private float cameraBorderRight;
 
@@ -111,9 +112,11 @@ public class ScreenPlay implements Screen {
         map = mapLoader.load("graphic/level11.tmx", params);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / Boot.PPM);
 
-        //Set camera and borders.
-        cameraBorderLeft = Boot.V_WIDTH / Boot.PPM / 2;
-        cameraBorderRight = (((TiledMapTileLayer) map.getLayers().get(0)).getWidth() * ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth() / Boot.PPM) - (Boot.V_WIDTH / Boot.PPM / 2); //MapWidth * TileWidth - viewport half.
+        //Set borders. Subtract one tile from each side. TMX file must have 1 tile offset (eg, pipes) on sides.
+        cameraBorderLeft = (Boot.V_WIDTH / Boot.PPM / 2) + (((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth() / Boot.PPM); //Viewport half + tile size.
+        cameraBorderRight = (((TiledMapTileLayer) map.getLayers().get(0)).getWidth() * ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth() / Boot.PPM) - (Boot.V_WIDTH / Boot.PPM / 2) - (((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth() / Boot.PPM); //Map width (in tiles) * tiles size - viewport width - tile size.
+
+        //Set camera.
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0); //Center camera in the middle of the viewport.
 
         //Create world.
@@ -149,6 +152,10 @@ public class ScreenPlay implements Screen {
         handleSpawningItems();
         world.step(1 / 60f, 6, 2); //Takes 1 step in the physics simulation (60 times per second).
         mario.update(deltaTime);
+
+        for (MapTileObject mapTileObject : worldCreator.getTileObjects()) {
+            mapTileObject.update(deltaTime);
+        }
 
         for (Enemy enemy : worldCreator.getEnemies()) {
             enemy.update(deltaTime);
@@ -191,6 +198,8 @@ public class ScreenPlay implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         mario.draw(game.batch);
+        for (MapTileObject mapTileObject : worldCreator.getTileObjects())
+            mapTileObject.draw(game.batch);
         for (Enemy enemy : worldCreator.getEnemies())
             enemy.draw(game.batch);
         for (Item item : items)
@@ -273,6 +282,16 @@ public class ScreenPlay implements Screen {
 
     }
 
+    @Override
+    public void dispose() {
+        map.dispose();
+        mapRenderer.dispose();
+        world.dispose();
+        b2ddr.dispose();
+        hud.dispose();
+    }
+
+    //Getters.
     public TextureAtlas getAtlas() {
         return atlas;
     }
@@ -283,15 +302,6 @@ public class ScreenPlay implements Screen {
 
     public World getWorld() {
         return world;
-    }
-
-    @Override
-    public void dispose() {
-        map.dispose();
-        mapRenderer.dispose();
-        world.dispose();
-        b2ddr.dispose();
-        hud.dispose();
     }
 
 }
