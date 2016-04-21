@@ -21,6 +21,7 @@ import com.colt.supermario.sprites.Mario;
  */
 
 //TODO: Add alternate standing_shell state. Or animation. Something like WAKING_SHELL. :)
+//TODO: Die as upsidedown shell.
 
 public class Koopa extends Enemy {
 

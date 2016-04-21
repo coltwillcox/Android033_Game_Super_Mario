@@ -67,7 +67,7 @@ public class Goomba extends Enemy {
         }
         else if (!squished) {
             setRegion(animationWalk.getKeyFrame(stateTime, true));
-            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
+            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (1 / Boot.PPM));
             body.setLinearVelocity(velocity);
         }
 

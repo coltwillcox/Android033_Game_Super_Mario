@@ -54,9 +54,9 @@ public class Fireball extends Sprite {
         animationExplosion = new TextureRegion(screen.getAtlas().findRegion("fireball"), 20, 4, 8, 8);
 
         setPosition(x, y);
+        defineFireball();
         setBounds(getX(), getY(), 8 / Boot.PPM, 8 / Boot.PPM);
         setRegion(animationFire.getKeyFrame(stateTime, true));
-        defineFireball();
     }
 
     public void update(float deltaTime) {

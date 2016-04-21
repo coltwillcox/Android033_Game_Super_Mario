@@ -13,6 +13,9 @@ import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
+import com.colt.supermario.sprites.items.Flower;
+import com.colt.supermario.sprites.items.ItemDefinition;
+import com.colt.supermario.sprites.items.Mushroom;
 
 /**
  * Created by colt on 4/13/16.
@@ -73,7 +76,7 @@ public class CoinBlock extends MapTileObject {
             positionTarget = positionOriginal;
         }
 
-        setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
+        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
     }
 
     @Override
@@ -102,6 +105,19 @@ public class CoinBlock extends MapTileObject {
             manager.get("audio/powerupspawn.wav", Sound.class).play();
             positionTarget = positionMovable;
             hit = true;
+
+            if (mapObject.getProperties().containsKey("mushroom")) {
+                if (mario.isBig()) {
+                    screen.spawnItem(new ItemDefinition(new Vector2(body.getPosition().x, body.getPosition().y + getHeight()), Flower.class));
+                }
+                else
+                {
+                    screen.spawnItem(new ItemDefinition(new Vector2(body.getPosition().x, body.getPosition().y + getHeight()), Mushroom.class));
+                }
+            }
+            else {
+
+            }
         }
         else
             manager.get("audio/bump.wav", Sound.class).play();

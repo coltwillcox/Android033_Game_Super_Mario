@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="242" height="13" tilewidth="16" tileheight="16" nextobjectid="114">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="242" height="13" tilewidth="16" tileheight="16" nextobjectid="116">
  <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" spacing="2" margin="1" tilecount="924" columns="33">
   <image source="tileset.png" width="594" height="504"/>
  </tileset>
@@ -42,6 +42,16 @@
  </objectgroup>
  <objectgroup name="coinblocks">
   <object id="82" gid="25" x="32" y="128" width="16" height="16"/>
+  <object id="114" gid="25" x="48" y="128" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
+  <object id="115" gid="25" x="64" y="128" width="16" height="16">
+   <properties>
+    <property name="mushroom" value=""/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="bricks">
   <object id="78" gid="2" x="144" y="128" width="16" height="16"/>

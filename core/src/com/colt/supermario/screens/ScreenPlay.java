@@ -23,6 +23,7 @@ import com.colt.supermario.Boot;
 import com.colt.supermario.scenes.HUD;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.Mario;
+import com.colt.supermario.sprites.items.Flower;
 import com.colt.supermario.sprites.items.Item;
 import com.colt.supermario.sprites.items.ItemDefinition;
 import com.colt.supermario.sprites.items.Mushroom;
@@ -192,18 +193,18 @@ public class ScreenPlay implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mapRenderer.render(); //Render game map.
-        b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
+        //b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
 
         //Draw player and enemies.
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         mario.draw(game.batch);
+        for (Item item : items)
+            item.draw(game.batch);
         for (MapTileObject mapTileObject : worldCreator.getTileObjects())
             mapTileObject.draw(game.batch);
         for (Enemy enemy : worldCreator.getEnemies())
             enemy.draw(game.batch);
-        for (Item item : items)
-            item.draw(game.batch);
         game.batch.end();
 
         //Draw HUD.
@@ -248,9 +249,10 @@ public class ScreenPlay implements Screen {
     public void handleSpawningItems() {
         if (!itemsToSpawn.isEmpty()) {
             ItemDefinition itemDefinition = itemsToSpawn.poll();
-            if (itemDefinition.type == Mushroom.class) {
+            if (itemDefinition.type == Mushroom.class)
                 items.add(new Mushroom(this, itemDefinition.position.x, itemDefinition.position.y));
-            }
+            else if (itemDefinition.type == Flower.class)
+                items.add(new Flower(this, itemDefinition.position.x, itemDefinition.position.y));
         }
     }
 
