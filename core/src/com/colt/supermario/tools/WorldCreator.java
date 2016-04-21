@@ -99,6 +99,11 @@ public class WorldCreator {
         }
     }
 
+    //Remove tile (eg. brick) when destroyed.
+    public static void removeTileObject(MapTileObject tileObject) {
+        tileObjects.removeValue(tileObject, true);
+    }
+
     //Remove enemy (eg. Koopa) from array when it's killed.
     public static void removeEnemy(Enemy enemy) {
         enemies.removeValue(enemy, true);

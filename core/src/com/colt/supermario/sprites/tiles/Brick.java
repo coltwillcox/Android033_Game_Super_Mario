@@ -1,6 +1,7 @@
 package com.colt.supermario.sprites.tiles;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -9,12 +10,15 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
+import com.colt.supermario.sprites.particles.Debris;
+import com.colt.supermario.sprites.particles.ParticleDefinition;
 
 /**
  * Created by colt on 4/13/16.
  */
 
 //TODO: Breaking or bumping.
+//TODO: Try to create debris in separate 1/4th?
 
 public class Brick extends MapTileObject {
 
@@ -34,6 +38,7 @@ public class Brick extends MapTileObject {
 
     @Override
     public void update(float deltaTime) {
+        super.update(deltaTime);
         float x = body.getPosition().x;
         float y = body.getPosition().y;
         Vector2 dist = new Vector2(x, y).sub(targetPosition);
@@ -56,7 +61,7 @@ public class Brick extends MapTileObject {
         body = world.createBody(bodyDef);
 
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(16 / Boot.PPM / 2, 16 / Boot.PPM / 2);
+        shape.setAsBox(8 / Boot.PPM, 8 / Boot.PPM); //Half-width, half-height.
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = Boot.BRICK_BIT;
@@ -69,7 +74,16 @@ public class Brick extends MapTileObject {
 
     @Override
     public void onHeadHit(Mario mario) {
-        targetPosition = movablePosition;
+        if (!mario.isBig()) {
+            manager.get("audio/bump.wav", Sound.class).play();
+            targetPosition = movablePosition;
+        }
+        else {
+            manager.get("audio/breakblock.wav", Sound.class).play();
+            for (int i = 0; i < 4; i++)
+                screen.spawnParticle(new ParticleDefinition(new Vector2(body.getPosition().x - (getWidth() / 4), body.getPosition().y - (getHeight() / 4)), Debris.class));
+            destroy = true;
+        }
     }
 
 }

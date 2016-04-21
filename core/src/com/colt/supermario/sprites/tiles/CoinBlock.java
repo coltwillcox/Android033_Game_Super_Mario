@@ -60,6 +60,7 @@ public class CoinBlock extends MapTileObject {
 
     @Override
     public void update(float deltaTime) {
+        super.update(deltaTime);
         stateTime += deltaTime;
         if (hit)
             setRegion(animationBumped);
@@ -88,7 +89,7 @@ public class CoinBlock extends MapTileObject {
         body = world.createBody(bodyDef);
 
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(16 / Boot.PPM / 2, 16 / Boot.PPM / 2);
+        shape.setAsBox(8 / Boot.PPM, 8 / Boot.PPM);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = Boot.COINBLOCK_BIT;
@@ -102,22 +103,18 @@ public class CoinBlock extends MapTileObject {
     @Override
     public void onHeadHit(Mario mario) {
         if (!hit) {
-            manager.get("audio/powerupspawn.wav", Sound.class).play();
             positionTarget = positionMovable;
             hit = true;
 
             if (mapObject.getProperties().containsKey("mushroom")) {
-                if (mario.isBig()) {
+                if (mario.isBig())
                     screen.spawnItem(new ItemDefinition(new Vector2(body.getPosition().x, body.getPosition().y + getHeight()), Flower.class));
-                }
                 else
-                {
                     screen.spawnItem(new ItemDefinition(new Vector2(body.getPosition().x, body.getPosition().y + getHeight()), Mushroom.class));
-                }
+                manager.get("audio/powerupspawn.wav", Sound.class).play();
             }
-            else {
-
-            }
+            else
+                manager.get("audio/coin.wav", Sound.class).play();
         }
         else
             manager.get("audio/bump.wav", Sound.class).play();

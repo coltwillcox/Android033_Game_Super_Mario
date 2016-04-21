@@ -27,6 +27,9 @@ import com.colt.supermario.sprites.items.Flower;
 import com.colt.supermario.sprites.items.Item;
 import com.colt.supermario.sprites.items.ItemDefinition;
 import com.colt.supermario.sprites.items.Mushroom;
+import com.colt.supermario.sprites.particles.Debris;
+import com.colt.supermario.sprites.particles.Particle;
+import com.colt.supermario.sprites.particles.ParticleDefinition;
 import com.colt.supermario.sprites.tiles.MapTileObject;
 import com.colt.supermario.tools.Controller;
 import com.colt.supermario.tools.WorldContactListener;
@@ -75,6 +78,7 @@ public class ScreenPlay implements Screen {
 
     //Player and enemies.
     private Mario mario;
+    private float speed;
 
     //Fire timers.
     private float fireTimer;
@@ -83,6 +87,10 @@ public class ScreenPlay implements Screen {
     //Items.
     private LinkedBlockingQueue<ItemDefinition> itemsToSpawn;
     private Array<Item> items;
+
+    //Particles (coins, bricks fragments...).
+    private LinkedBlockingQueue<ParticleDefinition> particlesToSpawn;
+    private Array<Particle> particles;
 
     //Joypad-like controller.
     private Controller controller;
@@ -129,14 +137,19 @@ public class ScreenPlay implements Screen {
 
         //Player and enemies.
         mario = new Mario(this, manager);
+        speed = 1;
 
         //Fire timers.
         fireTimer = 0;
-        fireInterval = 0.1f;
+        fireInterval = 0.2f;
 
         //Items.
         itemsToSpawn = new LinkedBlockingQueue<ItemDefinition>();
         items = new Array<Item>();
+
+        //Particles.
+        particlesToSpawn = new LinkedBlockingQueue<ParticleDefinition>();
+        particles = new Array<Particle>();
 
         //Controller.
         controller = new Controller(game.batch);
@@ -149,29 +162,44 @@ public class ScreenPlay implements Screen {
 
     public void update(float deltaTime) {
         fireTimer += deltaTime;
+
         handleInput(deltaTime); //Handle user input first.
-        handleSpawningItems();
+        handleItems();
+        handleParticles();
+
         world.step(1 / 60f, 6, 2); //Takes 1 step in the physics simulation (60 times per second).
         mario.update(deltaTime);
 
-        for (MapTileObject mapTileObject : worldCreator.getTileObjects()) {
-            mapTileObject.update(deltaTime);
+        for (MapTileObject tileObject : worldCreator.getTileObjects()) {
+            if (!tileObject.isDestroyed())
+                tileObject.update(deltaTime);
+            else
+                WorldCreator.removeTileObject(tileObject);
         }
 
         for (Enemy enemy : worldCreator.getEnemies()) {
-            enemy.update(deltaTime);
-            if (enemy.getX() < mario.getX() + (224 / Boot.PPM)) //224 = 14 * 16 (Bricks from Mario * BrickSize).
-                enemy.body.setActive(true); //Set enemy active only if player is close (at < upper value).
-            if (enemy.isDestroyed())
+            if (!enemy.isDestroyed()) {
+                enemy.update(deltaTime);
+                if (enemy.getX() < mario.getX() + (224 / Boot.PPM)) //224 = 14 * 16 (Bricks from Mario * BrickSize).
+                    enemy.body.setActive(true); //Set enemy active only if player is close (at < upper value).
+            }
+            else
                 WorldCreator.removeEnemy(enemy);
         }
 
         for (Item item : items) {
-            if (item.isDestroyed()) {
-                items.removeValue(item, true);
-            }
-            else
+            if (!item.isDestroyed())
                 item.update(deltaTime);
+            else
+                items.removeValue(item, true);
+        }
+
+        for (Particle particle : particles) {
+            if (!particle.isDestroyed())
+                particle.update(deltaTime);
+            else
+                particles.removeValue(particle, true);
+
         }
 
         hud.update(deltaTime);
@@ -205,6 +233,8 @@ public class ScreenPlay implements Screen {
             mapTileObject.draw(game.batch);
         for (Enemy enemy : worldCreator.getEnemies())
             enemy.draw(game.batch);
+        for (Particle particle : particles)
+            particle.draw(game.batch);
         game.batch.end();
 
         //Draw HUD.
@@ -231,14 +261,20 @@ public class ScreenPlay implements Screen {
         if (mario.stateCurrent != Mario.State.DEAD) {
             if ((controller.isUpPressed() || controller.isbPressed()) && worldContactListener.jumpability())
                 mario.jump();
-            if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= 2)
+            if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= speed)
                 mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
-            if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -2)
+            if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -speed)
                 mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
-            if (controller.isaPressed() && fireTimer >= fireInterval) {
+            //Fire fireballs.
+            if (controller.isaPressed() && fireTimer >= fireInterval && mario.getAmmo() < 2) {
                 mario.spawnFireball();
                 fireTimer = 0;
             }
+            //Run faster.
+            if (controller.isaPressed())
+                speed = 2;
+            else
+                speed = 1;
         }
     }
 
@@ -246,7 +282,7 @@ public class ScreenPlay implements Screen {
         itemsToSpawn.add(itemDefinition);
     }
 
-    public void handleSpawningItems() {
+    public void handleItems() {
         if (!itemsToSpawn.isEmpty()) {
             ItemDefinition itemDefinition = itemsToSpawn.poll();
             if (itemDefinition.type == Mushroom.class)
@@ -261,6 +297,18 @@ public class ScreenPlay implements Screen {
             return true;
         else
             return false;
+    }
+
+    public void spawnParticle(ParticleDefinition particleDefinition) {
+        particlesToSpawn.add(particleDefinition);
+    }
+
+    public void handleParticles() {
+        if (!particlesToSpawn.isEmpty()) {
+            ParticleDefinition particleDefinition = particlesToSpawn.poll();
+            if (particleDefinition.type == Debris.class)
+                particles.add(new Debris(this, particleDefinition.position.x, particleDefinition.position.y));
+        }
     }
 
     @Override

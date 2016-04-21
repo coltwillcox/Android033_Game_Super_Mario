@@ -39,7 +39,12 @@ public abstract class MapTileObject extends Sprite {
         setBounds(x - width / 2, y - height / 2, width, height);
     }
 
-    public abstract void update(float delta);
+    public void update(float delta) {
+        if (destroy && !destroyed) {
+            world.destroyBody(body);
+            destroyed = true;
+        }
+    };
 
     protected abstract void defineBody();
 
