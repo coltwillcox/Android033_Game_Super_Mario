@@ -25,8 +25,6 @@ public class Debris extends Particle {
     public Debris(ScreenPlay screen, float x, float y) {
         super(screen, x, y);
 
-        force = new Vector2(MathUtils.random() * 1.6f - 0.8f, MathUtils.random() * 1.2f + 2.4f);
-
         //Animations.
         frames = new Array<TextureRegion>();
         //Debris animation.
@@ -38,6 +36,8 @@ public class Debris extends Particle {
         frames.clear();
 
         setRegion(animationDebris.getKeyFrame(stateTime, true));
+        force = new Vector2(MathUtils.random() * 1.6f - 0.8f, MathUtils.random() * 1.2f + 2.4f);
+        body.applyLinearImpulse(force, body.getWorldCenter(), true);
     }
 
     @Override
@@ -53,7 +53,6 @@ public class Debris extends Particle {
         fixtureDef.shape = shape;
         fixtureDef.restitution = 0.25f;
         body.createFixture(fixtureDef).setUserData(this);
-        body.applyLinearImpulse(force, body.getWorldCenter(), true);
         shape.dispose();
     }
 

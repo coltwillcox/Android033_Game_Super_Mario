@@ -74,7 +74,7 @@ public class Brick extends MapTileObject {
 
     @Override
     public void onHeadHit(Mario mario) {
-        if (!mario.isBig()) {
+        if (mario.isBig()) {
             manager.get("audio/bump.wav", Sound.class).play();
             targetPosition = movablePosition;
         }
