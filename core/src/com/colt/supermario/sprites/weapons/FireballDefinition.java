@@ -8,11 +8,13 @@ public class FireballDefinition {
 
     public float x;
     public float y;
+    public float velocity;
     public boolean fireRight;
 
-    public FireballDefinition(float x, float y, boolean fireRight) {
+    public FireballDefinition(float x, float y, float velocity, boolean fireRight) {
         this.x = x;
         this.y = y;
+        this.velocity = velocity;
         this.fireRight = fireRight;
     }
 

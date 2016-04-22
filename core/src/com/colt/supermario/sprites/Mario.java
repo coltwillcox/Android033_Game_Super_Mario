@@ -18,7 +18,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
-import com.colt.supermario.scenes.HUD;
+import com.colt.supermario.hud.HUD;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Koopa;
@@ -35,7 +35,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 //TODO: Moving and jumping sensitivity.
 //TODO: Add Mario invisibility (after shrinking).
 //TODO: Mario animations (Fire Mario, shooting Mario, breaking Mario...).
-//TODO: Run faster with A button.
 
 public class Mario extends Sprite {
 
@@ -276,20 +275,19 @@ public class Mario extends Sprite {
             setBounds(getX(), getY(), getWidth(), getHeight() * 2);
         } else {
             manager.get("audio/powerup.wav", Sound.class).play();
-            HUD.addScore(500);
         }
     }
 
     //Mario fires.
     public void spawnFireball() {
         manager.get("audio/fireball.wav", Sound.class).play();
-        fireballsToSpawn.add(new FireballDefinition(body.getPosition().x, body.getPosition().y, runningRight));
+        fireballsToSpawn.add(new FireballDefinition(body.getPosition().x, body.getPosition().y, body.getLinearVelocity().x, runningRight));
     }
 
     public void handleFireballs() {
         if (fireballsToSpawn.size() > 0) {
             FireballDefinition fireballDefinition = fireballsToSpawn.poll();
-            fireballs.add(new Fireball(screen, fireballDefinition.x, fireballDefinition.y, fireballDefinition.fireRight));
+            fireballs.add(new Fireball(screen, fireballDefinition.x, fireballDefinition.y, fireballDefinition.velocity, fireballDefinition.fireRight));
         }
     }
 

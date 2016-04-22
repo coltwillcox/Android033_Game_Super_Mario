@@ -17,14 +17,13 @@ import com.colt.supermario.screens.ScreenPlay;
  * Created by colt on 4/18/16.
  */
 
-//TODO: Add Mario's velocity.
-
 public class Fireball extends Sprite {
 
     public ScreenPlay screen;
     public World world;
     private Body body;
     private float stateTime;
+    private float velocity;
     private boolean exploded;
     private boolean destroy;
     private boolean destroyed;
@@ -34,9 +33,10 @@ public class Fireball extends Sprite {
     private TextureRegion animationExplosion;
 
     //Constructor.
-    public Fireball(ScreenPlay screen, float x, float y, boolean fireRight) {
+    public Fireball(ScreenPlay screen, float x, float y, float velocity, boolean fireRight) {
         this.screen = screen;
         this.world = screen.getWorld();
+        this.velocity = velocity;
         this.fireRight = fireRight;
 
         stateTime = 0;
@@ -95,7 +95,7 @@ public class Fireball extends Sprite {
         fixtureDef.friction = 0;
         fixtureDef.restitution = 0.75f;
         body.createFixture(fixtureDef).setUserData(this);
-        body.applyLinearImpulse(new Vector2(fireRight ? 2 : -2, 1.25f), body.getWorldCenter(), true);
+        body.applyLinearImpulse(new Vector2(fireRight ? 2 + velocity : -2 + velocity, 1.25f), body.getWorldCenter(), true);
         //body.setLinearVelocity(new Vector2(fireRight ? 2 : -2, 1.25f));
 
         shape.dispose();

@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.colt.supermario.Boot;
+import com.colt.supermario.hud.HUD;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.particles.Debris;
@@ -74,7 +75,7 @@ public class Brick extends MapTileObject {
 
     @Override
     public void onHeadHit(Mario mario) {
-        if (mario.isBig()) {
+        if (!mario.isBig()) {
             manager.get("audio/bump.wav", Sound.class).play();
             targetPosition = movablePosition;
         }

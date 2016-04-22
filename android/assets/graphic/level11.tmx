@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="242" height="13" tilewidth="16" tileheight="16" nextobjectid="116">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="242" height="13" tilewidth="16" tileheight="16" nextobjectid="120">
  <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" spacing="2" margin="1" tilecount="924" columns="33">
   <image source="tileset.png" width="594" height="504"/>
  </tileset>
@@ -58,6 +58,10 @@
   <object id="79" gid="2" x="160" y="128" width="16" height="16"/>
   <object id="80" gid="2" x="176" y="128" width="16" height="16"/>
   <object id="81" gid="2" x="128" y="128" width="16" height="16"/>
+  <object id="116" gid="2" x="544" y="160" width="16" height="16"/>
+  <object id="117" gid="2" x="560" y="160" width="16" height="16"/>
+  <object id="118" gid="2" x="592" y="160" width="16" height="16"/>
+  <object id="119" gid="2" x="608" y="160" width="16" height="16"/>
  </objectgroup>
  <objectgroup name="goombas">
   <object id="112" gid="413" x="336" y="176" width="16" height="16"/>

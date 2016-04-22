@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.colt.supermario.Boot;
-import com.colt.supermario.scenes.HUD;
+import com.colt.supermario.hud.HUD;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.items.Flower;
@@ -56,9 +56,11 @@ public class ScreenPlay implements Screen {
     //Textures.
     private TextureAtlas atlas;
 
-    //Camera, Viewport, HUD.
+    //Camera, viewport.
     private OrthographicCamera camera;
     private Viewport viewport;
+
+    //HUD.
     private HUD hud;
 
     //Tiled map variables.
@@ -106,9 +108,11 @@ public class ScreenPlay implements Screen {
         //Textures.
         atlas = new TextureAtlas("graphic/sprites.atlas");
 
-        //Camera to follow Mario, Viewport, HUD.
+        //Camera to follow Mario, Viewport.
         camera = new OrthographicCamera();
         viewport = new FitViewport(Boot.V_WIDTH / Boot.PPM, Boot.V_HEIGHT / Boot.PPM, camera);
+        
+        //HUD.
         hud = new HUD(game.batch);
 
         //Parameters for tiled texture rendering. Change Nearest to Linear for filtering.
@@ -239,7 +243,7 @@ public class ScreenPlay implements Screen {
 
         //Draw HUD.
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
-        hud.stage.draw();
+        hud.draw();
 
         //Draw controller.
         controller.draw();
@@ -272,7 +276,7 @@ public class ScreenPlay implements Screen {
             }
             //Run faster.
             if (controller.isaPressed())
-                speed = 2;
+                speed = 1.7f;
             else
                 speed = 1;
         }
@@ -352,6 +356,10 @@ public class ScreenPlay implements Screen {
 
     public World getWorld() {
         return world;
+    }
+
+    public OrthographicCamera getCamera() {
+        return camera;
     }
 
 }
