@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
+import com.colt.supermario.hud.HUD;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
 
@@ -71,6 +72,8 @@ public class Flower extends Item {
 
     @Override
     public void use(Mario mario) {
+        HUD.addScore(1000);
+        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "1000");
         destroy();
     }
 

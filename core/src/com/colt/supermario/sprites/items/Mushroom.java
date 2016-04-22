@@ -53,10 +53,8 @@ public class Mushroom extends Item {
 
     @Override
     public void use(Mario mario) {
-        if (mario.isBig()) {
-            HUD.addScore(500);
-            HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "500");
-        }
+        HUD.addScore(1000);
+        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "1000");
         destroy();
         mario.grow();
     }

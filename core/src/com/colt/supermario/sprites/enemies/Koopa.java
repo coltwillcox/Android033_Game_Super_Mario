@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
+import com.colt.supermario.hud.HUD;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
 
@@ -117,8 +118,10 @@ public class Koopa extends Enemy {
     }
 
     @Override
-    public void hitOnHead(Mario mario) {
+    public void onHeadHit(Mario mario) {
         if (stateCurrent != State.STANDING_SHELL) {
+            HUD.addScore(100);
+            HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
             stateCurrent = State.STANDING_SHELL;
             velocity.x = 0;
         }
@@ -129,8 +132,11 @@ public class Koopa extends Enemy {
     @Override
     public void onEnemyHit(Enemy enemy) {
         if (enemy instanceof Koopa) {
-            if (((Koopa) enemy).stateCurrent == State.MOVING_SHELL && stateCurrent != State.MOVING_SHELL)
+            if (((Koopa) enemy).stateCurrent == State.MOVING_SHELL && stateCurrent != State.MOVING_SHELL) {
+                HUD.addScore(100);
+                HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
                 die();
+            }
             else if (stateCurrent == State.MOVING_SHELL && ((Koopa) enemy).stateCurrent == State.WALKING)
                 return;
             else
@@ -139,6 +145,13 @@ public class Koopa extends Enemy {
         else if (stateCurrent != State.MOVING_SHELL) {
             reverseVelocity(true, false);
         }
+    }
+
+    @Override
+    public void onWeaponHit() {
+        HUD.addScore(200);
+        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "200");
+        die();
     }
 
     public void kick(int speed) {

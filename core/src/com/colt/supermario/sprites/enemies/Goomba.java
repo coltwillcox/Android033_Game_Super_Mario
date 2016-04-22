@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
+import com.colt.supermario.hud.HUD;
 import com.colt.supermario.screens.ScreenPlay;
 import com.colt.supermario.sprites.Mario;
 
@@ -105,17 +106,29 @@ public class Goomba extends Enemy {
     }
 
     @Override
-    public void hitOnHead(Mario mario) {
+    public void onHeadHit(Mario mario) {
         manager.get("audio/stomp.wav", Sound.class).play();
+        HUD.addScore(100);
+        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
         destroy = true;
     }
 
     @Override
     public void onEnemyHit(Enemy enemy) {
-        if (enemy instanceof Koopa && ((Koopa) enemy).stateCurrent == Koopa.State.MOVING_SHELL)
+        if (enemy instanceof Koopa && ((Koopa) enemy).stateCurrent == Koopa.State.MOVING_SHELL) {
+            HUD.addScore(100);
+            HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
             destroy = true;
+        }
         else
             reverseVelocity(true, false);
+    }
+
+    @Override
+    public void onWeaponHit() {
+        HUD.addScore(100);
+        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
+        die();
     }
 
     @Override

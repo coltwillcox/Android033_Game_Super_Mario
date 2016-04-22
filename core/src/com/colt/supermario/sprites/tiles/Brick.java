@@ -81,6 +81,7 @@ public class Brick extends MapTileObject {
         }
         else {
             manager.get("audio/breakblock.wav", Sound.class).play();
+            HUD.addScore(50);
             for (int i = 0; i < 4; i++)
                 screen.spawnParticle(new ParticleDefinition(new Vector2(body.getPosition().x - (getWidth() / 4), body.getPosition().y - (getHeight() / 4)), Debris.class));
             destroy = true;

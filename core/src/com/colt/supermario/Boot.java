@@ -1,7 +1,6 @@
 package com.colt.supermario;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -9,15 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.colt.supermario.screens.ScreenPlay;
 
 //TODO: Add menu.
-//TODO: Check W's errors.
 
 public class Boot extends Game {
 
     public static final int V_WIDTH = 370;
     public static final int V_HEIGHT = 208;
-    //public static final int W_WIDTH = Gdx.graphics.getWidth();
-    //public static final int W_HEIGHT = Gdx.graphics.getHeight();
-
 	public static final float PPM = 100; //Pixels per meter.
     public static final short NOTHING_BIT = 0;
     public static final short GROUND_BIT = 1; //Every new fixture created have default bit set to 1.

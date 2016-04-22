@@ -4,8 +4,6 @@ package com.colt.supermario.hud;
  * Created by colt on 4/22/16.
  */
 
-//TODO: Check W's errors.
-
 public class ScoreOverhead {
 
     private float stateTime;
@@ -26,7 +24,7 @@ public class ScoreOverhead {
 
     public void update(float deltaTime) {
         stateTime += deltaTime;
-        y += deltaTime * 16;
+        y += deltaTime * 48;
         if (stateTime > 1)
             destroyed = true;
     }
