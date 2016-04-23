@@ -18,8 +18,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
-import com.colt.supermario.hud.HUD;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Koopa;
 import com.colt.supermario.sprites.weapons.Fireball;
@@ -42,7 +41,7 @@ public class Mario extends Sprite {
     public State stateCurrent;
     public State statePrevious;
 
-    public ScreenPlay screen;
+    public ScreenAbstract screen;
     public World world;
     public Body body;
 
@@ -71,7 +70,7 @@ public class Mario extends Sprite {
     private Array<Fireball> fireballs;
 
     //Constructor.
-    public Mario(ScreenPlay screen, AssetManager manager) {
+    public Mario(ScreenAbstract screen, AssetManager manager) {
         this.screen = screen;
         this.world = screen.getWorld();
         this.manager = manager;

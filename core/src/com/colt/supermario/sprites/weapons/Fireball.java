@@ -11,7 +11,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 
 /**
  * Created by colt on 4/18/16.
@@ -19,7 +19,7 @@ import com.colt.supermario.screens.ScreenPlay;
 
 public class Fireball extends Sprite {
 
-    public ScreenPlay screen;
+    public ScreenAbstract screen;
     public World world;
     private Body body;
     private float stateTime;
@@ -33,7 +33,7 @@ public class Fireball extends Sprite {
     private TextureRegion animationExplosion;
 
     //Constructor.
-    public Fireball(ScreenPlay screen, float x, float y, float velocity, boolean fireRight) {
+    public Fireball(ScreenAbstract screen, float x, float y, float velocity, boolean fireRight) {
         this.screen = screen;
         this.world = screen.getWorld();
         this.velocity = velocity;

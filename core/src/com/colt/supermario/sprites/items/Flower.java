@@ -2,14 +2,13 @@ package com.colt.supermario.sprites.items;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.hud.HUD;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 
 /**
@@ -23,7 +22,7 @@ public class Flower extends Item {
     private Animation animationFlower;
 
     //Constructor.
-    public Flower(ScreenPlay screen, float x, float y) {
+    public Flower(ScreenAbstract screen, float x, float y) {
         super(screen, x, y);
 
         stateTime = 0;

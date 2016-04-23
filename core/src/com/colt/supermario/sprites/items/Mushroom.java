@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.colt.supermario.Boot;
 import com.colt.supermario.hud.HUD;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 
 /**
@@ -16,7 +16,7 @@ import com.colt.supermario.sprites.Mario;
 public class Mushroom extends Item {
 
     //Constructor.
-    public Mushroom(ScreenPlay screen, float x, float y) {
+    public Mushroom(ScreenAbstract screen, float x, float y) {
         super(screen, x, y);
 
         velocity = new Vector2(0.5f, 0);

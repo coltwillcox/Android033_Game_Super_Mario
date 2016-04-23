@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.colt.supermario.Boot;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 
 /**
@@ -17,13 +17,13 @@ public abstract class Item extends Sprite {
 
     protected boolean destroy;
     protected boolean destroyed;
-    protected ScreenPlay screen;
+    protected ScreenAbstract screen;
     protected World world;
     protected Body body;
     protected Vector2 velocity;
 
     //Constructor.
-    public Item(ScreenPlay screen, float x, float y) {
+    public Item(ScreenAbstract screen, float x, float y) {
         this.screen = screen;
         this.world = screen.getWorld();
         setPosition(x, y);

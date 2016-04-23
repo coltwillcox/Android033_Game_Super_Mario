@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 
 /**
@@ -13,7 +13,7 @@ import com.colt.supermario.sprites.Mario;
 
 public abstract class Enemy extends Sprite {
 
-    protected ScreenPlay screen;
+    protected ScreenAbstract screen;
     protected World world;
 
     public boolean destroyed;
@@ -21,7 +21,7 @@ public abstract class Enemy extends Sprite {
     public Vector2 velocity;
 
     //Constructor.
-    public Enemy(ScreenPlay screen, float x, float y) {
+    public Enemy(ScreenAbstract screen, float x, float y) {
         this.screen = screen;
         this.world = screen.getWorld();
         destroyed = false;

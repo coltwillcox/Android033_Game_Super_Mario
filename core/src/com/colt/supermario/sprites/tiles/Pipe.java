@@ -2,12 +2,11 @@ package com.colt.supermario.sprites.tiles;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.colt.supermario.Boot;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 
 /**
@@ -18,7 +17,7 @@ public class Pipe extends MapTileObject {
 
     private AssetManager manager;
 
-    public Pipe(ScreenPlay screen, float x, float y, TiledMapTileMapObject mapObject, AssetManager manager) {
+    public Pipe(ScreenAbstract screen, float x, float y, TiledMapTileMapObject mapObject, AssetManager manager) {
         super(screen, x, y, mapObject);
         this.manager = manager;
     }

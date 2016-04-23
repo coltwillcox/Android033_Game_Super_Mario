@@ -3,7 +3,6 @@ package com.colt.supermario.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,8 +20,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.colt.supermario.Boot;
 import com.colt.supermario.hud.HUD;
-import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.Mario;
+import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.items.Flower;
 import com.colt.supermario.sprites.items.Item;
 import com.colt.supermario.sprites.items.ItemDefinition;
@@ -38,70 +37,62 @@ import com.colt.supermario.tools.WorldCreator;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by colt on 4/12/16.
+ * Created by colt on 4/22/16.
  */
 
-//TODO: More levels.
-//TODO: Add scores over heads.
-//TODO: Brick smashing.
-//TODO: Bricks bumping a little.
+public abstract class ScreenAbstract implements Screen {
 
-public class ScreenPlay implements Screen {
-
-    private Boot game;
+    protected Boot game;
 
     //Asset manager.
-    private AssetManager manager;
+    protected AssetManager manager;
 
     //Textures.
-    private TextureAtlas atlas;
+    protected TextureAtlas atlas;
 
     //Camera, viewport.
-    private OrthographicCamera camera;
-    private Viewport viewport;
+    protected OrthographicCamera camera;
+    protected Viewport viewport;
 
     //HUD.
-    private HUD hud;
+    protected HUD hud;
 
     //Tiled map variables.
-    private TmxMapLoader mapLoader;
-    private TiledMap map;
-    private OrthogonalTiledMapRenderer mapRenderer;
+    protected TmxMapLoader mapLoader;
+    protected TiledMap map;
+    protected OrthogonalTiledMapRenderer mapRenderer;
 
     //Borders.
-    private float cameraBorderLeft;
-    private float cameraBorderRight;
+    protected float cameraBorderLeft;
+    protected float cameraBorderRight;
 
     //Box2D variables.
-    private World world;
-    private WorldContactListener worldContactListener;
-    private Box2DDebugRenderer b2ddr;
-    private WorldCreator worldCreator;
+    protected World world;
+    protected WorldContactListener worldContactListener;
+    protected Box2DDebugRenderer b2ddr;
+    protected WorldCreator worldCreator;
 
     //Player and enemies.
-    private Mario mario;
-    private float speed;
+    protected Mario mario;
+    protected float speed;
 
     //Fire timers.
-    private float fireTimer;
-    private float fireInterval;
+    protected float fireTimer;
+    protected float fireInterval;
 
     //Items.
-    private LinkedBlockingQueue<ItemDefinition> itemsToSpawn;
-    private Array<Item> items;
+    protected LinkedBlockingQueue<ItemDefinition> itemsToSpawn;
+    protected Array<Item> items;
 
     //Particles (coins, bricks fragments...).
-    private LinkedBlockingQueue<ParticleDefinition> particlesToSpawn;
-    private Array<Particle> particles;
+    protected LinkedBlockingQueue<ParticleDefinition> particlesToSpawn;
+    protected Array<Particle> particles;
 
     //Joypad-like controller.
-    private Controller controller;
-
-    //Audio.
-    private Music music;
+    protected Controller controller;
 
     //Constructor.
-    public ScreenPlay(Boot game, AssetManager manager) {
+    public ScreenAbstract(Boot game, AssetManager manager) {
         this.game = game;
         this.manager = manager;
 
@@ -111,7 +102,7 @@ public class ScreenPlay implements Screen {
         //Camera to follow Mario, Viewport.
         camera = new OrthographicCamera();
         viewport = new FitViewport(Boot.V_WIDTH / Boot.PPM, Boot.V_HEIGHT / Boot.PPM, camera);
-        
+
         //HUD.
         hud = new HUD(game.batch);
 
@@ -122,7 +113,7 @@ public class ScreenPlay implements Screen {
 
         //Load map and setup map renderer.
         mapLoader = new TmxMapLoader();
-        map = mapLoader.load("graphic/level11.tmx", params);
+        map = mapLoader.load(mapName(), params);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / Boot.PPM);
 
         //Set borders. Subtract one tile from each side. TMX file must have 1 tile offset (eg, pipes) on sides.
@@ -157,12 +148,10 @@ public class ScreenPlay implements Screen {
 
         //Controller.
         controller = new Controller(game.batch);
-
-        //Audio.
-        music = manager.get("audio/music.ogg", Music.class);
-        music.setLooping(true);
-        //music.play();
     }
+
+    //Must give level filenames for every screen (except ScreenMenu).
+    public abstract String mapName();
 
     public void update(float deltaTime) {
         fireTimer += deltaTime;
@@ -244,9 +233,6 @@ public class ScreenPlay implements Screen {
         //Draw HUD.
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.draw();
-
-        //Draw controller.
-        controller.draw();
 
         //Check if game is over, so draw Game Over screen.
         if (gameOver()) {

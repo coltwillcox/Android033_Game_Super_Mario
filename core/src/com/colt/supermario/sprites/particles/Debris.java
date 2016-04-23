@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 
 /**
  * Created by colt on 4/21/16.
@@ -22,7 +22,7 @@ public class Debris extends Particle {
     private Vector2 force;
 
     //Constructor.
-    public Debris(ScreenPlay screen, float x, float y) {
+    public Debris(ScreenAbstract screen, float x, float y) {
         super(screen, x, y);
 
         //Animations.

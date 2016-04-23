@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.colt.supermario.Boot;
 import com.colt.supermario.hud.HUD;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.particles.Debris;
 import com.colt.supermario.sprites.particles.ParticleDefinition;
@@ -28,7 +28,7 @@ public class Brick extends MapTileObject {
     private Vector2 movablePosition;
     private Vector2 targetPosition;
 
-    public Brick(ScreenPlay screen, float x, float y, TiledMapTileMapObject mapObject, AssetManager manager) {
+    public Brick(ScreenAbstract screen, float x, float y, TiledMapTileMapObject mapObject, AssetManager manager) {
         super(screen, x, y, mapObject);
         this.manager = manager;
 

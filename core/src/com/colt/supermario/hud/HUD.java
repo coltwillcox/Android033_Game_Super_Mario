@@ -20,6 +20,8 @@ import com.colt.supermario.Boot;
  * Created by colt on 4/12/16.
  */
 
+//TODO: Stop HUD time at menu screen.
+
 public class HUD implements Disposable {
 
     public Stage stage;

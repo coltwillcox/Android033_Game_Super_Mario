@@ -5,7 +5,7 @@ import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.colt.supermario.Boot;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 
 /**
@@ -13,14 +13,14 @@ import com.colt.supermario.sprites.Mario;
  */
 
 public abstract class MapTileObject extends Sprite {
-    protected ScreenPlay screen;
+    protected ScreenAbstract screen;
     protected World world;
     protected Body body;
     protected TiledMapTileMapObject mapObject;
     protected boolean destroy;
     protected boolean destroyed;
 
-    public MapTileObject(ScreenPlay screen, float x, float y, TiledMapTileMapObject mapObject) {
+    public MapTileObject(ScreenAbstract screen, float x, float y, TiledMapTileMapObject mapObject) {
         this.screen = screen;
         this.world = screen.getWorld();
         this.mapObject = mapObject;

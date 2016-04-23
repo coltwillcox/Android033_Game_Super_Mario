@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="47" height="13" tilewidth="16" tileheight="16" nextobjectid="130">
+ <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" spacing="2" margin="1" tilecount="924" columns="33">
+  <image source="tileset.png" width="594" height="504"/>
+ </tileset>
+ <layer name="background" width="47" height="13">
+  <data encoding="base64" compression="zlib">
+   eJzbycTAsHMUj+JRPIpH8SgexaN4FA8IBgB1GL5h
+  </data>
+ </layer>
+ <imagelayer name="logo">
+  <image source="logo.png" width="400" height="208"/>
+ </imagelayer>
+ <layer name="graphics" width="47" height="13">
+  <data encoding="base64" compression="zlib">
+   eJxjYBj6YCoTA8M0IJ7ORLoeUvVRG2wD2r0diHeQ4AaYHlL1jYJRMApGAQwIMQ60C8gDgkB3GwGxMOPQ8gPI3cZoWBjJ/aZAthkSNh9AvzEOQTzU3Q4A1msMGg==
+  </data>
+ </layer>
+ <objectgroup name="ground">
+  <object id="102" x="0" y="0" width="16" height="208"/>
+  <object id="122" x="736" y="0" width="16" height="208"/>
+  <object id="124" x="16" y="176" width="720" height="32"/>
+ </objectgroup>
+ <objectgroup name="pipes">
+  <object id="126" gid="298" x="16" y="176" width="16" height="16"/>
+  <object id="127" gid="265" x="16" y="160" width="16" height="16"/>
+  <object id="128" gid="266" x="32" y="160" width="16" height="16"/>
+  <object id="129" gid="299" x="32" y="176" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup name="coinblocks"/>
+ <objectgroup name="bricks"/>
+ <objectgroup name="goombas"/>
+ <objectgroup name="koopas"/>
+</map>

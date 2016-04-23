@@ -11,7 +11,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.items.Flower;
 import com.colt.supermario.sprites.items.ItemDefinition;
@@ -36,7 +36,7 @@ public class CoinBlock extends MapTileObject {
     private Array<TextureRegion> frames;
     private TextureRegion animationBumped;
 
-    public CoinBlock(ScreenPlay screen, float x, float y, TiledMapTileMapObject mapObject, AssetManager manager) {
+    public CoinBlock(ScreenAbstract screen, float x, float y, TiledMapTileMapObject mapObject, AssetManager manager) {
         super(screen, x, y, mapObject);
         this.manager = manager;
 

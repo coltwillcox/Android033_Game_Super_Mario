@@ -5,7 +5,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenMenu;
 
 //TODO: Add menu.
 
@@ -13,7 +13,7 @@ public class Boot extends Game {
 
     public static final int V_WIDTH = 370;
     public static final int V_HEIGHT = 208;
-	public static final float PPM = 100; //Pixels per meter.
+    public static final float PPM = 100; //Pixels per meter.
     public static final short NOTHING_BIT = 0;
     public static final short GROUND_BIT = 1; //Every new fixture created have default bit set to 1.
     public static final short MARIO_BIT = 2;
@@ -48,8 +48,8 @@ public class Boot extends Game {
         manager.load("audio/stomp.wav", Sound.class);
         manager.finishLoading(); //Synchronized loading.
 
-		batch = new SpriteBatch();
-        setScreen(new ScreenPlay(this, manager));
+        batch = new SpriteBatch();
+        setScreen(new ScreenMenu(this, manager));
 	}
 
 	@Override

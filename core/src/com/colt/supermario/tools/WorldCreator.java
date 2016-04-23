@@ -13,7 +13,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.tiles.Brick;
 import com.colt.supermario.sprites.tiles.CoinBlock;
 import com.colt.supermario.sprites.enemies.Enemy;
@@ -38,7 +38,7 @@ public class WorldCreator {
     private static Array<Enemy> enemies;
     private static Array<MapTileObject> tileObjects;
 
-    public WorldCreator(ScreenPlay screen, AssetManager manager) {
+    public WorldCreator(ScreenAbstract screen, AssetManager manager) {
         this.manager = manager;
         this.world = screen.getWorld();
         this.map = screen.getMap();

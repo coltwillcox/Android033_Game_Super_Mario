@@ -14,7 +14,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
 import com.colt.supermario.hud.HUD;
-import com.colt.supermario.screens.ScreenPlay;
+import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.Mario;
 
 /**
@@ -34,7 +34,7 @@ public class Goomba extends Enemy {
     private Array<TextureRegion> frames;
 
     //Constructor.
-    public Goomba(ScreenPlay screen, float x, float y, AssetManager manager) {
+    public Goomba(ScreenAbstract screen, float x, float y, AssetManager manager) {
         super(screen, x, y);
         this.manager = manager;
         

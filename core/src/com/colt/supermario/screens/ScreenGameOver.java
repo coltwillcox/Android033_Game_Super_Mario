@@ -67,8 +67,8 @@ public class ScreenGameOver implements Screen {
     @Override
     public void render(float delta) {
         if (Gdx.input.justTouched()) {
-            game.setScreen(new ScreenPlay((Boot) game, manager));
             dispose();
+            game.setScreen(new ScreenLevel11((Boot) game, manager));
         }
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
