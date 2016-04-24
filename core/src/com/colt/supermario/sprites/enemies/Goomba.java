@@ -21,7 +21,7 @@ import com.colt.supermario.sprites.Mario;
  * Created by colt on 4/14/16.
  */
 
-//TODO: Add side fixtures for colliding with ground (for movement reversing).
+//TODO: Add side fixtures for colliding with ground (for movement reversing). Or maybe not. Add objects on map if needed?
 
 public class Goomba extends Enemy {
 
@@ -81,6 +81,7 @@ public class Goomba extends Enemy {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(getX(), getY());
         bodyDef.type = BodyDef.BodyType.DynamicBody;
+
         body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();

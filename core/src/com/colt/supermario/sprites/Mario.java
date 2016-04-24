@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
+import com.colt.supermario.hud.HUD;
 import com.colt.supermario.screens.ScreenAbstract;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Koopa;
@@ -37,14 +38,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Mario extends Sprite {
 
+    //States.
     public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING, CLIMBING, DEAD}
     public State stateCurrent;
     public State statePrevious;
 
+    //Screen, world, body.
     public ScreenAbstract screen;
     public World world;
     public Body body;
 
+    //Asset manager.
     private AssetManager manager;
 
     private float stateTime;
@@ -58,6 +62,7 @@ public class Mario extends Sprite {
     private boolean marioDead;
     private boolean isLevelCompleted;
 
+    //Animations.
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
     private TextureRegion animationDead;
@@ -142,6 +147,7 @@ public class Mario extends Sprite {
             setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (7 / Boot.PPM)); //Sets the position where the sprite will be drawn.
         else
             setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (1 / Boot.PPM)); //+ (1 / Boot.PPM) because radius is just 6.
+
         setRegion(getFrame(deltaTime));
 
         //Must define and redefine Mario with boolean and update, because body can't be destroyed in world.step cycle.
@@ -170,6 +176,7 @@ public class Mario extends Sprite {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(186 / Boot.PPM, 40 / Boot.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
+
         body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
@@ -208,6 +215,7 @@ public class Mario extends Sprite {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(currentPosition.add(0, 8 / Boot.PPM));
         bodyDef.type = BodyDef.BodyType.DynamicBody;
+
         body = world.createBody(bodyDef);
         body.setLinearVelocity(currentVelocity);
 
@@ -250,6 +258,7 @@ public class Mario extends Sprite {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(currentPosition);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
+
         body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
@@ -331,6 +340,7 @@ public class Mario extends Sprite {
                 manager.get("audio/music.ogg", Music.class).stop();
                 manager.get("audio/death.wav", Sound.class).play();
                 marioDead = true;
+                HUD.setPaused(true);
                 screen.setControllerOn(false);
                 Filter filter = new Filter();
                 filter.maskBits = Boot.NOTHING_BIT;

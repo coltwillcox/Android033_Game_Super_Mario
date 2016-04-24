@@ -53,6 +53,7 @@ public class Debris extends Particle {
         fixtureDef.shape = shape;
         fixtureDef.restitution = 0.25f;
         body.createFixture(fixtureDef).setUserData(this);
+
         shape.dispose();
     }
 

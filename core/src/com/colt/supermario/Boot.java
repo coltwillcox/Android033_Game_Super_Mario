@@ -7,8 +7,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.colt.supermario.screens.ScreenMenu;
 
-//TODO: Add menu.
-
 public class Boot extends Game {
 
     public static final int V_WIDTH = 370;
@@ -50,9 +48,10 @@ public class Boot extends Game {
         manager.load("audio/powerup.wav", Sound.class);
         manager.load("audio/powerupspawn.wav", Sound.class);
         manager.load("audio/stomp.wav", Sound.class);
-        manager.finishLoading(); //Synchronized loading.
+        manager.finishLoading(); //Wait for everything to load.
 
         batch = new SpriteBatch();
+
         setScreen(new ScreenMenu(this, manager));
 	}
 

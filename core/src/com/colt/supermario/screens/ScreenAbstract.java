@@ -48,6 +48,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class ScreenAbstract implements Screen {
 
+    //Main game.
     protected Boot game;
 
     //Asset manager.
@@ -59,6 +60,8 @@ public abstract class ScreenAbstract implements Screen {
     //Camera, viewport.
     protected OrthographicCamera camera;
     protected Viewport viewport;
+    protected float cameraBorderLeft;
+    protected float cameraBorderRight;
 
     //HUD.
     protected HUD hud;
@@ -67,10 +70,6 @@ public abstract class ScreenAbstract implements Screen {
     protected TmxMapLoader mapLoader;
     protected TiledMap map;
     protected OrthogonalTiledMapRenderer mapRenderer;
-
-    //Borders.
-    protected float cameraBorderLeft;
-    protected float cameraBorderRight;
 
     //Box2D variables.
     protected World world;
@@ -329,6 +328,7 @@ public abstract class ScreenAbstract implements Screen {
     public void levelCompleted() {
         levelCompleted = true;
         controllerOn = false;
+        HUD.setPaused(true);
     }
 
     public void checkGameOver() {

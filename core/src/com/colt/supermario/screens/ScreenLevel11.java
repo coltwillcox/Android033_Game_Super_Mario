@@ -3,6 +3,7 @@ package com.colt.supermario.screens;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.colt.supermario.Boot;
+import com.colt.supermario.hud.HUD;
 
 /**
  * Created by colt on 4/12/16.
@@ -17,6 +18,8 @@ public class ScreenLevel11 extends ScreenAbstract{
 
     public ScreenLevel11(Boot game, AssetManager manager) {
         super(game, manager);
+
+        HUD.setPaused(false); //Unpause HUD counter.
 
         //Audio.
         music = manager.get("audio/music.ogg", Music.class);

@@ -24,7 +24,9 @@ public abstract class Enemy extends Sprite {
     public Enemy(ScreenAbstract screen, float x, float y) {
         this.screen = screen;
         this.world = screen.getWorld();
+
         destroyed = false;
+
         setPosition(x, y);
         defineEnemy();
         velocity = new Vector2(0.5f, 0);

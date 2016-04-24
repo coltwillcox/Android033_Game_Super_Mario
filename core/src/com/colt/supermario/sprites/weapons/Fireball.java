@@ -83,8 +83,8 @@ public class Fireball extends Sprite {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(fireRight ? getX() + (8 / Boot.PPM) : getX() - (8 / Boot.PPM), getY());
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        if(!world.isLocked())
-            body = world.createBody(bodyDef);
+
+        body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
         CircleShape shape = new CircleShape();
@@ -96,7 +96,6 @@ public class Fireball extends Sprite {
         fixtureDef.restitution = 0.75f;
         body.createFixture(fixtureDef).setUserData(this);
         body.applyLinearImpulse(new Vector2(fireRight ? 2 + velocity : -2 + velocity, 1.25f), body.getWorldCenter(), true);
-        //body.setLinearVelocity(new Vector2(fireRight ? 2 : -2, 1.25f));
 
         shape.dispose();
     }

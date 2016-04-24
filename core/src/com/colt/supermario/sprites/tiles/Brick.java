@@ -18,7 +18,6 @@ import com.colt.supermario.sprites.particles.ParticleDefinition;
  * Created by colt on 4/13/16.
  */
 
-//TODO: Breaking or bumping.
 //TODO: Try to create debris in separate 1/4th?
 
 public class Brick extends MapTileObject {
@@ -63,11 +62,9 @@ public class Brick extends MapTileObject {
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(8 / Boot.PPM, 8 / Boot.PPM); //Half-width, half-height.
-
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = Boot.BRICK_BIT;
         fixtureDef.shape = shape;
-
         body.createFixture(fixtureDef).setUserData(this);
 
         shape.dispose();

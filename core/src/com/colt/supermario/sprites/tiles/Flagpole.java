@@ -33,13 +33,11 @@ public class Flagpole extends MapTileObject {
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(4 / Boot.PPM, 8 / Boot.PPM);
-
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = Boot.FLAGPOLE_BIT;
         fixtureDef.filter.maskBits = Boot.MARIO_BIT;
         fixtureDef.shape = shape;
         fixtureDef.isSensor = true;
-
         body.createFixture(fixtureDef).setUserData(this);
 
         shape.dispose();
