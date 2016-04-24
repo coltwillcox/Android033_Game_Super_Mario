@@ -6,11 +6,11 @@ package com.colt.supermario.hud;
 
 public class ScoreOverhead {
 
+    private boolean destroyed;
     private float stateTime;
     private float x;
     private float y;
     private String scoreValue;
-    private boolean destroyed;
 
     //Constructor.
     public ScoreOverhead(float x, float y, String scoreValue) {

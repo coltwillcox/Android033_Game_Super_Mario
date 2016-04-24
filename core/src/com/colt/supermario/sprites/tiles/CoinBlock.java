@@ -26,7 +26,6 @@ import com.colt.supermario.sprites.items.Mushroom;
 public class CoinBlock extends MapTileObject {
 
     private boolean hit;
-    private boolean moved;
     private float stateTime;
     private AssetManager manager;
     private Vector2 positionOriginal;

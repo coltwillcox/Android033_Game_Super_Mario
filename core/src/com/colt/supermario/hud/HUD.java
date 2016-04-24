@@ -20,21 +20,33 @@ import com.colt.supermario.Boot;
  * Created by colt on 4/12/16.
  */
 
-//TODO: Stop HUD time at menu screen.
+//TODO: Maybe create separate class for values?
 
 public class HUD implements Disposable {
 
+    //Stage, camera...
     public Stage stage;
-    private float timeCount;
     private SpriteBatch batch;
-    private static Integer score;
-    private static BitmapFont font;
-    private static Label labelScore;
-    private static GlyphLayout layout;
-    private static Array<ScoreOverhead> scoreOverehads;
-    private Integer worldTimer;
     private OrthographicCamera camera; //HUD have its own camera and viewport.
     private Viewport viewport;
+
+    //Pause. Default is true. Counter will not run until unpaused.
+    private static boolean paused;
+
+    //Font and layout (for centering).
+    private static BitmapFont font;
+    private static GlyphLayout layout;
+
+    //Scores over heads.
+    private static Array<ScoreOverhead> scoreOverehads;
+
+    //Timers.
+    private float timeCount;
+    private Integer worldTimer;
+
+    //Table and labels.
+    private static Integer score;
+    private static Label labelScore;
     private Table table;
     private Label labelMario;
     private Label labelWorld;
@@ -49,15 +61,22 @@ public class HUD implements Disposable {
         timeCount = 0;
         score = 0;
 
+        //Stage, camera...
         camera = new OrthographicCamera();
         viewport = new FitViewport(Boot.V_WIDTH, Boot.V_HEIGHT, camera);
         stage = new Stage(viewport, batch);
 
+        //Pause.
+        paused = true;
+
+        //Font and layout.
         font = new BitmapFont(Gdx.files.internal("graphic/fontsupermario.fnt"));
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         font.getData().setScale(0.3f);
-        scoreOverehads = new Array<ScoreOverhead>();
         layout = new GlyphLayout();
+
+        //Scores over heads.
+        scoreOverehads = new Array<ScoreOverhead>();
 
         //Table.
         labelMario = new Label("MARIO", new Label.LabelStyle(font, Color.WHITE));
@@ -80,7 +99,8 @@ public class HUD implements Disposable {
     }
 
     public void update(float deltaTime) {
-        timeCount += deltaTime;
+        if (!paused)
+            timeCount += deltaTime;
         if (timeCount >= 1) {
             worldTimer--;
             labelCountdown.setText(String.format("%03d", worldTimer));
@@ -93,7 +113,6 @@ public class HUD implements Disposable {
             else
                 scoreOverehads.removeValue(scoreOverhead, true);
         }
-
     }
 
     public void draw() {
@@ -105,6 +124,12 @@ public class HUD implements Disposable {
         batch.end();
     }
 
+    @Override
+    public void dispose() {
+        stage.dispose();
+    }
+
+    //Getters and setters.
     public static void addScore(int scoreToAdd) {
         score += scoreToAdd;
         labelScore.setText(String.format("%06d", score));
@@ -115,10 +140,12 @@ public class HUD implements Disposable {
         scoreOverehads.add(new ScoreOverhead(x - (layout.width / 2), y + (layout.height / 2), scoreValue));
     }
 
-    @Override
-    public void dispose() {
-        stage.dispose();
-        font.dispose();
+    public static void setPaused(boolean pause) {
+        paused = pause;
+    }
+
+    public static BitmapFont getFont() {
+        return font;
     }
 
 }

@@ -38,6 +38,7 @@ public class Mushroom extends Item {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(getX(), getY());
         bodyDef.type = BodyDef.BodyType.DynamicBody;
+
         body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();

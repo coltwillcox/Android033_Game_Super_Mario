@@ -19,23 +19,23 @@ import com.colt.supermario.Boot;
 
 public class Controller {
 
-    public boolean upPressed;
-    public boolean downPressed;
-    public boolean leftPressed;
-    public boolean rightPressed;
-    public boolean aPressed;
-    public boolean bPressed;
-    public Stage stage;
-    public Viewport viewport;
-    public OrthographicCamera camera;
-    public Image buttonUp;
-    public Image buttonDown;
-    public Image buttonLeft;
-    public Image buttonRight;
-    public Image buttonA;
-    public Image buttonB;
-    public Table tableDirectional;
-    public Table tableAB;
+    private boolean upPressed;
+    private boolean downPressed;
+    private boolean leftPressed;
+    private boolean rightPressed;
+    private boolean aPressed;
+    private boolean bPressed;
+    private Stage stage;
+    private Viewport viewport;
+    private OrthographicCamera camera;
+    private Image buttonUp;
+    private Image buttonDown;
+    private Image buttonLeft;
+    private Image buttonRight;
+    private Image buttonA;
+    private Image buttonB;
+    private Table tableDirectional;
+    private Table tableAB;
 
     //Constructor.
     public Controller(SpriteBatch spriteBatch) {

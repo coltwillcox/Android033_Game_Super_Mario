@@ -35,7 +35,6 @@ public class Koopa extends Enemy {
 
     private float stateTime;
     private float rotationDegreesDead;
-    private boolean destroy;
     private AssetManager manager;
     private TextureRegion animationShell;
     private Animation animationWalk;
@@ -93,6 +92,7 @@ public class Koopa extends Enemy {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(getX(), getY());
         bodyDef.type = BodyDef.BodyType.DynamicBody;
+
         body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();

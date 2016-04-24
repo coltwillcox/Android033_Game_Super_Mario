@@ -17,24 +17,32 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.colt.supermario.Boot;
+import com.colt.supermario.hud.HUD;
 
 /**
  * Created by colt on 4/17/16.
  */
 
 //TODO: Add labels.
-//TODO: Make Game Over screen disappears after some time if no user input, and return to Main Menu screen.
 
 public class ScreenGameOver implements Screen {
 
     //Asset manager.
     private AssetManager manager;
 
+    //Stage, camera...
     private Stage stage;
     private Camera camera; //Game Over screen have its own camera and viewport, same as HUD.
     private Viewport viewport;
     private Game game;
+
+    //State timer.
+    private float stateTime;
+
+    //Font.
     private BitmapFont font;
+
+    //Table.
     private Table table;
     private Label labelGameOver;
     private Label labelPlayAgain;
@@ -46,18 +54,23 @@ public class ScreenGameOver implements Screen {
 
         manager.get("audio/gameover.wav", Music.class).play();
 
+        //Stage, camera...
         camera = new OrthographicCamera();
         viewport = new FitViewport(Boot.V_WIDTH, Boot.V_HEIGHT, camera);
         stage = new Stage(viewport, ((Boot) game).batch);
 
-        //TODO: Use HUD font.
-        font = new BitmapFont(Gdx.files.internal("graphic/fontsupermario.fnt"));
+        stateTime = 0;
+
+        //Font. Uses HUD static font.
+        font = HUD.getFont();
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         font.getData().setScale(0.3f);
 
+        //Labels.
         labelGameOver = new Label("GAME OVER", new Label.LabelStyle(font, Color.WHITE));
         labelPlayAgain = new Label("PLAY AGAIN?", new Label.LabelStyle(font, Color.WHITE));
 
+        //Table.
         table = new Table();
         table.center();
         table.setFillParent(true);
@@ -68,13 +81,25 @@ public class ScreenGameOver implements Screen {
         stage.addActor(table);
     }
 
+    public void update(float deltaTime) {
+        stateTime += deltaTime;
+    }
+
     @Override
     public void render(float delta) {
+        update(delta);
+
         if (Gdx.input.justTouched()) {
             manager.get("audio/gameover.wav", Music.class).stop();
             dispose();
             game.setScreen(new ScreenLevel11((Boot) game, manager));
         }
+        else if (stateTime > 5) {
+            manager.get("audio/gameover.wav", Music.class).stop();
+            dispose();
+            game.setScreen(new ScreenMenu((Boot) game, manager));
+        }
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();

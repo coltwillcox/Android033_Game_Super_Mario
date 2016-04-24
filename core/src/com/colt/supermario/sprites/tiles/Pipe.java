@@ -37,11 +37,9 @@ public class Pipe extends MapTileObject {
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(16 / Boot.PPM / 2, 16 / Boot.PPM / 2);
-
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = Boot.OBJECT_BIT;
         fixtureDef.shape = shape;
-
         body.createFixture(fixtureDef).setUserData(this);
 
         shape.dispose();
