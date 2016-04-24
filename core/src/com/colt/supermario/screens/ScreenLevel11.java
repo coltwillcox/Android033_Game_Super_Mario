@@ -34,8 +34,8 @@ public class ScreenLevel11 extends ScreenAbstract{
         super.render(delta);
 
         //Draw controller.
-        controller.draw();
+        if (controllerOn)
+            controller.draw();
     }
-
 
 }

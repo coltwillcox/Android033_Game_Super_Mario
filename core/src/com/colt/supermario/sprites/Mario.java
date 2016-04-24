@@ -37,7 +37,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Mario extends Sprite {
 
-    public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD}
+    public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING, CLIMBING, DEAD}
     public State stateCurrent;
     public State statePrevious;
 
@@ -48,16 +48,20 @@ public class Mario extends Sprite {
     private AssetManager manager;
 
     private float stateTime;
+    private float polePosition;
+    private boolean climb;
     private boolean runningRight;
     private boolean marioBig;
     private boolean runAnimationGrow;
     private boolean timeToDefineBigMario;
     private boolean timeToRedefineMario;
     private boolean marioDead;
+    private boolean isLevelCompleted;
 
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
     private TextureRegion animationDead;
+    private Animation animationClimb;
     private Animation animationRun;
     private Animation animationRunBig;
     private Animation animationJump;
@@ -77,7 +81,10 @@ public class Mario extends Sprite {
 
         stateCurrent = statePrevious = State.STANDING;
         stateTime = 0;
+        polePosition = 0;
         runningRight = true;
+        climb = false;
+        isLevelCompleted = false;
 
         //Animations.
         frames = new Array<TextureRegion>();
@@ -85,6 +92,11 @@ public class Mario extends Sprite {
         animationStand = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 0, 0, 16, 16);
         animationStandBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 0, 0, 16, 32);
         animationDead = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 6 * 16, 0, 16, 16);
+        //Climb animation.
+        for (int i = 7; i <= 8; i++)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
+        animationClimb = new Animation(0.1f, frames);
+        frames.clear();
         //Run animations.
         for (int i = 1; i <= 3; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
@@ -122,6 +134,9 @@ public class Mario extends Sprite {
 
     public void update(float deltaTime) {
         handleFireballs();
+
+        if (isLevelCompleted)
+            handleLevelCompleted();
 
         if (marioBig)
             setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (7 / Boot.PPM)); //Sets the position where the sprite will be drawn.
@@ -162,7 +177,7 @@ public class Mario extends Sprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT; //Mario (fixture) will collide only with these BITS.
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT | Boot.FLAGPOLE_BIT; //Mario (fixture) will collide only with these BITS.
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -311,10 +326,12 @@ public class Mario extends Sprite {
                 marioBig = false;
                 timeToRedefineMario = true;
                 setBounds(getX(), getY(), getWidth(), getHeight() / 2); //Mawio was big, so he needs to be cut down in half. \m/
-            } else {
+            }
+            else {
                 manager.get("audio/music.ogg", Music.class).stop();
                 manager.get("audio/death.wav", Sound.class).play();
                 marioDead = true;
+                screen.setControllerOn(false);
                 Filter filter = new Filter();
                 filter.maskBits = Boot.NOTHING_BIT;
                 for (Fixture fixture : body.getFixtureList())
@@ -342,6 +359,9 @@ public class Mario extends Sprite {
             case RUNNING:
                 region = marioBig ? animationRunBig.getKeyFrame(stateTime, true) : animationRun.getKeyFrame(stateTime, true); //true - loop animation.
                 break;
+            case CLIMBING:
+                region = animationClimb.getKeyFrame(stateTime, true);
+                break;
             case DEAD:
                 region = animationDead;
                 break;
@@ -368,6 +388,8 @@ public class Mario extends Sprite {
     public State getState() {
         if (marioDead)
             return State.DEAD;
+        else if (climb)
+            return State.CLIMBING;
         else if (body.getLinearVelocity().y > 0 || (body.getLinearVelocity().y < 0 && statePrevious == State.JUMPING))
             return State.JUMPING;
         else if (body.getLinearVelocity().y < 0)
@@ -378,6 +400,32 @@ public class Mario extends Sprite {
             return State.GROWING;
         else
             return State.STANDING;
+    }
+
+    public void levelCompleted(float x) {
+        if (isLevelCompleted)
+            return;
+
+        isLevelCompleted = true;
+        climb = true;
+        polePosition = x;
+    }
+
+    public void handleLevelCompleted() {
+        if (climb) {
+            runningRight = true;
+            body.setTransform(polePosition, body.getPosition().y, 0);
+            body.setLinearVelocity(new Vector2(0, -0.33f));
+            //Wait for the flag to slide down (actor to finish action).
+            if (screen.getFlag().getActions().size == 0) {
+                manager.get("audio/stageclear.wav", Music.class).play();
+                climb = false;
+            }
+        }
+        else if (body.getPosition().x < screen.getWorldCreator().getDoorPosition().x)
+            body.applyLinearImpulse(new Vector2(body.getMass() * (1 - body.getLinearVelocity().x), 0f), body.getWorldCenter(), true);
+        else if (body.getPosition().x > screen.getWorldCreator().getDoorPosition().x)
+            body.setTransform(screen.getWorldCreator().getDoorPosition().x, body.getPosition().y, 0);
     }
 
     //Getters and setters.

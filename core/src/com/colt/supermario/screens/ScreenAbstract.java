@@ -15,12 +15,18 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.DelayAction;
+import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
+import com.badlogic.gdx.scenes.scene2d.actions.RunnableAction;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.colt.supermario.Boot;
 import com.colt.supermario.hud.HUD;
 import com.colt.supermario.sprites.Mario;
+import com.colt.supermario.sprites.actors.Flag;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.items.Flower;
 import com.colt.supermario.sprites.items.Item;
@@ -84,15 +90,25 @@ public abstract class ScreenAbstract implements Screen {
     protected LinkedBlockingQueue<ItemDefinition> itemsToSpawn;
     protected Array<Item> items;
 
+    //Flag and level completed.
+    protected Flag flag;
+    protected Stage stageFlagDown;
+    protected boolean levelCompleted;
+    protected boolean flagTouched;
+
+    //Game over check.
+    protected boolean gameOver;
+
     //Particles (coins, bricks fragments...).
     protected LinkedBlockingQueue<ParticleDefinition> particlesToSpawn;
     protected Array<Particle> particles;
 
     //Joypad-like controller.
+    protected boolean controllerOn;
     protected Controller controller;
 
     //Constructor.
-    public ScreenAbstract(Boot game, AssetManager manager) {
+    public ScreenAbstract(final Boot game, final AssetManager manager) {
         this.game = game;
         this.manager = manager;
 
@@ -142,11 +158,33 @@ public abstract class ScreenAbstract implements Screen {
         itemsToSpawn = new LinkedBlockingQueue<ItemDefinition>();
         items = new Array<Item>();
 
+        //Flag and level completed.
+        flag = new Flag(this, worldCreator.getFlagPosition().x, worldCreator.getFlagPosition().y);
+        MoveToAction flagSlide = new MoveToAction();
+        flagSlide.setPosition(worldCreator.getFlagPosition().x, 48 / Boot.PPM);
+        flagSlide.setDuration((worldCreator.getFlagPosition().y - (48 / Boot.PPM)) / (16 / Boot.PPM) / 3); //Set duration to flagpole length. 3 tiles per 1 sec.
+        flag.addAction(flagSlide);
+        stageFlagDown = new Stage(viewport, game.batch);
+        stageFlagDown.addActor(flag);
+        RunnableAction runnableAction = new RunnableAction();
+        runnableAction.setRunnable(new Runnable() {
+            @Override
+            public void run() {
+                gameOver = true; //TODO: Change this to new level later.
+            }
+        });
+        stageFlagDown.addAction(new SequenceAction(new DelayAction(10), runnableAction));
+        flagTouched = false;
+
+        //Game over check.
+        gameOver = false;
+
         //Particles.
         particlesToSpawn = new LinkedBlockingQueue<ParticleDefinition>();
         particles = new Array<Particle>();
 
         //Controller.
+        controllerOn = true;
         controller = new Controller(game.batch);
     }
 
@@ -156,7 +194,8 @@ public abstract class ScreenAbstract implements Screen {
     public void update(float deltaTime) {
         fireTimer += deltaTime;
 
-        handleInput(deltaTime); //Handle user input first.
+        if (controllerOn)
+            handleInput(deltaTime); //Handle user input first.
         handleItems();
         handleParticles();
 
@@ -203,6 +242,9 @@ public abstract class ScreenAbstract implements Screen {
 
         camera.update(); //Update camera with correct coordinates after changes.
         mapRenderer.setView(camera); //Set renderer to draw only what camera can see in game world.
+
+        if (levelCompleted)
+            stageFlagDown.act();
     }
 
     @Override
@@ -216,10 +258,12 @@ public abstract class ScreenAbstract implements Screen {
         mapRenderer.render(); //Render game map.
         //b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
 
+        //(Stage with) Flag.
+        stageFlagDown.draw();
+
         //Draw player and enemies.
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
-        mario.draw(game.batch);
         for (Item item : items)
             item.draw(game.batch);
         for (MapTileObject mapTileObject : worldCreator.getTileObjects())
@@ -228,6 +272,7 @@ public abstract class ScreenAbstract implements Screen {
             enemy.draw(game.batch);
         for (Particle particle : particles)
             particle.draw(game.batch);
+        mario.draw(game.batch);
         game.batch.end();
 
         //Draw HUD.
@@ -235,9 +280,10 @@ public abstract class ScreenAbstract implements Screen {
         hud.draw();
 
         //Check if game is over, so draw Game Over screen.
-        if (gameOver()) {
-            game.setScreen(new ScreenGameOver(game, manager));
+        checkGameOver();
+        if (gameOver) {
             dispose();
+            game.setScreen(new ScreenGameOver(game, manager));
         }
     }
 
@@ -247,25 +293,23 @@ public abstract class ScreenAbstract implements Screen {
     }
 
     public void handleInput(float deltaTime) {
-        //Control Mario only if he is not dead.
-        if (mario.stateCurrent != Mario.State.DEAD) {
-            if ((controller.isUpPressed() || controller.isbPressed()) && worldContactListener.jumpability())
-                mario.jump();
-            if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= speed)
-                mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
-            if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -speed)
-                mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
-            //Fire fireballs.
-            if (controller.isaPressed() && fireTimer >= fireInterval && mario.getAmmo() < 2) {
-                mario.spawnFireball();
-                fireTimer = 0;
-            }
-            //Run faster.
-            if (controller.isaPressed())
-                speed = 1.7f;
-            else
-                speed = 1;
+        if ((controller.isUpPressed() || controller.isbPressed()) && worldContactListener.jumpability())
+            mario.jump();
+        if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= speed)
+            mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
+        if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -speed)
+            mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
+        //Fire fireballs.
+        if (controller.isaPressed() && fireTimer >= fireInterval && mario.getAmmo() < 2) {
+            mario.spawnFireball();
+            fireTimer = 0;
         }
+        //Run faster.
+        if (controller.isaPressed())
+            speed = 1.7f;
+        else
+            speed = 1;
+
     }
 
     public void spawnItem(ItemDefinition itemDefinition) {
@@ -282,11 +326,14 @@ public abstract class ScreenAbstract implements Screen {
         }
     }
 
-    public boolean gameOver() {
+    public void levelCompleted() {
+        levelCompleted = true;
+        controllerOn = false;
+    }
+
+    public void checkGameOver() {
         if (mario.stateCurrent == Mario.State.DEAD && mario.getStateTime() > 3)
-            return true;
-        else
-            return false;
+            gameOver = true;
     }
 
     public void spawnParticle(ParticleDefinition particleDefinition) {
@@ -329,9 +376,10 @@ public abstract class ScreenAbstract implements Screen {
         world.dispose();
         b2ddr.dispose();
         hud.dispose();
+        stageFlagDown.dispose();
     }
 
-    //Getters.
+    //Getters and setters.
     public TextureAtlas getAtlas() {
         return atlas;
     }
@@ -340,12 +388,32 @@ public abstract class ScreenAbstract implements Screen {
         return map;
     }
 
+    public WorldCreator getWorldCreator() {
+        return worldCreator;
+    }
+
     public World getWorld() {
         return world;
     }
 
     public OrthographicCamera getCamera() {
         return camera;
+    }
+
+    public void setControllerOn(boolean controllerOn) {
+        this.controllerOn = controllerOn;
+    }
+
+    public Flag getFlag() {
+        return flag;
+    }
+
+    public boolean isFlagTouched() {
+        return flagTouched;
+    }
+
+    public void setFlagTouched(boolean flagTouched) {
+        this.flagTouched = flagTouched;
     }
 
 }

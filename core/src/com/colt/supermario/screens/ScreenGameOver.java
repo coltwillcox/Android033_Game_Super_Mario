@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -21,7 +22,6 @@ import com.colt.supermario.Boot;
  * Created by colt on 4/17/16.
  */
 
-//TODO: Add music.
 //TODO: Add labels.
 //TODO: Make Game Over screen disappears after some time if no user input, and return to Main Menu screen.
 
@@ -43,10 +43,14 @@ public class ScreenGameOver implements Screen {
     public ScreenGameOver(Game game, AssetManager manager) {
         this.game = game;
         this.manager = manager;
+
+        manager.get("audio/gameover.wav", Music.class).play();
+
         camera = new OrthographicCamera();
         viewport = new FitViewport(Boot.V_WIDTH, Boot.V_HEIGHT, camera);
         stage = new Stage(viewport, ((Boot) game).batch);
 
+        //TODO: Use HUD font.
         font = new BitmapFont(Gdx.files.internal("graphic/fontsupermario.fnt"));
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         font.getData().setScale(0.3f);
@@ -67,6 +71,7 @@ public class ScreenGameOver implements Screen {
     @Override
     public void render(float delta) {
         if (Gdx.input.justTouched()) {
+            manager.get("audio/gameover.wav", Music.class).stop();
             dispose();
             game.setScreen(new ScreenLevel11((Boot) game, manager));
         }

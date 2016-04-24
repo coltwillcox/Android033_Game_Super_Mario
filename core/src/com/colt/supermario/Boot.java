@@ -27,13 +27,17 @@ public class Boot extends Game {
     public static final short MARIO_HEAD_BIT = 512;
     public static final short WEAPON_BIT = 1024;
     public static final short MARIO_FEET_BIT = 2048;
+    public static final short FLAGPOLE_BIT = 4096;
     public AssetManager manager;
     public SpriteBatch batch;
 
 	@Override
 	public void create () {
         manager = new AssetManager(); //Must pass it to every class that needs it.
+        manager.load("audio/flag.wav", Music.class);
+        manager.load("audio/gameover.wav", Music.class);
         manager.load("audio/music.ogg", Music.class);
+        manager.load("audio/stageclear.wav", Music.class);
         manager.load("audio/breakblock.wav", Sound.class);
         manager.load("audio/bump.wav", Sound.class);
         manager.load("audio/coin.wav", Sound.class);

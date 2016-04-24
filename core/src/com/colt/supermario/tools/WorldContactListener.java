@@ -75,6 +75,12 @@ public class WorldContactListener implements ContactListener {
                 else
                     ((Enemy) fixB.getUserData()).onWeaponHit();
                 break;
+            case Boot.MARIO_BIT | Boot.FLAGPOLE_BIT:
+                if (fixA.getFilterData().categoryBits == Boot.FLAGPOLE_BIT)
+                    ((MapTileObject) fixA.getUserData()).onHeadHit((Mario) fixB.getUserData());
+                else
+                    ((MapTileObject) fixB.getUserData()).onHeadHit((Mario) fixA.getUserData());
+                break;
             case Boot.MARIO_FEET_BIT | Boot.GROUND_BIT: //Check if Mario is on the ground, so he can jump.
             case Boot.MARIO_FEET_BIT | Boot.BRICK_BIT:
             case Boot.MARIO_FEET_BIT | Boot.COINBLOCK_BIT:
