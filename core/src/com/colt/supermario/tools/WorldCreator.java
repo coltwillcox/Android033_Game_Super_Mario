@@ -66,6 +66,12 @@ public class WorldCreator {
                 body = world.createBody(bodyDef);
 
                 shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
+                if (object.getProperties().containsKey("water")) {
+                    fixtureDef.filter.categoryBits = Boot.ENEMY_BIT;
+                    fixtureDef.filter.maskBits = Boot.MARIO_BIT;
+                }
+                else
+                    fixtureDef.filter.categoryBits = Boot.GROUND_BIT;
                 fixtureDef.shape = shape;
                 body.createFixture(fixtureDef);
             }

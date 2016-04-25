@@ -30,7 +30,7 @@ public class Boot extends Game {
     public SpriteBatch batch;
 
 	@Override
-	public void create () {
+	public void create() {
         manager = new AssetManager(); //Must pass it to every class that needs it.
         manager.load("audio/flag.wav", Music.class);
         manager.load("audio/gameover.wav", Music.class);
@@ -56,7 +56,7 @@ public class Boot extends Game {
 	}
 
 	@Override
-	public void render () {
+	public void render() {
 		super.render();
 	}
 
