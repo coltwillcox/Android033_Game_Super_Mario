@@ -74,6 +74,7 @@ public class Flower extends Item {
     public void use(Mario mario) {
         HUD.addScore(1000);
         HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "1000");
+        mario.setFireballsArmed(true);
         destroy();
     }
 

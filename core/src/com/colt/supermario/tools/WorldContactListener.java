@@ -87,11 +87,11 @@ public class WorldContactListener implements ContactListener {
             case Boot.MARIO_FEET_BIT | Boot.OBJECT_BIT:
                 feetOnGround++;
                 break;
-            case Boot.MARIO_BIT | Boot.ENEMY_BIT: //Mario dies.
+            case Boot.MARIO_BIT | Boot.ENEMY_BIT: //Mario dies or shrinks.
                 if (fixA.getFilterData().categoryBits == Boot.MARIO_BIT)
-                    ((Mario) fixA.getUserData()).hit((Enemy) fixB.getUserData());
+                    ((Mario) fixA.getUserData()).hit((Object) fixB.getUserData());
                 else
-                    ((Mario) fixB.getUserData()).hit((Enemy) fixA.getUserData());
+                    ((Mario) fixB.getUserData()).hit((Object) fixA.getUserData());
                 break;
         }
     }

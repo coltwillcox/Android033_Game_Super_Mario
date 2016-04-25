@@ -95,8 +95,8 @@ public class Goomba extends Enemy {
         //Create head.
         PolygonShape head = new PolygonShape();
         Vector2[] vertice = new Vector2[4];
-        vertice[0] = new Vector2(-4, 8).scl(1 / Boot.PPM);
-        vertice[1] = new Vector2(4, 8).scl(1 / Boot.PPM);
+        vertice[0] = new Vector2(-5, 9).scl(1 / Boot.PPM);
+        vertice[1] = new Vector2(5, 9).scl(1 / Boot.PPM);
         vertice[2] = new Vector2(-2, 6).scl(1 / Boot.PPM);
         vertice[3] = new Vector2(2, 6).scl(1 / Boot.PPM);
         head.set(vertice);
@@ -116,7 +116,7 @@ public class Goomba extends Enemy {
 
     @Override
     public void onEnemyHit(Enemy enemy) {
-        if (enemy instanceof Koopa && ((Koopa) enemy).stateCurrent == Koopa.State.MOVING_SHELL) {
+        if (enemy instanceof Koopa && ((Koopa) enemy).stateCurrent == Koopa.State.SHELL_MOVING) {
             HUD.addScore(100);
             HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
             destroy = true;

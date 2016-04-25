@@ -21,6 +21,7 @@ import com.colt.supermario.sprites.tiles.CoinBlock;
 import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Goomba;
 import com.colt.supermario.sprites.enemies.Koopa;
+import com.colt.supermario.sprites.tiles.DeadlyBlock;
 import com.colt.supermario.sprites.tiles.Flagpole;
 import com.colt.supermario.sprites.tiles.MapTileObject;
 import com.colt.supermario.sprites.tiles.Pipe;
@@ -66,12 +67,6 @@ public class WorldCreator {
                 body = world.createBody(bodyDef);
 
                 shape.setAsBox((rect.getWidth() / 2) / Boot.PPM, (rect.getHeight() / 2) / Boot.PPM);
-                if (object.getProperties().containsKey("water")) {
-                    fixtureDef.filter.categoryBits = Boot.ENEMY_BIT;
-                    fixtureDef.filter.maskBits = Boot.MARIO_BIT;
-                }
-                else
-                    fixtureDef.filter.categoryBits = Boot.GROUND_BIT;
                 fixtureDef.shape = shape;
                 body.createFixture(fixtureDef);
             }
@@ -104,6 +99,15 @@ public class WorldCreator {
                 float x = ((TiledMapTileMapObject) mapObject).getX();
                 float y = ((TiledMapTileMapObject) mapObject).getY();
                 tileObjects.add(new Pipe(screen, (x + 8) / Boot.PPM, (y + 8) / Boot.PPM, (TiledMapTileMapObject) mapObject, manager));
+            }
+        }
+        //DeadlyBlock water and lava.
+        mapLayer = map.getLayers().get("deadly");
+        if (mapLayer != null) {
+            for (MapObject mapObject : mapLayer.getObjects()) {
+                float x = ((TiledMapTileMapObject) mapObject).getX();
+                float y = ((TiledMapTileMapObject) mapObject).getY();
+                tileObjects.add(new DeadlyBlock(screen, (x + 8) / Boot.PPM, (y + 8) / Boot.PPM, (TiledMapTileMapObject) mapObject));
             }
         }
         //Flagpole.

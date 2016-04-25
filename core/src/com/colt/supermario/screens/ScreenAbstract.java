@@ -299,7 +299,7 @@ public abstract class ScreenAbstract implements Screen {
         if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -speed)
             mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
         //Fire fireballs.
-        if (controller.isaPressed() && fireTimer >= fireInterval && mario.getAmmo() < 2) {
+        if (controller.isaPressed() && fireTimer >= fireInterval && mario.isFireballsArmed() && mario.getAmmo() < 2) {
             mario.spawnFireball();
             fireTimer = 0;
         }

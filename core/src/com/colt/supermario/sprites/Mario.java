@@ -64,16 +64,22 @@ public class Mario extends Sprite {
     //Animations.
     private TextureRegion animationStand;
     private TextureRegion animationStandBig;
+    private TextureRegion animationStandFire;
     private TextureRegion animationDead;
     private Animation animationClimb;
+    private Animation animationClimbBig;
+    private Animation animationClimbFire;
     private Animation animationRun;
     private Animation animationRunBig;
+    private Animation animationRunFire;
     private Animation animationJump;
     private Animation animationJumpBig;
+    private Animation animationJumpFire;
     private Animation animationGrow;
     private Array<TextureRegion> frames;
 
     //Fireballs.
+    private boolean fireballsArmed;
     private LinkedBlockingQueue<FireballDefinition> fireballsToSpawn;
     private Array<Fireball> fireballs;
 
@@ -95,11 +101,20 @@ public class Mario extends Sprite {
         //Standing and dead. Not really animations.
         animationStand = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 0, 0, 16, 16);
         animationStandBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 0, 0, 16, 32);
+        animationStandFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 0, 0, 16, 32);
         animationDead = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 6 * 16, 0, 16, 16);
         //Climb animation.
         for (int i = 7; i <= 8; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
         animationClimb = new Animation(0.1f, frames);
+        frames.clear();
+        for (int i = 7; i <= 8; i++)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), i * 16, 0, 16, 32));
+        animationClimbBig = new Animation(0.1f, frames);
+        frames.clear();
+        for (int i = 7; i <= 8; i++)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_fire"), i * 16, 0, 16, 32));
+        animationClimbFire = new Animation(0.1f, frames);
         frames.clear();
         //Run animations.
         for (int i = 1; i <= 3; i++)
@@ -110,6 +125,10 @@ public class Mario extends Sprite {
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), i * 16, 0, 16, 32));
         animationRunBig = new Animation(0.1f, frames);
         frames.clear();
+        for (int i = 1; i <= 3; i++)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_fire"), i * 16, 0, 16, 32));
+        animationRunFire = new Animation(0.1f, frames);
+        frames.clear();
         //Jump animations.
         for (int i = 4; i <= 5; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
@@ -119,15 +138,20 @@ public class Mario extends Sprite {
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), i * 16, 0, 16, 32));
         animationJumpBig = new Animation(0.2f, frames);
         frames.clear();
+        for (int i = 4; i <= 5; i++)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_fire"), i * 16, 0, 16, 32));
+        animationJumpFire = new Animation(0.2f, frames);
+        frames.clear();
         //Grow animation.
         for (int i = 0; i <= 1; i++) {
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), 15 * 16, 0, 16, 32)); //15 * 16, because it's 16th big_mario image.
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), 0, 0, 16, 32));
         }
-        animationGrow = new Animation(0.2f, frames);
+        animationGrow = new Animation(0.1f, frames);
         frames.clear();
 
         //Fireballs.
+        fireballsArmed = false;
         fireballsToSpawn = new LinkedBlockingQueue<FireballDefinition>(1);
         fireballs = new Array<Fireball>();
 
@@ -223,7 +247,7 @@ public class Mario extends Sprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT | Boot.FLAGPOLE_BIT;
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -265,7 +289,7 @@ public class Mario extends Sprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / Boot.PPM);
         fixtureDef.filter.categoryBits = Boot.MARIO_BIT;
-        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT;
+        fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT | Boot.ENEMY_BIT | Boot.ENEMY_HEAD_BIT | Boot.ITEM_BIT | Boot.FLAGPOLE_BIT;
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -325,12 +349,13 @@ public class Mario extends Sprite {
     }
 
     //Mario shrinks or dies.
-    public void hit(Enemy enemy) {
-        if (enemy instanceof Koopa && ((Koopa) enemy).getStateCurrent() == Koopa.State.STANDING_SHELL)
-            ((Koopa) enemy).kick(this.getX() <= enemy.getX() ? Koopa.KICK_RIGHT_SPEED : Koopa.KICK_LEFT_SPEED);
+    public void hit(Object object) {
+        if (object instanceof Koopa && ((Koopa) object).getStateCurrent() == Koopa.State.SHELL_STANDING)
+            ((Koopa) object).kick(this.getX() <= ((Koopa) object).getX() ? Koopa.KICK_RIGHT_SPEED : Koopa.KICK_LEFT_SPEED);
         else {
-            if (marioBig) {
+            if (marioBig && object instanceof Enemy) {
                 manager.get("audio/powerdown.wav", Sound.class).play();
+                fireballsArmed = false;
                 marioBig = false;
                 timeToRedefineMario = true;
                 setBounds(getX(), getY(), getWidth(), getHeight() / 2); //Mawio was big, so he needs to be cut down in half. \m/
@@ -338,6 +363,8 @@ public class Mario extends Sprite {
             else {
                 manager.get("audio/music.ogg", Music.class).stop();
                 manager.get("audio/death.wav", Sound.class).play();
+                if (marioBig)
+                    setBounds(getX(), getY(), getWidth(), getHeight() / 2);
                 marioDead = true;
                 HUD.setPaused(true);
                 screen.setControllerOn(false);
@@ -348,6 +375,7 @@ public class Mario extends Sprite {
                 body.setLinearVelocity(0, 0);
                 body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
             }
+
         }
     }
 
@@ -363,13 +391,22 @@ public class Mario extends Sprite {
                     runAnimationGrow = false;
                 break;
             case JUMPING:
-                region = marioBig ? animationJumpBig.getKeyFrame(stateTime) : animationJump.getKeyFrame(stateTime);
+                if (!fireballsArmed)
+                    region = marioBig ? animationJumpBig.getKeyFrame(stateTime) : animationJump.getKeyFrame(stateTime);
+                else
+                    region = animationJumpFire.getKeyFrame(stateTime, true);
                 break;
             case RUNNING:
-                region = marioBig ? animationRunBig.getKeyFrame(stateTime, true) : animationRun.getKeyFrame(stateTime, true); //true - loop animation.
+                if (!fireballsArmed)
+                    region = marioBig ? animationRunBig.getKeyFrame(stateTime, true) : animationRun.getKeyFrame(stateTime, true); //true - loop animation.
+                else
+                    region = animationRunFire.getKeyFrame(stateTime, true);
                 break;
             case CLIMBING:
-                region = animationClimb.getKeyFrame(stateTime, true);
+                if (!fireballsArmed)
+                    region = marioBig ? animationClimbBig.getKeyFrame(stateTime, true) : animationClimb.getKeyFrame(stateTime, true);
+                else
+                    region = animationClimbFire.getKeyFrame(stateTime, true);
                 break;
             case DEAD:
                 region = animationDead;
@@ -377,7 +414,10 @@ public class Mario extends Sprite {
             case FALLING:
             case STANDING:
             default:
-                region = marioBig ? animationStandBig : animationStand;
+                if (!fireballsArmed)
+                    region = marioBig ? animationStandBig : animationStand;
+                else
+                    region = animationStandFire;
                 break;
         }
 
@@ -456,6 +496,14 @@ public class Mario extends Sprite {
 
     public int getAmmo() {
         return fireballs.size;
+    }
+
+    public boolean isFireballsArmed() {
+        return fireballsArmed;
+    }
+
+    public void setFireballsArmed(boolean fireballsArmed) {
+        this.fireballsArmed = fireballsArmed;
     }
 
 }
