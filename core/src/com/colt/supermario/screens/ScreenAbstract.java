@@ -80,6 +80,7 @@ public abstract class ScreenAbstract implements Screen {
     //Player and enemies.
     protected Mario mario;
     protected float speed;
+    protected float speedBrake;
 
     //Fire timers.
     protected float fireTimer;
@@ -148,6 +149,7 @@ public abstract class ScreenAbstract implements Screen {
         //Player and enemies.
         mario = new Mario(this, manager);
         speed = 1;
+        speedBrake = 1.1f;
 
         //Fire timers.
         fireTimer = 0;
@@ -294,13 +296,24 @@ public abstract class ScreenAbstract implements Screen {
     public void handleInput(float deltaTime) {
         if ((controller.isUpPressed() || controller.isbPressed()) && worldContactListener.jumpability())
             mario.jump();
-        if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= speed)
+        if (controller.isRightPressed() && mario.body.getLinearVelocity().x <= speed) {
             mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
-        if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -speed)
+            if ((mario.body.getLinearVelocity().x < -speedBrake && worldContactListener.jumpability()) || (mario.getStateCurrent() == Mario.State.BRAKING && mario.body.getLinearVelocity().x < 0)) {
+                mario.setBrake(true);
+                mario.setAnimationBrakeTimer(0);
+            }
+        }
+        if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -speed) {
             mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
+            if ((mario.body.getLinearVelocity().x > speedBrake && worldContactListener.jumpability()) || (mario.getStateCurrent() == Mario.State.BRAKING && mario.body.getLinearVelocity().x > 0)) {
+                mario.setBrake(true);
+                mario.setAnimationBrakeTimer(0);
+            }
+        }
         //Fire fireballs.
         if (controller.isaPressed() && fireTimer >= fireInterval && mario.isFireballsArmed() && mario.getAmmo() < 2) {
             mario.spawnFireball();
+            mario.setAnimationFiringTimer(0);
             fireTimer = 0;
         }
         //Run faster.

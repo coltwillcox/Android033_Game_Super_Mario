@@ -24,7 +24,6 @@ import com.colt.supermario.sprites.enemies.Enemy;
 import com.colt.supermario.sprites.enemies.Koopa;
 import com.colt.supermario.sprites.weapons.Fireball;
 import com.colt.supermario.sprites.weapons.FireballDefinition;
-
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -32,12 +31,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 //TODO: Program crashing when Mario have feet (sensor = false).
-//TODO: Mario animations (brake).
+//TODO: Mario animations (crouch, invincibility).
 
 public class Mario extends Sprite {
 
     //States.
-    public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING, SHRINKING, CLIMBING, DEAD}
+    public enum State {FALLING, JUMPING, STANDING, RUNNING, BRAKING, GROWING, SHRINKING, CLIMBING, DEAD}
     public State stateCurrent;
     public State statePrevious;
 
@@ -51,9 +50,11 @@ public class Mario extends Sprite {
 
     private float stateTime;
     private float polePosition;
-    private float animationFiringTimer;
+    private float animationFiringTimer; //Firing animation.
+    private float animationBrakeTimer; //Braking animation.
     private boolean climb;
     private boolean runningRight;
+    private boolean brake;
     private boolean marioBig;
     private boolean growUp;
     private boolean shrinkDown;
@@ -68,6 +69,9 @@ public class Mario extends Sprite {
     private TextureRegion animationStandBig;
     private TextureRegion animationStandFire;
     private TextureRegion animationStandFiring;
+    private TextureRegion animationBrake;
+    private TextureRegion animationBrakeBig;
+    private TextureRegion animationBrakeFire;
     private TextureRegion animationJumpFiring;
     private TextureRegion animationDead;
     private Animation animationClimb;
@@ -99,7 +103,9 @@ public class Mario extends Sprite {
         stateTime = 0;
         polePosition = 0;
         animationFiringTimer = 0;
+        animationBrakeTimer = 0;
         runningRight = true;
+        brake = false;
         climb = false;
         isLevelCompleted = false;
         growUp = false;
@@ -108,11 +114,14 @@ public class Mario extends Sprite {
 
         //Animations.
         frames = new Array<TextureRegion>();
-        //Standing and dead. Not really animations.
+        //Standing, brake and dead. Not really animations.
         animationStand = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 0, 0, 16, 16);
         animationStandBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 0, 0, 16, 32);
         animationStandFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 0, 0, 16, 32);
         animationStandFiring = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 16 * 16, 0, 16, 32);
+        animationBrake = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 4 * 16, 0, 16, 16);
+        animationBrakeBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 4 * 16, 0, 16, 32);
+        animationBrakeFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 4 * 16, 0, 16, 32);
         animationDead = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 6 * 16, 0, 16, 16);
         //Climb animation.
         for (int i = 7; i <= 8; i++)
@@ -189,6 +198,9 @@ public class Mario extends Sprite {
         animationFiringTimer += deltaTime;
         if (animationFiringTimer > 0.3f)
             firing = false;
+        animationBrakeTimer += deltaTime;
+        if (animationBrakeTimer > 0.3f)
+            brake = false;
 
         if (isLevelCompleted)
             handleLevelCompleted();
@@ -380,7 +392,6 @@ public class Mario extends Sprite {
     public void spawnFireball() {
         manager.get("audio/fireball.wav", Sound.class).play();
         firing = true;
-        animationFiringTimer = 0;
         fireballsToSpawn.add(new FireballDefinition(body.getPosition().x, body.getPosition().y, body.getLinearVelocity().x, runningRight));
     }
 
@@ -391,7 +402,7 @@ public class Mario extends Sprite {
         }
     }
 
-    public void jump(){
+    public void jump() {
         if (stateCurrent != State.JUMPING) {
             if (!marioBig)
                 manager.get("audio/jumpsmall.wav", Sound.class).play();
@@ -434,13 +445,19 @@ public class Mario extends Sprite {
                 if (!fireballsArmed)
                     region = marioBig ? animationJumpBig.getKeyFrame(stateTime) : animationJump.getKeyFrame(stateTime);
                 else
-                    region = firing ? animationJumpFiring : animationJumpFire.getKeyFrame(stateTime, true);
+                    region = firing ? animationJumpFiring : animationJumpFire.getKeyFrame(stateTime);
                 break;
             case RUNNING:
                 if (!fireballsArmed)
                     region = marioBig ? animationRunBig.getKeyFrame(stateTime, true) : animationRun.getKeyFrame(stateTime, true); //true - loop animation.
                 else
                     region = firing ? animationRunFiring.getKeyFrame(stateTime, true) : animationRunFire.getKeyFrame(stateTime, true);
+                break;
+            case BRAKING:
+                if (!fireballsArmed)
+                    region = marioBig ? animationBrakeBig : animationBrake;
+                else
+                    region = animationBrakeFire;
                 break;
             case CLIMBING:
                 if (!fireballsArmed)
@@ -477,6 +494,8 @@ public class Mario extends Sprite {
     public State getState() {
         if (marioDead)
             return State.DEAD;
+        else if (brake && stateCurrent != State.JUMPING)
+            return State.BRAKING;
         else if (climb)
             return State.CLIMBING;
         else if (body.getLinearVelocity().y > 0 || (body.getLinearVelocity().y < 0 && statePrevious == State.JUMPING))
@@ -546,6 +565,18 @@ public class Mario extends Sprite {
 
     public void setFireballsArmed(boolean fireballsArmed) {
         this.fireballsArmed = fireballsArmed;
+    }
+
+    public void setBrake(boolean brake) {
+        this.brake = brake;
+    }
+
+    public void setAnimationFiringTimer(float animationFiringTimer) {
+        this.animationFiringTimer = animationFiringTimer;
+    }
+
+    public void setAnimationBrakeTimer(float animationBrakeTimer) {
+        this.animationBrakeTimer = animationBrakeTimer;
     }
 
 }
