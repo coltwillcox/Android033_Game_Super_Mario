@@ -52,7 +52,7 @@ public class Flagpole extends MapTileObject {
 
     public void onTouch(Mario mario) {
         if (!screen.isFlagTouched()) {
-            manager.get("audio/music.ogg", Music.class).stop();
+            Boot.musicStop();
             manager.get("audio/flag.wav", Music.class).play();
             screen.levelCompleted();
             mario.levelCompleted(body.getPosition().x - 4 / Boot.PPM); //Give pole position.

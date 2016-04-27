@@ -1,5 +1,7 @@
 package com.colt.supermario.sprites.items;
 
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -22,8 +24,8 @@ public class Flower extends Item {
     private Animation animationFlower;
 
     //Constructor.
-    public Flower(ScreenAbstract screen, float x, float y) {
-        super(screen, x, y);
+    public Flower(ScreenAbstract screen, float x, float y, AssetManager manager) {
+        super(screen, x, y, manager);
 
         stateTime = 0;
 
@@ -72,6 +74,7 @@ public class Flower extends Item {
 
     @Override
     public void use(Mario mario) {
+        manager.get("audio/powerup.wav", Sound.class).play();
         HUD.addScore(1000);
         HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "1000");
         mario.setFireballsArmed(true);

@@ -32,6 +32,7 @@ import com.colt.supermario.sprites.items.Flower;
 import com.colt.supermario.sprites.items.Item;
 import com.colt.supermario.sprites.items.ItemDefinition;
 import com.colt.supermario.sprites.items.Mushroom;
+import com.colt.supermario.sprites.items.Star;
 import com.colt.supermario.sprites.particles.Debris;
 import com.colt.supermario.sprites.particles.Particle;
 import com.colt.supermario.sprites.particles.ParticleDefinition;
@@ -149,7 +150,7 @@ public abstract class ScreenAbstract implements Screen {
         //Player and enemies.
         mario = new Mario(this, manager);
         speed = 1;
-        speedBrake = 1.1f;
+        speedBrake = 1;
 
         //Fire timers.
         fireTimer = 0;
@@ -300,14 +301,12 @@ public abstract class ScreenAbstract implements Screen {
             mario.body.applyLinearImpulse(new Vector2(0.2f, 0), mario.body.getWorldCenter(), true);
             if ((mario.body.getLinearVelocity().x < -speedBrake && worldContactListener.jumpability()) || (mario.getStateCurrent() == Mario.State.BRAKING && mario.body.getLinearVelocity().x < 0)) {
                 mario.setBrake(true);
-                mario.setAnimationBrakeTimer(0);
             }
         }
         if (controller.isLeftPressed() && mario.body.getLinearVelocity().x >= -speed) {
             mario.body.applyLinearImpulse(new Vector2(-0.2f, 0), mario.body.getWorldCenter(), true);
             if ((mario.body.getLinearVelocity().x > speedBrake && worldContactListener.jumpability()) || (mario.getStateCurrent() == Mario.State.BRAKING && mario.body.getLinearVelocity().x > 0)) {
                 mario.setBrake(true);
-                mario.setAnimationBrakeTimer(0);
             }
         }
         //Fire fireballs.
@@ -332,9 +331,11 @@ public abstract class ScreenAbstract implements Screen {
         if (!itemsToSpawn.isEmpty()) {
             ItemDefinition itemDefinition = itemsToSpawn.poll();
             if (itemDefinition.type == Mushroom.class)
-                items.add(new Mushroom(this, itemDefinition.position.x, itemDefinition.position.y));
+                items.add(new Mushroom(this, itemDefinition.position.x, itemDefinition.position.y, manager));
             else if (itemDefinition.type == Flower.class)
-                items.add(new Flower(this, itemDefinition.position.x, itemDefinition.position.y));
+                items.add(new Flower(this, itemDefinition.position.x, itemDefinition.position.y, manager));
+            else if (itemDefinition.type == Star.class)
+                items.add(new Star(this, itemDefinition.position.x, itemDefinition.position.y, manager));
         }
     }
 
@@ -384,6 +385,7 @@ public abstract class ScreenAbstract implements Screen {
 
     @Override
     public void dispose() {
+        Boot.musicStop(); //Stops all music before going to next screen (level).
         map.dispose();
         mapRenderer.dispose();
         world.dispose();

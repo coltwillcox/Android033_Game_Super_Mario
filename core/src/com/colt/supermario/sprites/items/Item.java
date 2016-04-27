@@ -1,5 +1,6 @@
 package com.colt.supermario.sprites.items;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
@@ -15,6 +16,9 @@ import com.colt.supermario.sprites.Mario;
 
 public abstract class Item extends Sprite {
 
+    //Asset manager.
+    protected AssetManager manager;
+
     protected boolean destroy;
     protected boolean destroyed;
     protected ScreenAbstract screen;
@@ -23,9 +27,13 @@ public abstract class Item extends Sprite {
     protected Vector2 velocity;
 
     //Constructor.
-    public Item(ScreenAbstract screen, float x, float y) {
+    public Item(ScreenAbstract screen, float x, float y, AssetManager manager) {
         this.screen = screen;
         this.world = screen.getWorld();
+        this.manager = manager;
+
+        velocity = new Vector2(0, 0);
+
         setPosition(x, y);
         setBounds(getX(), getY(), 16 / Boot.PPM, 16 / Boot.PPM);
         defineItem();
@@ -51,9 +59,9 @@ public abstract class Item extends Sprite {
     public abstract void use(Mario mario);
 
     public void reverseVelocity(boolean x, boolean y) {
-        if (x)
+        if (x && velocity.x != 0)
             velocity.x = -velocity.x;
-        if (y)
+        if (y && velocity.y != 0)
             velocity.y = -velocity.y;
     }
 

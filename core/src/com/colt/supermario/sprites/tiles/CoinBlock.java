@@ -16,6 +16,7 @@ import com.colt.supermario.sprites.Mario;
 import com.colt.supermario.sprites.items.Flower;
 import com.colt.supermario.sprites.items.ItemDefinition;
 import com.colt.supermario.sprites.items.Mushroom;
+import com.colt.supermario.sprites.items.Star;
 
 /**
  * Created by colt on 4/13/16.
@@ -47,6 +48,7 @@ public class CoinBlock extends MapTileObject {
         //Question mark animation.
         for (int i = 25; i <= 27; i++)
             frames.add(screen.getMap().getTileSets().getTileSet(0).getTile(i).getTextureRegion());
+        frames.add(screen.getMap().getTileSets().getTileSet(0).getTile(26).getTextureRegion()); //Add middle frame again, for smooth animation.
         animationQuestion = new Animation(0.2f, frames);
         frames.clear();
         //Bumped animation. Not really animation.
@@ -112,6 +114,8 @@ public class CoinBlock extends MapTileObject {
                     screen.spawnItem(new ItemDefinition(new Vector2(body.getPosition().x, body.getPosition().y + getHeight()), Mushroom.class));
                 manager.get("audio/powerupspawn.wav", Sound.class).play();
             }
+            else if (mapObject.getProperties().containsKey("star"))
+                screen.spawnItem(new ItemDefinition(new Vector2(body.getPosition().x, body.getPosition().y + getHeight()), Star.class));
             else
                 manager.get("audio/coin.wav", Sound.class).play();
         }

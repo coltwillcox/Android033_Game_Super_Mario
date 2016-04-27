@@ -90,12 +90,10 @@ public class ScreenGameOver implements Screen {
         update(delta);
 
         if (Gdx.input.justTouched()) {
-            manager.get("audio/gameover.wav", Music.class).stop();
             dispose();
             game.setScreen(new ScreenLevel11((Boot) game, manager));
         }
         else if (stateTime > 5) {
-            manager.get("audio/gameover.wav", Music.class).stop();
             dispose();
             game.setScreen(new ScreenMenu((Boot) game, manager));
         }
@@ -132,6 +130,7 @@ public class ScreenGameOver implements Screen {
 
     @Override
     public void dispose() {
+        Boot.musicStop();
         stage.dispose();
     }
 

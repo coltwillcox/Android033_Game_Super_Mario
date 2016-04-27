@@ -21,6 +21,7 @@ import com.colt.supermario.sprites.Mario;
  * Created by colt on 4/14/16.
  */
 
+//TODO: Add alternative dying: flying away like Koopa when touched by Star Mario.
 //TODO: Add side fixtures for colliding with ground (for movement reversing). Or maybe not. Add objects on map if needed?
 
 public class Goomba extends Enemy {

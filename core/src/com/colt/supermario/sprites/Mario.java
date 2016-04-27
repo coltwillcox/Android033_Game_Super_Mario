@@ -31,7 +31,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 //TODO: Program crashing when Mario have feet (sensor = false).
-//TODO: Mario animations (crouch, invincibility).
+//TODO: Mario animations (crouch).
+//TODO: Mario shrink animation looks stupid. :p
 
 public class Mario extends Sprite {
 
@@ -48,10 +49,11 @@ public class Mario extends Sprite {
     //Asset manager.
     private AssetManager manager;
 
+    //Some shit.
     private float stateTime;
     private float polePosition;
     private float animationFiringTimer; //Firing animation.
-    private float animationBrakeTimer; //Braking animation.
+    private float invincibleTimer;
     private boolean climb;
     private boolean runningRight;
     private boolean brake;
@@ -59,34 +61,53 @@ public class Mario extends Sprite {
     private boolean growUp;
     private boolean shrinkDown;
     private boolean firing;
+    private boolean invincible;
     private boolean timeToDefineBigMario;
     private boolean timeToRedefineMario;
     private boolean marioDead;
     private boolean isLevelCompleted;
 
-    //Animations.
-    private TextureRegion animationStand;
+    //Frames to keep TextureRegions (to make Animations).
+    private Array<TextureRegion> frames;
+
+    //Normal animations.
+    private TextureRegion animationStandSmall;
     private TextureRegion animationStandBig;
     private TextureRegion animationStandFire;
     private TextureRegion animationStandFiring;
-    private TextureRegion animationBrake;
+    private TextureRegion animationBrakeSmall;
     private TextureRegion animationBrakeBig;
     private TextureRegion animationBrakeFire;
+    private TextureRegion animationJumpSmall;
+    private TextureRegion animationJumpBig;
+    private TextureRegion animationJumpFire;
     private TextureRegion animationJumpFiring;
     private TextureRegion animationDead;
-    private Animation animationClimb;
+    private Animation animationClimbSmall;
     private Animation animationClimbBig;
     private Animation animationClimbFire;
-    private Animation animationRun;
+    private Animation animationRunSmall;
     private Animation animationRunBig;
     private Animation animationRunFire;
     private Animation animationRunFiring;
-    private Animation animationJump;
-    private Animation animationJumpBig;
-    private Animation animationJumpFire;
     private Animation animationGrow;
     private Animation animationShrink;
-    private Array<TextureRegion> frames;
+
+    //Invincible animations.
+    private Animation animationStandSmallInvincible;
+    private Animation animationStandBigInvincible;
+    private Animation animationStandFiringInvincible;
+    private Animation animationBrakeSmallInvincible;
+    private Animation animationBrakeBigInvincible;
+    private Animation animationJumpSmallInvincible;
+    private Animation animationJumpBigInvincible;
+    private Animation animationJumpFiringInvincible;
+    private Animation animationClimbSmallInvincible;
+    private Animation animationClimbBigInvincible;
+    private Animation animationRunSmallInvincible;
+    private Animation animationRunBigInvincible;
+    private Animation animationRunFiringInvincible;
+    private Animation animationGrowInvincible;
 
     //Fireballs.
     private boolean fireballsArmed;
@@ -103,7 +124,7 @@ public class Mario extends Sprite {
         stateTime = 0;
         polePosition = 0;
         animationFiringTimer = 0;
-        animationBrakeTimer = 0;
+        invincibleTimer = 0;
         runningRight = true;
         brake = false;
         climb = false;
@@ -111,22 +132,23 @@ public class Mario extends Sprite {
         growUp = false;
         shrinkDown = false;
         firing = false;
+        invincible = false;
 
-        //Animations.
+        //Normal animations.
         frames = new Array<TextureRegion>();
-        //Standing, brake and dead. Not really animations.
-        animationStand = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 0, 0, 16, 16);
+        //Stand, brake and dead. Not really animations.
+        animationStandSmall = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 0, 0, 16, 16);
         animationStandBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 0, 0, 16, 32);
         animationStandFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 0, 0, 16, 32);
         animationStandFiring = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 16 * 16, 0, 16, 32);
-        animationBrake = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 4 * 16, 0, 16, 16);
+        animationBrakeSmall = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 4 * 16, 0, 16, 16);
         animationBrakeBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 4 * 16, 0, 16, 32);
         animationBrakeFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 4 * 16, 0, 16, 32);
         animationDead = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 6 * 16, 0, 16, 16);
         //Climb animation.
         for (int i = 7; i <= 8; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
-        animationClimb = new Animation(0.1f, frames);
+        animationClimbSmall = new Animation(0.1f, frames);
         frames.clear();
         for (int i = 7; i <= 8; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), i * 16, 0, 16, 32));
@@ -139,7 +161,7 @@ public class Mario extends Sprite {
         //Run animations.
         for (int i = 1; i <= 3; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
-        animationRun = new Animation(0.1f, frames);
+        animationRunSmall = new Animation(0.1f, frames);
         frames.clear();
         for (int i = 1; i <= 3; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), i * 16, 0, 16, 32));
@@ -149,25 +171,15 @@ public class Mario extends Sprite {
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_fire"), i * 16, 0, 16, 32));
         animationRunFire = new Animation(0.1f, frames);
         frames.clear();
-        for (int i = 16; i <= 18; i++) {
+        for (int i = 16; i <= 18; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_fire"), i * 16, 0, 16, 32));
-        }
         animationRunFiring = new Animation(0.1f, frames);
         frames.clear();
         //Jump animations.
-        for (int i = 4; i <= 5; i++)
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small"), i * 16, 0, 16, 16));
-        animationJump = new Animation(0.2f, frames);
-        frames.clear();
-        for (int i = 4; i <= 5; i++)
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), i * 16, 0, 16, 32));
-        animationJumpBig = new Animation(0.2f, frames);
-        frames.clear();
-        for (int i = 4; i <= 5; i++)
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_fire"), i * 16, 0, 16, 32));
-        animationJumpFire = new Animation(0.2f, frames);
-        frames.clear();
-        animationJumpFiring = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 20 * 16, 0, 16, 32); //Only one frame needed here.
+        animationJumpSmall = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 5 * 16, 0, 16, 16); //Only one frame needed here.
+        animationJumpBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 5 * 16, 0, 16, 32);
+        animationJumpFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 5 * 16, 0, 16, 32);
+        animationJumpFiring = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 20 * 16, 0, 16, 32);
         //Grow and shrink animations.
         for (int i = 0; i <= 1; i++) {
             frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big"), 15 * 16, 0, 16, 32)); //15 * 16, because it's 16th big_mario image.
@@ -182,6 +194,111 @@ public class Mario extends Sprite {
         animationShrink = new Animation(0.1f, frames);
         frames.clear();
 
+        //Invincible animations.
+        //Stand small and big animations.
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible1"), 0, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible2"), 0, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible3"), 0, 0, 16, 16));
+        animationStandSmallInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 0, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 0, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 0, 0, 16, 32));
+        animationStandBigInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 16 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 16 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 16 * 16, 0, 16, 32));
+        animationStandFiringInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        //Run animations. I couldn't think of proper loop for this.
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible1"), 1 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible2"), 2 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible3"), 3 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible2"), 1 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible3"), 2 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible1"), 3 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible3"), 1 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible1"), 2 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible2"), 3 * 16, 0, 16, 16));
+        animationRunSmallInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 1 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 2 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 3 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 1 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 2 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 3 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 1 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 2 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 3 * 16, 0, 16, 32));
+        animationRunBigInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 16 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 17 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 18 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 16 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 17 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 18 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 16 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 17 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 18 * 16, 0, 16, 32));
+        animationRunFiringInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        //Brake animations.
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible1"), 4 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible2"), 4 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible3"), 4 * 16, 0, 16, 16));
+        animationBrakeSmallInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 4 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 4 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 4 * 16, 0, 16, 32));
+        animationBrakeBigInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        //Jump animations.
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible1"), 5 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible2"), 5 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible3"), 5 * 16, 0, 16, 16));
+        animationJumpSmallInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 5 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 5 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 5 * 16, 0, 16, 32));
+        animationJumpBigInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 20 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 20 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 20 * 16, 0, 16, 32));
+        animationJumpFiringInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        //Climb animations.
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible1"), 7 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible2"), 8 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible3"), 7 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible1"), 8 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible2"), 7 * 16, 0, 16, 16));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_small_invincible3"), 8 * 16, 0, 16, 16));
+        animationClimbSmallInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 7 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 8 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 7 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 8 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 7 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 8 * 16, 0, 16, 32));
+        animationClimbBigInvincible = new Animation(0.1f, frames);
+        frames.clear();
+        //Grow animation.
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 15 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 0, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 15 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 0, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 15 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 0, 0, 16, 32));
+        animationGrowInvincible = new Animation(0.1f, frames);
+        frames.clear();
+
         //Fireballs.
         fireballsArmed = false;
         fireballsToSpawn = new LinkedBlockingQueue<FireballDefinition>(1);
@@ -189,18 +306,26 @@ public class Mario extends Sprite {
 
         defineMario();
         setBounds(0, 0, 16 / Boot.PPM, 16 / Boot.PPM);
-        setRegion(animationStand);
+        setRegion(animationStandSmall);
     }
 
     public void update(float deltaTime) {
         handleFireballs();
 
+        if (invincible) {
+            invincibleTimer -= deltaTime;
+            if (invincibleTimer <= 0) {
+                invincible = false;
+            }
+            else if (invincibleTimer <= 2 && !manager.get("audio/music.ogg", Music.class).isPlaying()) {
+                manager.get("audio/invincible.ogg", Music.class).stop();
+                manager.get("audio/music.ogg", Music.class).play();
+            }
+        }
+
         animationFiringTimer += deltaTime;
         if (animationFiringTimer > 0.3f)
             firing = false;
-        animationBrakeTimer += deltaTime;
-        if (animationBrakeTimer > 0.3f)
-            brake = false;
 
         if (isLevelCompleted)
             handleLevelCompleted();
@@ -351,15 +476,12 @@ public class Mario extends Sprite {
     }
 
     public void grow() {
-        //Make Mario big only if he is small, or add points if he is already big.
+        //Make Mario big only if he is small.
         if (!marioBig) {
-            manager.get("audio/powerup.wav", Sound.class).play();
             growUp = true;
             marioBig = true;
             timeToDefineBigMario = true;
             setBounds(getX(), getY(), getWidth(), getHeight() * 2);
-        } else {
-            manager.get("audio/powerup.wav", Sound.class).play();
         }
     }
 
@@ -415,7 +537,9 @@ public class Mario extends Sprite {
 
     //Mario hit by enemy ar dangerous object.
     public void hit(Object object) {
-        if (object instanceof Koopa && ((Koopa) object).getStateCurrent() == Koopa.State.SHELL_STANDING)
+        if (object instanceof Enemy && invincible)
+            ((Enemy) object).die();
+        else if (object instanceof Koopa && ((Koopa) object).getStateCurrent() == Koopa.State.SHELL_STANDING)
             ((Koopa) object).kick(this.getX() <= ((Koopa) object).getX() ? Koopa.KICK_RIGHT_SPEED : Koopa.KICK_LEFT_SPEED);
         else {
             if (marioBig && object instanceof Enemy)
@@ -425,6 +549,14 @@ public class Mario extends Sprite {
         }
     }
 
+    //Mario goes invincible by a star.
+    public void superMario() {
+        manager.get("audio/music.ogg", Music.class).stop();
+        manager.get("audio/invincible.ogg", Music.class).play();
+        invincible = true;
+        invincibleTimer = 10;
+    }
+
     //Method to return TextureRegion (or frame) to be drawn on screen.
     public TextureRegion getFrame(float deltaTime) {
         stateCurrent = getState();
@@ -432,9 +564,16 @@ public class Mario extends Sprite {
 
         switch (stateCurrent) {
             case GROWING:
-                region = animationGrow.getKeyFrame(stateTime);
-                if (animationGrow.isAnimationFinished(stateTime))
-                    growUp = false;
+                if (!invincible) {
+                    region = animationGrow.getKeyFrame(stateTime);
+                    if (animationGrow.isAnimationFinished(stateTime))
+                        growUp = false;
+                }
+                else {
+                    region = animationGrowInvincible.getKeyFrame(stateTime);
+                    if (animationGrowInvincible.isAnimationFinished(stateTime))
+                        growUp = false;
+                }
                 break;
             case SHRINKING:
                 region = animationShrink.getKeyFrame(stateTime);
@@ -442,28 +581,52 @@ public class Mario extends Sprite {
                     shrinkDown = false;
                 break;
             case JUMPING:
-                if (!fireballsArmed)
-                    region = marioBig ? animationJumpBig.getKeyFrame(stateTime) : animationJump.getKeyFrame(stateTime);
-                else
-                    region = firing ? animationJumpFiring : animationJumpFire.getKeyFrame(stateTime);
+                if (!invincible) {
+                    if (!fireballsArmed)
+                        region = marioBig ? animationJumpBig : animationJumpSmall;
+                    else
+                        region = firing ? animationJumpFiring : animationJumpFire;
+                }
+                else {
+                    if (!fireballsArmed)
+                        region = marioBig ? animationJumpBigInvincible.getKeyFrame(stateTime, true) : animationJumpSmallInvincible.getKeyFrame(stateTime, true);
+                    else
+                        region = firing ? animationJumpFiringInvincible.getKeyFrame(stateTime, true) : animationJumpBigInvincible.getKeyFrame(stateTime, true);
+                }
                 break;
             case RUNNING:
-                if (!fireballsArmed)
-                    region = marioBig ? animationRunBig.getKeyFrame(stateTime, true) : animationRun.getKeyFrame(stateTime, true); //true - loop animation.
-                else
-                    region = firing ? animationRunFiring.getKeyFrame(stateTime, true) : animationRunFire.getKeyFrame(stateTime, true);
+                if (!invincible) {
+                    if (!fireballsArmed)
+                        region = marioBig ? animationRunBig.getKeyFrame(stateTime, true) : animationRunSmall.getKeyFrame(stateTime, true); //true - loop animation.
+                    else
+                        region = firing ? animationRunFiring.getKeyFrame(stateTime, true) : animationRunFire.getKeyFrame(stateTime, true);
+                }
+                else {
+                    if (!fireballsArmed)
+                        region = marioBig ? animationRunBigInvincible.getKeyFrame(stateTime, true) : animationRunSmallInvincible.getKeyFrame(stateTime, true);
+                    else
+                        region = firing ? animationRunFiringInvincible.getKeyFrame(stateTime, true) : animationRunBigInvincible.getKeyFrame(stateTime, true);
+                }
                 break;
             case BRAKING:
-                if (!fireballsArmed)
-                    region = marioBig ? animationBrakeBig : animationBrake;
+                if (!invincible) {
+                    if (!fireballsArmed)
+                        region = marioBig ? animationBrakeBig : animationBrakeSmall;
+                    else
+                        region = animationBrakeFire;
+                }
                 else
-                    region = animationBrakeFire;
+                    region = marioBig ? animationBrakeBigInvincible.getKeyFrame(stateTime, true) : animationBrakeSmallInvincible.getKeyFrame(stateTime, true);
                 break;
             case CLIMBING:
-                if (!fireballsArmed)
-                    region = marioBig ? animationClimbBig.getKeyFrame(stateTime, true) : animationClimb.getKeyFrame(stateTime, true);
+                if (!invincible) {
+                    if (!fireballsArmed)
+                        region = marioBig ? animationClimbBig.getKeyFrame(stateTime, true) : animationClimbSmall.getKeyFrame(stateTime, true);
+                    else
+                        region = animationClimbFire.getKeyFrame(stateTime, true);
+                }
                 else
-                    region = animationClimbFire.getKeyFrame(stateTime, true);
+                    region = marioBig ? animationClimbBigInvincible.getKeyFrame(stateTime, true) : animationClimbSmallInvincible.getKeyFrame(stateTime, true);
                 break;
             case DEAD:
                 region = animationDead;
@@ -471,10 +634,18 @@ public class Mario extends Sprite {
             case FALLING:
             case STANDING:
             default:
-                if (!fireballsArmed)
-                    region = marioBig ? animationStandBig : animationStand;
-                else
-                    region = firing ? animationStandFiring : animationStandFire;
+                if (!invincible) {
+                    if (!fireballsArmed)
+                        region = marioBig ? animationStandBig : animationStandSmall;
+                    else
+                        region = firing ? animationStandFiring : animationStandFire;
+                }
+                else {
+                    if (!fireballsArmed)
+                        region = marioBig ? animationStandBigInvincible.getKeyFrame(stateTime, true) : animationStandSmallInvincible.getKeyFrame(stateTime, true);
+                    else
+                        region = firing ? animationStandFiringInvincible.getKeyFrame(stateTime, true) : animationStandBigInvincible.getKeyFrame(stateTime, true);
+                }
                 break;
         }
 
@@ -494,8 +665,10 @@ public class Mario extends Sprite {
     public State getState() {
         if (marioDead)
             return State.DEAD;
-        else if (brake && stateCurrent != State.JUMPING)
+        else if (brake && stateCurrent != State.JUMPING) {
+            brake = false;
             return State.BRAKING;
+        }
         else if (climb)
             return State.CLIMBING;
         else if (body.getLinearVelocity().y > 0 || (body.getLinearVelocity().y < 0 && statePrevious == State.JUMPING))
@@ -573,10 +746,6 @@ public class Mario extends Sprite {
 
     public void setAnimationFiringTimer(float animationFiringTimer) {
         this.animationFiringTimer = animationFiringTimer;
-    }
-
-    public void setAnimationBrakeTimer(float animationBrakeTimer) {
-        this.animationBrakeTimer = animationBrakeTimer;
     }
 
 }

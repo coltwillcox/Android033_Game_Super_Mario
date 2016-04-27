@@ -26,16 +26,19 @@ public class Boot extends Game {
     public static final short WEAPON_BIT = 1024;
     public static final short MARIO_FEET_BIT = 2048;
     public static final short FLAGPOLE_BIT = 4096;
-    public AssetManager manager;
+    public static AssetManager manager;
     public SpriteBatch batch;
 
 	@Override
 	public void create() {
         manager = new AssetManager(); //Must pass it to every class that needs it.
+        //Music.
         manager.load("audio/flag.wav", Music.class);
         manager.load("audio/gameover.wav", Music.class);
+        manager.load("audio/invincible.ogg", Music.class);
         manager.load("audio/music.ogg", Music.class);
         manager.load("audio/stageclear.wav", Music.class);
+        //Sound FX.
         manager.load("audio/breakblock.wav", Sound.class);
         manager.load("audio/bump.wav", Sound.class);
         manager.load("audio/coin.wav", Sound.class);
@@ -59,6 +62,14 @@ public class Boot extends Game {
 	public void render() {
 		super.render();
 	}
+
+    public static void musicStop() {
+        manager.get("audio/flag.wav", Music.class).stop();
+        manager.get("audio/gameover.wav", Music.class).stop();
+        manager.get("audio/invincible.ogg", Music.class).stop();
+        manager.get("audio/music.ogg", Music.class).stop();
+        manager.get("audio/stageclear.wav", Music.class).stop();
+    }
 
     @Override
     public void dispose() {
