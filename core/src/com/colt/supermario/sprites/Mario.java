@@ -572,7 +572,7 @@ public class Mario extends Sprite {
     //Mario hit by enemy ar dangerous object.
     public void hit(Object object) {
         if (object instanceof Enemy && invincible)
-            ((Enemy) object).die();
+            ((Enemy) object).onStarHit();
         else if (object instanceof Koopa && ((Koopa) object).getStateCurrent() == Koopa.State.SHELL_STANDING)
             ((Koopa) object).kick(this.getX() <= ((Koopa) object).getX() ? Koopa.KICK_RIGHT_SPEED : Koopa.KICK_LEFT_SPEED);
         else {
@@ -760,10 +760,6 @@ public class Mario extends Sprite {
 
     public boolean isBig() {
         return marioBig;
-    }
-
-    public boolean isDead() {
-        return marioDead;
     }
 
     public State getStateCurrent() {

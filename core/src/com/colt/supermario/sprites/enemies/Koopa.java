@@ -75,7 +75,7 @@ public class Koopa extends Enemy {
         setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (9 / Boot.PPM));
 
         if (stateCurrent == State.DEAD) {
-            if (stateTime > 3 && !destroyed) {
+            if (stateTime > 1 && !destroyed) {
                 world.destroyBody(body);
                 destroyed = true;
             }
@@ -114,16 +114,10 @@ public class Koopa extends Enemy {
         body.createFixture(fixtureDef).setUserData(this);
     }
 
-    @Override
-    public void onHeadHit(Mario mario) {
-        if (stateCurrent != State.SHELL_STANDING) {
-            HUD.addScore(100);
-            HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
-            stateCurrent = State.SHELL_STANDING;
-            velocity.x = 0;
-        }
-        else
-            kick(mario.getX() <= this.getX() ? KICK_RIGHT_SPEED : KICK_LEFT_SPEED);
+    public void kick(int speed) {
+        manager.get("audio/kick.wav", Sound.class).play();
+        velocity.x = speed;
+        stateCurrent = State.SHELL_MOVING;
     }
 
     @Override
@@ -145,16 +139,39 @@ public class Koopa extends Enemy {
     }
 
     @Override
+    public void onHeadHit(Mario mario) {
+        if (stateCurrent != State.SHELL_STANDING) {
+            HUD.addScore(100);
+            HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
+            stateCurrent = State.SHELL_STANDING;
+            velocity.x = 0;
+        }
+        else
+            kick(mario.getX() <= this.getX() ? KICK_RIGHT_SPEED : KICK_LEFT_SPEED);
+    }
+
+    @Override
     public void onWeaponHit() {
         HUD.addScore(200);
         HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "200");
         die();
     }
 
-    public void kick(int speed) {
-        manager.get("audio/kick.wav", Sound.class).play();
-        velocity.x = speed;
-        stateCurrent = State.SHELL_MOVING;
+    @Override
+    public void onStarHit() {
+        HUD.addScore(200);
+        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "200");
+        die();
+    }
+
+    public void die() {
+        stateCurrent = State.DEAD;
+        animationShell.flip(false, true);
+        Filter filter = new Filter();
+        filter.maskBits = Boot.NOTHING_BIT;
+        for (Fixture fixture : body.getFixtureList())
+            fixture.setFilterData(filter);
+        body.applyLinearImpulse(new Vector2(0, 2f), body.getWorldCenter(), true);
     }
 
     public TextureRegion getFrame(float deltaTime) {
@@ -192,17 +209,6 @@ public class Koopa extends Enemy {
 
     public State getStateCurrent() {
         return stateCurrent;
-    }
-
-    @Override
-    public void die() {
-        stateCurrent = State.DEAD;
-        animationShell.flip(false, true);
-        Filter filter = new Filter();
-        filter.maskBits = Boot.NOTHING_BIT;
-        for (Fixture fixture : body.getFixtureList())
-            fixture.setFilterData(filter);
-        body.applyLinearImpulse(new Vector2(0, 2f), body.getWorldCenter(), true);
     }
 
 }

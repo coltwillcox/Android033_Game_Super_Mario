@@ -258,7 +258,7 @@ public abstract class ScreenAbstract implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mapRenderer.render(); //Render game map.
-        b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
+        //b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
 
         //(Stage with) Flag.
         stageFlagDown.draw();

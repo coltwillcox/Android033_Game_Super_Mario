@@ -21,7 +21,6 @@ import com.colt.supermario.sprites.Mario;
  * Created by colt on 4/14/16.
  */
 
-//TODO: Add alternative dying: flying away like Koopa when touched by Star Mario.
 //TODO: Add side fixtures for colliding with ground (for movement reversing). Or maybe not. Add objects on map if needed?
 
 public class Goomba extends Enemy {
@@ -29,7 +28,9 @@ public class Goomba extends Enemy {
     private float stateTime;
     private boolean destroy;
     private boolean squished;
+    private boolean stared; //Hit by stared Mario or weapon.
     private AssetManager manager;
+    private TextureRegion animationStomped;
     private TextureRegion animationDeath;
     private Animation animationWalk;
     private Array<TextureRegion> frames;
@@ -42,6 +43,7 @@ public class Goomba extends Enemy {
         stateTime = 0;
         destroy = false;
         squished = false;
+        stared = false;
 
         //Animations.
         frames = new Array<TextureRegion>();
@@ -50,8 +52,10 @@ public class Goomba extends Enemy {
             frames.add(new TextureRegion(screen.getAtlas().findRegion("goomba"), i * 16, 0, 16, 16));
         animationWalk = new Animation(0.4f, frames);
         frames.clear();
-        //Death.
-        animationDeath = new TextureRegion(screen.getAtlas().findRegion("goomba"), 2 * 16, 0, 16, 16); // 2 *, beacuse it is the third Goomba image.
+        //Stomped and death.
+        animationStomped = new TextureRegion(screen.getAtlas().findRegion("goomba"), 2 * 16, 0, 16, 16); // 2 *, beacuse it is the third Goomba image.
+        animationDeath = new TextureRegion(screen.getAtlas().findRegion("goomba"), 0, 0, 16, 16);
+        animationDeath.flip(false, true);
 
         setBounds(getX(), getY(), 16 / Boot.PPM, 16 / Boot.PPM);
     }
@@ -61,20 +65,36 @@ public class Goomba extends Enemy {
         stateTime += deltaTime;
         velocity.y = body.getLinearVelocity().y;
 
-        if (destroy && !squished) {
-            world.destroyBody(body);
-            squished = true;
-            setRegion(animationDeath);
+        if (squished && !destroy) {
+            Filter filter = new Filter();
+            filter.categoryBits = Boot.DESTROYED_BIT;
+            for (Fixture fixture : body.getFixtureList())
+                fixture.setFilterData(filter);
+            destroy = true;
             stateTime = 0;
+            setRegion(animationStomped);
         }
-        else if (!squished) {
+        else if (stared && !destroy) {
+            Filter filter = new Filter();
+            filter.maskBits = Boot.NOTHING_BIT;
+            for (Fixture fixture : body.getFixtureList())
+                fixture.setFilterData(filter);
+            destroy = true;
+            stateTime = 0;
+            setRegion(animationDeath);
+            body.applyLinearImpulse(new Vector2(0, 2f), body.getWorldCenter(), true);
+        }
+        else if (!destroy) {
             setRegion(animationWalk.getKeyFrame(stateTime, true));
-            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (1 / Boot.PPM));
             body.setLinearVelocity(velocity);
         }
 
-        if (stateTime > 1 && squished)
+        setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (1 / Boot.PPM));
+
+        if (stateTime > 1 && destroy) {
+            world.destroyBody(body);
             destroyed = true;
+        }
     }
 
     @Override
@@ -108,39 +128,36 @@ public class Goomba extends Enemy {
     }
 
     @Override
-    public void onHeadHit(Mario mario) {
-        manager.get("audio/stomp.wav", Sound.class).play();
-        HUD.addScore(100);
-        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
-        destroy = true;
-    }
-
-    @Override
     public void onEnemyHit(Enemy enemy) {
         if (enemy instanceof Koopa && ((Koopa) enemy).stateCurrent == Koopa.State.SHELL_MOVING) {
             HUD.addScore(100);
             HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
-            destroy = true;
+            squished = true;
         }
         else
             reverseVelocity(true, false);
     }
 
     @Override
-    public void onWeaponHit() {
+    public void onHeadHit(Mario mario) {
+        manager.get("audio/stomp.wav", Sound.class).play();
         HUD.addScore(100);
         HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
-        die();
+        squished = true;
     }
 
     @Override
-    public void die() {
-        destroy = true;
-        Filter filter = new Filter();
-        filter.maskBits = Boot.NOTHING_BIT;
-        for (Fixture fixture : body.getFixtureList())
-            fixture.setFilterData(filter);
-        body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
+    public void onWeaponHit() {
+        HUD.addScore(100);
+        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
+        stared = true;
+    }
+
+    @Override
+    public void onStarHit() {
+        HUD.addScore(100);
+        HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "100");
+        stared = true;
     }
 
 }
