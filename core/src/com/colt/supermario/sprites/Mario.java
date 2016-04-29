@@ -31,13 +31,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 //TODO: Program crashing when Mario have feet (sensor = false).
-//TODO: Mario crouch.
 //TODO: Mario shrink animation looks stupid. :p
 
 public class Mario extends Sprite {
 
     //States.
-    public enum State {FALLING, JUMPING, STANDING, RUNNING, BRAKING, GROWING, SHRINKING, CLIMBING, DEAD}
+    public enum State {FALLING, JUMPING, STANDING, RUNNING, BRAKING, GROWING, SHRINKING, CROUCHING, CLIMBING, DEAD}
     public State stateCurrent;
     public State statePrevious;
 
@@ -54,12 +53,13 @@ public class Mario extends Sprite {
     private float polePosition;
     private float animationFiringTimer; //Firing animation.
     private float invincibleTimer;
-    private boolean climb;
     private boolean runningRight;
+    private boolean crouch;
     private boolean brake;
+    private boolean climb;
     private boolean marioBig;
-    private boolean growUp;
-    private boolean shrinkDown;
+    private boolean growingUp;
+    private boolean shrinkingDown;
     private boolean firing;
     private boolean invincible;
     private boolean timeToDefineBigMario;
@@ -82,6 +82,8 @@ public class Mario extends Sprite {
     private TextureRegion animationJumpBig;
     private TextureRegion animationJumpFire;
     private TextureRegion animationJumpFiring;
+    private TextureRegion animationCrouchBig;
+    private TextureRegion animationCrouchFire;
     private TextureRegion animationDead;
     private Animation animationClimbSmall;
     private Animation animationClimbBig;
@@ -107,6 +109,7 @@ public class Mario extends Sprite {
     private Animation animationRunSmallInvincible;
     private Animation animationRunBigInvincible;
     private Animation animationRunFiringInvincible;
+    private Animation animationCrouchBigInvincible;
     private Animation animationGrowInvincible;
 
     //Fireballs.
@@ -126,17 +129,18 @@ public class Mario extends Sprite {
         animationFiringTimer = 0;
         invincibleTimer = 0;
         runningRight = true;
+        crouch = false;
         brake = false;
         climb = false;
-        isLevelCompleted = false;
-        growUp = false;
-        shrinkDown = false;
+        growingUp = false;
+        shrinkingDown = false;
         firing = false;
         invincible = false;
+        isLevelCompleted = false;
 
         //Normal animations.
         frames = new Array<TextureRegion>();
-        //Stand, brake and dead. Not really animations.
+        //Stand, brake, crouch and dead. Not really animations.
         animationStandSmall = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 0, 0, 16, 16);
         animationStandBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 0, 0, 16, 32);
         animationStandFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 0, 0, 16, 32);
@@ -144,6 +148,8 @@ public class Mario extends Sprite {
         animationBrakeSmall = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 4 * 16, 0, 16, 16);
         animationBrakeBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 4 * 16, 0, 16, 32);
         animationBrakeFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 4 * 16, 0, 16, 32);
+        animationCrouchBig = new TextureRegion(screen.getAtlas().findRegion("mario_big"), 6 * 16, 0, 16, 32);
+        animationCrouchFire = new TextureRegion(screen.getAtlas().findRegion("mario_fire"), 6 * 16, 0, 16, 32);
         animationDead = new TextureRegion(screen.getAtlas().findRegion("mario_small"), 6 * 16, 0, 16, 16);
         //Climb animation.
         for (int i = 7; i <= 8; i++)
@@ -289,6 +295,12 @@ public class Mario extends Sprite {
         frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 8 * 16, 0, 16, 32));
         animationClimbBigInvincible = new Animation(0.1f, frames);
         frames.clear();
+        //Crouch animation.
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 6 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 6 * 16, 0, 16, 32));
+        frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible3"), 6 * 16, 0, 16, 32));
+        animationCrouchBigInvincible = new Animation(0.1f, frames);
+        frames.clear();
         //Grow animation.
         frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible1"), 15 * 16, 0, 16, 32));
         frames.add(new TextureRegion(screen.getAtlas().findRegion("mario_big_invincible2"), 0, 0, 16, 32));
@@ -331,7 +343,7 @@ public class Mario extends Sprite {
             handleLevelCompleted();
 
         if (marioBig)
-            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) - (7 / Boot.PPM)); //Sets the position where the sprite will be drawn.
+            setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (9 / Boot.PPM)); //Sets the position where the sprite will be drawn.
         else
             setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2) + (1 / Boot.PPM)); //+ (1 / Boot.PPM) because radius is just 6.
 
@@ -341,7 +353,7 @@ public class Mario extends Sprite {
         if (timeToDefineBigMario)
             defineBigMario();
         if (timeToRedefineMario)
-            redefineMario();
+            redefineSmallMario();
 
         for (Fireball fireball : fireballs) {
             if (fireball.isDestroyed()) {
@@ -400,12 +412,13 @@ public class Mario extends Sprite {
         world.destroyBody(body);
 
         BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(currentPosition.add(0, 8 / Boot.PPM));
+        bodyDef.position.set(currentPosition);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
         body = world.createBody(bodyDef);
         body.setLinearVelocity(currentVelocity);
 
+        //Lower circle in Mario's body.
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.friction = 0.4f;
         CircleShape shape = new CircleShape();
@@ -415,20 +428,21 @@ public class Mario extends Sprite {
         fixtureDef.shape = shape;
         body.createFixture(fixtureDef).setUserData(this);
 
-        //Lower circle in Mario's body.
-        shape.setPosition(new Vector2(0, -16 / Boot.PPM));
+        //Upper circle in Mario's body.
+        shape.setPosition(new Vector2(0, 16 / Boot.PPM));
         body.createFixture(fixtureDef).setUserData(this);
 
         //Create Mario's head and make it a sensor for smashing objects.
         EdgeShape head = new EdgeShape();
-        head.set(new Vector2(-2 / Boot.PPM, 7 / Boot.PPM), new Vector2(2 / Boot.PPM, 7 / Boot.PPM)); // 2, 7, compared to body(Def) position, 1st upper circle.
+        head.set(new Vector2(-2 / Boot.PPM, 23 / Boot.PPM), new Vector2(2 / Boot.PPM, 23 / Boot.PPM)); // 2, 23, compared to body(Def) position, 1st lower circle.
         fixtureDef.filter.categoryBits = Boot.MARIO_HEAD_BIT;
         fixtureDef.shape = head;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef).setUserData(this);
 
+        //Feet.
         EdgeShape feet = new EdgeShape();
-        feet.set(new Vector2(-2 / Boot.PPM, -23 / Boot.PPM), new Vector2(2 / Boot.PPM, -23 / Boot.PPM));
+        feet.set(new Vector2(-2 / Boot.PPM, -7 / Boot.PPM), new Vector2(2 / Boot.PPM, -7 / Boot.PPM));
         fixtureDef.shape = feet;
         fixtureDef.filter.categoryBits = Boot.MARIO_FEET_BIT;
         fixtureDef.filter.maskBits = Boot.GROUND_BIT | Boot.OBJECT_BIT | Boot.BRICK_BIT | Boot.COINBLOCK_BIT;
@@ -438,8 +452,12 @@ public class Mario extends Sprite {
         timeToDefineBigMario = false;
     }
 
-    public void redefineMario() {
+    public void redefineSmallMario() {
         Vector2 currentPosition = body.getPosition();
+        Vector2 currentVelocity = body.getLinearVelocity();
+        if (crouch)
+            currentVelocity.x *= 0.75f;
+
         world.destroyBody(body);
 
         BodyDef bodyDef = new BodyDef();
@@ -447,6 +465,7 @@ public class Mario extends Sprite {
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
         body = world.createBody(bodyDef);
+        body.setLinearVelocity(currentVelocity);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.friction = 0.4f;
@@ -478,7 +497,7 @@ public class Mario extends Sprite {
     public void grow() {
         //Make Mario big only if he is small.
         if (!marioBig) {
-            growUp = true;
+            growingUp = true;
             marioBig = true;
             timeToDefineBigMario = true;
             setBounds(getX(), getY(), getWidth(), getHeight() * 2);
@@ -487,11 +506,37 @@ public class Mario extends Sprite {
 
     public void shrink() {
         manager.get("audio/powerdown.wav", Sound.class).play();
-        shrinkDown = true;
+        shrinkingDown = true;
         fireballsArmed = false;
         marioBig = false;
         timeToRedefineMario = true;
         setBounds(getX(), getY(), getWidth(), getHeight() / 2); //Mawio was big, so he needs to be cut down in half. \m/
+    }
+
+    public void crouch() {
+        if (!crouch) {
+            crouch = marioBig;
+            if (crouch)
+                redefineSmallMario();
+        }
+    }
+
+    public void standUp() {
+        if (crouch) {
+            defineBigMario();
+            crouch = false;
+        }
+    }
+
+    public void jump() {
+        if (stateCurrent != State.JUMPING && stateCurrent != State.CROUCHING) {
+            if (!marioBig)
+                manager.get("audio/jumpsmall.wav", Sound.class).play();
+            else
+                manager.get("audio/jumpbig.wav", Sound.class).play();
+            body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
+            stateCurrent = State.JUMPING;
+        }
     }
 
     public void die() {
@@ -514,24 +559,13 @@ public class Mario extends Sprite {
     public void spawnFireball() {
         manager.get("audio/fireball.wav", Sound.class).play();
         firing = true;
-        fireballsToSpawn.add(new FireballDefinition(body.getPosition().x, body.getPosition().y, body.getLinearVelocity().x, runningRight));
+        fireballsToSpawn.add(new FireballDefinition(body.getPosition().x, body.getPosition().y + (16 / Boot.PPM), body.getLinearVelocity().x, runningRight));
     }
 
     public void handleFireballs() {
         if (fireballsToSpawn.size() > 0) {
             FireballDefinition fireballDefinition = fireballsToSpawn.poll();
             fireballs.add(new Fireball(screen, fireballDefinition.x, fireballDefinition.y, fireballDefinition.velocity, fireballDefinition.fireRight));
-        }
-    }
-
-    public void jump() {
-        if (stateCurrent != State.JUMPING) {
-            if (!marioBig)
-                manager.get("audio/jumpsmall.wav", Sound.class).play();
-            else
-                manager.get("audio/jumpbig.wav", Sound.class).play();
-            body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
-            stateCurrent = State.JUMPING;
         }
     }
 
@@ -544,7 +578,7 @@ public class Mario extends Sprite {
         else {
             if (marioBig && object instanceof Enemy)
                 shrink();
-            else if (!shrinkDown)
+            else if (!shrinkingDown)
                 die();
         }
     }
@@ -567,18 +601,18 @@ public class Mario extends Sprite {
                 if (!invincible) {
                     region = animationGrow.getKeyFrame(stateTime);
                     if (animationGrow.isAnimationFinished(stateTime))
-                        growUp = false;
+                        growingUp = false;
                 }
                 else {
                     region = animationGrowInvincible.getKeyFrame(stateTime);
                     if (animationGrowInvincible.isAnimationFinished(stateTime))
-                        growUp = false;
+                        growingUp = false;
                 }
                 break;
             case SHRINKING:
                 region = animationShrink.getKeyFrame(stateTime);
                 if (animationShrink.isAnimationFinished(stateTime))
-                    shrinkDown = false;
+                    shrinkingDown = false;
                 break;
             case JUMPING:
                 if (!invincible) {
@@ -617,6 +651,12 @@ public class Mario extends Sprite {
                 }
                 else
                     region = marioBig ? animationBrakeBigInvincible.getKeyFrame(stateTime, true) : animationBrakeSmallInvincible.getKeyFrame(stateTime, true);
+                break;
+            case CROUCHING:
+                if (!invincible)
+                    region = fireballsArmed ? animationCrouchFire : animationCrouchBig;
+                else
+                    region = animationCrouchBigInvincible.getKeyFrame(stateTime, true);
                 break;
             case CLIMBING:
                 if (!invincible) {
@@ -669,6 +709,8 @@ public class Mario extends Sprite {
             brake = false;
             return State.BRAKING;
         }
+        else if (crouch)
+            return State.CROUCHING;
         else if (climb)
             return State.CLIMBING;
         else if (body.getLinearVelocity().y > 0 || (body.getLinearVelocity().y < 0 && statePrevious == State.JUMPING))
@@ -677,9 +719,9 @@ public class Mario extends Sprite {
             return State.FALLING;
         else if (body.getLinearVelocity().x != 0)
             return State.RUNNING;
-        else if (growUp)
+        else if (growingUp)
             return State.GROWING;
-        else if (shrinkDown)
+        else if (shrinkingDown)
             return State.SHRINKING;
         else
             return State.STANDING;

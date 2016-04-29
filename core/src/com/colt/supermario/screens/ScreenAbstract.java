@@ -258,7 +258,7 @@ public abstract class ScreenAbstract implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mapRenderer.render(); //Render game map.
-        //b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
+        b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
 
         //(Stage with) Flag.
         stageFlagDown.draw();
@@ -309,6 +309,10 @@ public abstract class ScreenAbstract implements Screen {
                 mario.setBrake(true);
             }
         }
+        if (controller.isDownPressed())
+            mario.crouch();
+        else
+            mario.standUp();
         //Fire fireballs.
         if (controller.isaPressed() && fireTimer >= fireInterval && mario.isFireballsArmed() && mario.getAmmo() < 2) {
             mario.spawnFireball();
