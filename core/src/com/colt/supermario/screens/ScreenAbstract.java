@@ -34,6 +34,7 @@ import com.colt.supermario.sprites.items.ItemDefinition;
 import com.colt.supermario.sprites.items.Mushroom;
 import com.colt.supermario.sprites.items.Star;
 import com.colt.supermario.sprites.particles.Debris;
+import com.colt.supermario.sprites.particles.FlippingCoin;
 import com.colt.supermario.sprites.particles.Particle;
 import com.colt.supermario.sprites.particles.ParticleDefinition;
 import com.colt.supermario.sprites.tiles.MapTileObject;
@@ -258,7 +259,7 @@ public abstract class ScreenAbstract implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mapRenderer.render(); //Render game map.
-        //b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
+        b2ddr.render(world, camera.combined); //Render Box2DDebugLines.
 
         //(Stage with) Flag.
         stageFlagDown.draw();
@@ -362,7 +363,9 @@ public abstract class ScreenAbstract implements Screen {
         if (!particlesToSpawn.isEmpty()) {
             ParticleDefinition particleDefinition = particlesToSpawn.poll();
             if (particleDefinition.type == Debris.class)
-                particles.add(new Debris(this, particleDefinition.position.x, particleDefinition.position.y));
+                particles.add(new Debris(this, particleDefinition.position.x, particleDefinition.position.y, manager));
+            else if (particleDefinition.type == FlippingCoin.class)
+                particles.add(new FlippingCoin(this, particleDefinition.position.x, particleDefinition.position.y, manager));
         }
     }
 

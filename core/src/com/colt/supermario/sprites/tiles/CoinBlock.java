@@ -17,12 +17,12 @@ import com.colt.supermario.sprites.items.Flower;
 import com.colt.supermario.sprites.items.ItemDefinition;
 import com.colt.supermario.sprites.items.Mushroom;
 import com.colt.supermario.sprites.items.Star;
+import com.colt.supermario.sprites.particles.FlippingCoin;
+import com.colt.supermario.sprites.particles.ParticleDefinition;
 
 /**
  * Created by colt on 4/13/16.
  */
-
-//TODO: Add mushrom, coin... checkers.
 
 public class CoinBlock extends MapTileObject {
 
@@ -117,7 +117,7 @@ public class CoinBlock extends MapTileObject {
             else if (mapObject.getProperties().containsKey("star"))
                 screen.spawnItem(new ItemDefinition(new Vector2(body.getPosition().x, body.getPosition().y + getHeight()), Star.class));
             else
-                manager.get("audio/coin.wav", Sound.class).play();
+                screen.spawnParticle(new ParticleDefinition(new Vector2(body.getPosition().x, body.getPosition().y + getHeight()), FlippingCoin.class));
         }
         else
             manager.get("audio/bump.wav", Sound.class).play();

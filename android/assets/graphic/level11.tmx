@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="242" height="13" tilewidth="16" tileheight="16" nextobjectid="346">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="242" height="13" tilewidth="16" tileheight="16" nextobjectid="348">
  <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" spacing="2" margin="1" tilecount="924" columns="33">
   <image source="tileset.png" width="594" height="504"/>
  </tileset>
@@ -78,6 +78,8 @@
     <property name="star" value=""/>
    </properties>
   </object>
+  <object id="346" gid="25" x="256" y="128" width="16" height="16"/>
+  <object id="347" gid="25" x="288" y="128" width="16" height="16"/>
  </objectgroup>
  <objectgroup name="pipes">
   <object id="92" gid="265" x="784" y="144" width="16" height="16"/>

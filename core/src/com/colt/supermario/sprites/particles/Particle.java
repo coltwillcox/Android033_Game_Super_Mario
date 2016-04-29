@@ -1,10 +1,10 @@
 package com.colt.supermario.sprites.particles;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
-import com.colt.supermario.Boot;
 import com.colt.supermario.screens.ScreenAbstract;
 
 /**
@@ -16,13 +16,15 @@ public abstract class Particle extends Sprite {
     protected float stateTime;
     protected boolean destroy;
     protected boolean destroyed;
+    protected AssetManager manager;
     protected ScreenAbstract screen;
     protected World world;
     protected Body body;
     protected Vector2 velocity;
 
     //Constructor.
-    public Particle(ScreenAbstract screen, float x, float y) {
+    public Particle(ScreenAbstract screen, float x, float y, AssetManager manager) {
+        this.manager = manager;
         this.screen = screen;
         this.world = screen.getWorld();
 
@@ -31,7 +33,6 @@ public abstract class Particle extends Sprite {
         destroyed = false;
 
         setPosition(x, y);
-        setBounds(getX(), getY(), 8 / Boot.PPM, 8 / Boot.PPM);
         defineParticle();
     }
 

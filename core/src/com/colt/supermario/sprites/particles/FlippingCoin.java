@@ -1,44 +1,48 @@
 package com.colt.supermario.sprites.particles;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
 import com.colt.supermario.Boot;
+import com.colt.supermario.hud.HUD;
 import com.colt.supermario.screens.ScreenAbstract;
 
 /**
  * Created by colt on 4/21/16.
  */
 
-public class Debris extends Particle {
+//TODO: Create this little fella.
+
+public class FlippingCoin extends Particle {
 
     private Array<TextureRegion> frames;
-    private Animation animationDebris;
-    private Vector2 force;
+    private Animation animationFlipping;
 
-    //Constructor.
-    public Debris(ScreenAbstract screen, float x, float y, AssetManager manager) {
+    public FlippingCoin(ScreenAbstract screen, float x, float y, AssetManager manager) {
         super(screen, x, y, manager);
+
+        manager.get("audio/coin.wav", Sound.class).play();
+        HUD.addScore(200);
+
         //Animations.
         frames = new Array<TextureRegion>();
-        //Debris animation.
-        frames.add(new TextureRegion(screen.getAtlas().findRegion("debris"), 0, 0, 8, 8));
-        frames.add(new TextureRegion(screen.getAtlas().findRegion("debris"), 8, 0, 8, 8));
-        frames.add(new TextureRegion(screen.getAtlas().findRegion("debris"), 8, 8, 8, 8));
-        frames.add(new TextureRegion(screen.getAtlas().findRegion("debris"), 0, 8, 8, 8));
-        animationDebris = new Animation(0.1f, frames);
+        //Flipping coin animation.
+        for (int i = 0; i <= 3; i++)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("coin_flipping"), i * 16, 0, 16, 16));
+        for (int i = 2; i >= 1; i--)
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("coin_flipping"), i * 16, 0, 16, 16)); //Add reversed frames, for smooth animation.
+        animationFlipping = new Animation(0.1f, frames);
         frames.clear();
 
-        setBounds(getX(), getY(), 8 / Boot.PPM, 8 / Boot.PPM);
-        setRegion(animationDebris.getKeyFrame(stateTime, true));
-        force = new Vector2(MathUtils.random() * 1.6f - 0.8f, MathUtils.random() * 1.2f + 2.4f);
-        body.applyLinearImpulse(force, body.getWorldCenter(), true);
+        setBounds(getX(), getY(), 16 / Boot.PPM, 16 / Boot.PPM);
+        setRegion(animationFlipping.getKeyFrame(stateTime, true));
+        body.applyLinearImpulse(new Vector2(0, 2), body.getWorldCenter(), true);
     }
 
     @Override
@@ -46,13 +50,14 @@ public class Debris extends Particle {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(getX(), getY());
         bodyDef.type = BodyDef.BodyType.DynamicBody;
+
         body = world.createBody(bodyDef);
+
         CircleShape shape = new CircleShape();
-        shape.setRadius(4 / Boot.PPM);
+        shape.setRadius(6 / Boot.PPM);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = Boot.DESTROYED_BIT;
         fixtureDef.shape = shape;
-        fixtureDef.restitution = 0.25f;
         body.createFixture(fixtureDef).setUserData(this);
 
         shape.dispose();
@@ -63,10 +68,10 @@ public class Debris extends Particle {
         super.update(deltaTime);
         stateTime += deltaTime;
 
-        setRegion(animationDebris.getKeyFrame(stateTime, true));
+        setRegion(animationFlipping.getKeyFrame(stateTime, true));
         setPosition(body.getPosition().x - (getWidth() / 2), body.getPosition().y - (getHeight() / 2));
 
-        if (stateTime > 1)
+        if (stateTime > 0.3f)
             destroy = true;
     }
 
