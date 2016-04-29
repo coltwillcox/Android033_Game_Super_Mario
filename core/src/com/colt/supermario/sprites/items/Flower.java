@@ -77,7 +77,10 @@ public class Flower extends Item {
         manager.get("audio/powerup.wav", Sound.class).play();
         HUD.addScore(1000);
         HUD.addScoreOverhead((body.getPosition().x - (screen.getCamera().position.x - screen.getCamera().viewportWidth / 2)) * Boot.PPM, body.getPosition().y * Boot.PPM, "1000");
-        mario.setFireballsArmed(true);
+        if (mario.isBig())
+            mario.setFireballsArmed(true);
+        else
+            mario.grow();
         destroy();
     }
 

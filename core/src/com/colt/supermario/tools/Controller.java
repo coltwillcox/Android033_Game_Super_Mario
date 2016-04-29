@@ -17,6 +17,8 @@ import com.colt.supermario.Boot;
  * Created by colt on 4/13/16.
  */
 
+//TODO: Small jump, long jump.
+
 public class Controller {
 
     private boolean upPressed;

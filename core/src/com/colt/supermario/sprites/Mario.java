@@ -31,7 +31,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 //TODO: Program crashing when Mario have feet (sensor = false).
-//TODO: Mario animations (crouch).
+//TODO: Mario crouch.
 //TODO: Mario shrink animation looks stupid. :p
 
 public class Mario extends Sprite {
@@ -495,7 +495,7 @@ public class Mario extends Sprite {
     }
 
     public void die() {
-        manager.get("audio/music.ogg", Music.class).stop();
+        Boot.musicStop();
         manager.get("audio/death.wav", Sound.class).play();
         if (marioBig)
             setBounds(getX(), getY(), getWidth(), getHeight() / 2);
